@@ -4,8 +4,10 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { QuestionnaireProvider, useQuestionnaire } from '@/context/QuestionnaireContext';
 import SymptomDescription from '@/components/SymptomResult/SymptomDescription';
+import RecommendedDepartments from '@/components/SymptomResult/RecommendedDepartments';
 import LoadingSpinner from '@/components/Common/LoadingSpinner';
 import Button from '@/components/Common/Button';
+import { getDepartments } from '@/lib/departmentMapping';
 
 function ResultsContent() {
   const router = useRouter();
@@ -86,6 +88,9 @@ function ResultsContent() {
     return null;
   }
 
+  // 推奨される診療科を計算
+  const recommendedDepartments = getDepartments(data.location!, data.symptoms);
+
   return (
     <div className="container mx-auto px-4 py-12">
       <div className="max-w-4xl mx-auto">
@@ -98,6 +103,10 @@ function ResultsContent() {
           </p>
         </div>
 
+        {/* 推奨される診療科 */}
+        <RecommendedDepartments departments={recommendedDepartments} />
+
+        {/* 症状説明文 */}
         <SymptomDescription description={description} />
 
         {/* アクションボタン */}
