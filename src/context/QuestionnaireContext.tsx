@@ -1,10 +1,11 @@
 'use client'
 
-import { createContext, useContext, useState, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import type { QuestionnaireData } from '@/types/questionnaire';
 
 interface QuestionnaireContextType {
   data: QuestionnaireData;
+  isLoaded: boolean;
   updateLocation: (location: string) => void;
   updateDuration: (duration: string) => void;
   updateSymptoms: (symptoms: string[]) => void;
@@ -16,6 +17,8 @@ interface QuestionnaireContextType {
 }
 
 const QuestionnaireContext = createContext<QuestionnaireContextType | null>(null);
+
+const STORAGE_KEY = 'byouin-nabi-questionnaire-data';
 
 const initialData: QuestionnaireData = {
   location: null,
@@ -29,6 +32,33 @@ const initialData: QuestionnaireData = {
 
 export function QuestionnaireProvider({ children }: { children: ReactNode }) {
   const [data, setData] = useState<QuestionnaireData>(initialData);
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  // LocalStorageからデータを読み込む（初回マウント時のみ）
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      if (stored) {
+        const parsedData = JSON.parse(stored);
+        setData(parsedData);
+      }
+    } catch (error) {
+      console.error('Failed to load questionnaire data:', error);
+    } finally {
+      setIsLoaded(true);
+    }
+  }, []);
+
+  // データが変更されたらLocalStorageに保存
+  useEffect(() => {
+    if (isLoaded) {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      } catch (error) {
+        console.error('Failed to save questionnaire data:', error);
+      }
+    }
+  }, [data, isLoaded]);
 
   const updateLocation = (location: string) => {
     setData(prev => ({ ...prev, location }));
@@ -60,12 +90,18 @@ export function QuestionnaireProvider({ children }: { children: ReactNode }) {
 
   const resetData = () => {
     setData(initialData);
+    try {
+      localStorage.removeItem(STORAGE_KEY);
+    } catch (error) {
+      console.error('Failed to clear questionnaire data:', error);
+    }
   };
 
   return (
     <QuestionnaireContext.Provider
       value={{
         data,
+        isLoaded,
         updateLocation,
         updateDuration,
         updateSymptoms,

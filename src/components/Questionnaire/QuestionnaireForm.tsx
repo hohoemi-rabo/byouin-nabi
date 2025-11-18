@@ -25,9 +25,18 @@ export default function QuestionnaireForm() {
     updateConditions,
     updateMedicine,
     updateMemo,
+    resetData,
   } = useQuestionnaire();
 
   const [errors, setErrors] = useState<string[]>([]);
+
+  // 最初からやり直す
+  const handleReset = () => {
+    if (confirm('入力内容がすべてクリアされます。よろしいですか？')) {
+      resetData();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
 
   // 症状の選択/解除
   const handleSymptomToggle = (symptom: string) => {
@@ -94,6 +103,18 @@ export default function QuestionnaireForm() {
 
   return (
     <div className="max-w-3xl mx-auto">
+      {/* 最初からやり直すボタン */}
+      <div className="mb-8 text-right">
+        <Button
+          type="button"
+          variant="secondary"
+          onClick={handleReset}
+          className="text-base"
+        >
+          🔄 最初からやり直す
+        </Button>
+      </div>
+
       {/* エラーメッセージ */}
       {errors.length > 0 && (
         <div className="mb-8 p-6 bg-error/10 border-2 border-error rounded-lg">

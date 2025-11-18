@@ -5,19 +5,25 @@ import { useRouter } from 'next/navigation';
 import { QuestionnaireProvider, useQuestionnaire } from '@/context/QuestionnaireContext';
 import SymptomDescription from '@/components/SymptomResult/SymptomDescription';
 import RecommendedDepartments from '@/components/SymptomResult/RecommendedDepartments';
+import HospitalList from '@/components/HospitalList/HospitalList';
 import LoadingSpinner from '@/components/Common/LoadingSpinner';
 import Button from '@/components/Common/Button';
 import { getDepartments } from '@/lib/departmentMapping';
 
 function ResultsContent() {
   const router = useRouter();
-  const { data } = useQuestionnaire();
+  const { data, isLoaded, resetData } = useQuestionnaire();
   const [description, setDescription] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const generateDescription = async () => {
+      // LocalStorageからのデータ読み込みを待つ
+      if (!isLoaded) {
+        return;
+      }
+
       // データが空の場合、アンケートページに戻る
       if (!data.location || !data.duration) {
         router.push('/questionnaire');
@@ -50,7 +56,7 @@ function ResultsContent() {
     };
 
     generateDescription();
-  }, [data, router]);
+  }, [data, router, isLoaded]);
 
   if (loading) {
     return (
@@ -91,6 +97,12 @@ function ResultsContent() {
   // 推奨される診療科を計算
   const recommendedDepartments = getDepartments(data.location!, data.symptoms);
 
+  // トップページに戻る際にデータをクリア
+  const handleBackToHome = () => {
+    resetData();
+    router.push('/');
+  };
+
   return (
     <div className="container mx-auto px-4 py-12">
       <div className="max-w-4xl mx-auto">
@@ -106,6 +118,14 @@ function ResultsContent() {
         {/* 推奨される診療科 */}
         <RecommendedDepartments departments={recommendedDepartments} />
 
+        {/* 対応病院リスト */}
+        <div className="mb-8">
+          <h2 className="text-2xl md:text-3xl font-bold mb-6 text-foreground">
+            対応している病院
+          </h2>
+          <HospitalList departments={recommendedDepartments} />
+        </div>
+
         {/* 症状説明文 */}
         <SymptomDescription description={description} />
 
@@ -120,7 +140,7 @@ function ResultsContent() {
           </Button>
           <Button
             variant="primary"
-            onClick={() => router.push('/')}
+            onClick={handleBackToHome}
             className="text-lg px-8 py-4"
           >
             トップページに戻る

@@ -1,5 +1,4 @@
-import Link from "next/link";
-import Button from "@/components/Common/Button";
+import StartQuestionnaireButton from "@/components/Common/StartQuestionnaireButton";
 
 export default function Home() {
   return (
@@ -14,11 +13,9 @@ export default function Home() {
         <p className="text-xl md:text-2xl text-gray-600 mb-8">
           そんな悩みを解決します
         </p>
-        <Link href="/questionnaire">
-          <Button variant="primary" className="text-xl px-12 py-6">
-            症状から病院を探す
-          </Button>
-        </Link>
+        <StartQuestionnaireButton className="text-xl px-12 py-6">
+          症状から病院を探す
+        </StartQuestionnaireButton>
       </section>
 
       {/* サービス説明セクション */}
@@ -109,11 +106,9 @@ export default function Home() {
         <p className="text-xl text-gray-700 mb-8">
           症状がある方は、お早めに適切な医療機関を受診しましょう。
         </p>
-        <Link href="/questionnaire">
-          <Button variant="primary" className="text-xl px-12 py-6">
-            アンケートを始める
-          </Button>
-        </Link>
+        <StartQuestionnaireButton className="text-xl px-12 py-6">
+          アンケートを始める
+        </StartQuestionnaireButton>
       </section>
     </div>
   );
