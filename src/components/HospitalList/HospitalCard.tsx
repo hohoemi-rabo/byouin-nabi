@@ -59,8 +59,8 @@ export default function HospitalCard({
       </div>
 
       {/* アクションボタン */}
-      {hospital.google_map_url && (
-        <div className="mt-4">
+      <div className="mt-4 flex flex-wrap gap-3">
+        {hospital.google_map_url && (
           <a
             href={hospital.google_map_url}
             target="_blank"
@@ -69,8 +69,18 @@ export default function HospitalCard({
           >
             🗺️ 地図で見る
           </a>
-        </div>
-      )}
+        )}
+        {hospital.website && (
+          <a
+            href={hospital.website}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-block bg-primary text-white px-6 py-3 rounded-lg hover:bg-primary/90 transition-colors font-medium text-lg min-h-tap min-w-tap text-center"
+          >
+            🌐 Webサイト
+          </a>
+        )}
+      </div>
 
       {/* 備考 */}
       {hospital.note && (

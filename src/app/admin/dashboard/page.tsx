@@ -57,62 +57,62 @@ export default function AdminDashboardPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <p className="text-xl text-gray-600">読み込み中...</p>
+        <p className="text-base text-gray-600">読み込み中...</p>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="bg-error/10 border-2 border-error rounded-lg p-6">
-        <p className="text-error font-bold text-xl">❌ {error}</p>
+      <div className="bg-error/10 border-2 border-error rounded-lg p-4">
+        <p className="text-error font-bold text-sm">❌ {error}</p>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <div>
-        <h1 className="text-4xl font-bold text-foreground mb-2">
+        <h1 className="text-2xl font-bold text-foreground mb-1">
           ダッシュボード
         </h1>
-        <p className="text-lg text-gray-600">
+        <p className="text-sm text-gray-600">
           病院ナビ南信 管理システムの概要
         </p>
       </div>
 
       {/* 統計カード */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <div className="flex items-center gap-4">
-            <div className="text-5xl">🏥</div>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="bg-white rounded-lg shadow p-4">
+          <div className="flex items-center gap-3">
+            <div className="text-3xl">🏥</div>
             <div>
-              <p className="text-sm text-gray-600 mb-1">登録病院数</p>
-              <p className="text-4xl font-bold text-primary">
+              <p className="text-xs text-gray-600">登録病院数</p>
+              <p className="text-2xl font-bold text-primary">
                 {stats?.totalHospitals || 0}
               </p>
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <div className="flex items-center gap-4">
-            <div className="text-5xl">📍</div>
+        <div className="bg-white rounded-lg shadow p-4">
+          <div className="flex items-center gap-3">
+            <div className="text-3xl">📍</div>
             <div>
-              <p className="text-sm text-gray-600 mb-1">対応市町村数</p>
-              <p className="text-4xl font-bold text-primary">
+              <p className="text-xs text-gray-600">対応市町村数</p>
+              <p className="text-2xl font-bold text-primary">
                 {stats?.cities.length || 0}
               </p>
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <div className="flex items-center gap-4">
-            <div className="text-5xl">🩺</div>
+        <div className="bg-white rounded-lg shadow p-4">
+          <div className="flex items-center gap-3">
+            <div className="text-3xl">🩺</div>
             <div>
-              <p className="text-sm text-gray-600 mb-1">診療科目数</p>
-              <p className="text-4xl font-bold text-primary">
+              <p className="text-xs text-gray-600">診療科目数</p>
+              <p className="text-2xl font-bold text-primary">
                 {stats?.categories.length || 0}
               </p>
             </div>
@@ -121,16 +121,16 @@ export default function AdminDashboardPage() {
       </div>
 
       {/* クイックアクション */}
-      <div className="bg-white rounded-lg shadow-md p-6">
-        <h2 className="text-2xl font-bold mb-4">クイックアクション</h2>
-        <div className="flex flex-wrap gap-4">
+      <div className="bg-white rounded-lg shadow p-4">
+        <h2 className="text-lg font-bold mb-3">クイックアクション</h2>
+        <div className="flex flex-wrap gap-2">
           <Link href="/admin/hospitals">
-            <Button variant="primary" className="text-lg">
+            <Button variant="primary" className="text-sm">
               病院管理ページへ
             </Button>
           </Link>
           <Link href="/">
-            <Button variant="secondary" className="text-lg">
+            <Button variant="secondary" className="text-sm">
               公開サイトを表示
             </Button>
           </Link>
@@ -139,13 +139,13 @@ export default function AdminDashboardPage() {
 
       {/* 市町村一覧 */}
       {stats && stats.cities.length > 0 && (
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-2xl font-bold mb-4">対応市町村</h2>
+        <div className="bg-white rounded-lg shadow p-4">
+          <h2 className="text-lg font-bold mb-3">対応市町村</h2>
           <div className="flex flex-wrap gap-2">
             {stats.cities.map((city) => (
               <span
                 key={city}
-                className="px-4 py-2 bg-gray-100 rounded-lg text-lg"
+                className="px-3 py-1 bg-gray-100 rounded text-sm"
               >
                 {city}
               </span>
@@ -156,13 +156,13 @@ export default function AdminDashboardPage() {
 
       {/* 診療科目一覧 */}
       {stats && stats.categories.length > 0 && (
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-2xl font-bold mb-4">登録診療科目</h2>
+        <div className="bg-white rounded-lg shadow p-4">
+          <h2 className="text-lg font-bold mb-3">登録診療科目</h2>
           <div className="flex flex-wrap gap-2">
             {stats.categories.map((category) => (
               <span
                 key={category}
-                className="px-4 py-2 bg-primary/10 text-primary rounded-lg text-lg font-medium"
+                className="px-3 py-1 bg-primary/10 text-primary rounded text-sm font-medium"
               >
                 {category}
               </span>

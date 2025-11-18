@@ -20,14 +20,14 @@ export default function AdminSidebar() {
   ];
 
   return (
-    <aside className="w-64 bg-gray-800 text-white min-h-screen flex flex-col">
-      <div className="p-6 border-b border-gray-700">
-        <h1 className="text-2xl font-bold">管理画面</h1>
-        <p className="text-sm text-gray-400 mt-1">病院ナビ南信</p>
+    <aside className="w-56 bg-gray-800 text-white min-h-screen flex flex-col">
+      <div className="p-4 border-b border-gray-700">
+        <h1 className="text-xl font-bold">管理画面</h1>
+        <p className="text-xs text-gray-400 mt-1">病院ナビ南信</p>
       </div>
 
-      <nav className="flex-1 p-4">
-        <ul className="space-y-2">
+      <nav className="flex-1 p-3">
+        <ul className="space-y-1">
           {menuItems.map((item) => {
             const isActive = pathname === item.href;
             return (
@@ -35,9 +35,8 @@ export default function AdminSidebar() {
                 <Link
                   href={item.href}
                   className={`
-                    flex items-center gap-3 px-4 py-3 rounded-lg
+                    flex items-center gap-3 px-3 py-2 rounded-lg
                     transition-colors duration-200
-                    min-h-[48px]
                     ${
                       isActive
                         ? 'bg-primary text-white font-bold'
@@ -45,8 +44,8 @@ export default function AdminSidebar() {
                     }
                   `}
                 >
-                  <span className="text-2xl">{item.icon}</span>
-                  <span className="text-lg">{item.label}</span>
+                  <span className="text-xl">{item.icon}</span>
+                  <span className="text-sm">{item.label}</span>
                 </Link>
               </li>
             );
@@ -54,8 +53,8 @@ export default function AdminSidebar() {
         </ul>
       </nav>
 
-      <div className="p-4 border-t border-gray-700">
-        <p className="text-sm text-gray-400">
+      <div className="p-3 border-t border-gray-700">
+        <p className="text-xs text-gray-400">
           © 2025 病院ナビ南信
         </p>
       </div>

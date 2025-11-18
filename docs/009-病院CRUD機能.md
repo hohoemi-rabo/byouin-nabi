@@ -11,33 +11,34 @@
 ## タスク
 
 ### Server Actions 実装
-- [ ] createHospital アクション
-- [ ] updateHospital アクション
-- [ ] deleteHospital アクション
-- [ ] 認証チェックロジック
+- [x] createHospital アクション
+- [x] updateHospital アクション
+- [x] deleteHospital アクション
+- [x] 認証チェックロジック（Cookie ベース）
 
 ### 病院一覧ページ
-- [ ] /admin/hospitals ページ
-- [ ] 病院リストの表示（テーブル形式）
-- [ ] 検索・フィルター機能
-- [ ] 編集・削除ボタン
-- [ ] 新規登録ボタン
+- [x] /admin/hospitals ページ
+- [x] 病院リストの表示（カード形式）
+- [x] 編集・削除ボタン
+- [x] 新規登録ボタン
+
+> **注**: 検索・フィルター機能は将来実装（現在は全件表示）
 
 ### 病院登録フォーム
-- [ ] /admin/hospitals/new ページ
-- [ ] HospitalForm コンポーネント作成
-- [ ] フォームバリデーション
-- [ ] エラー表示
+- [x] /admin/hospitals/new ページ
+- [x] HospitalForm コンポーネント作成
+- [x] フォームバリデーション
+- [x] エラー表示
 
 ### 病院編集フォーム
-- [ ] /admin/hospitals/[id]/edit ページ
-- [ ] 既存データの取得・表示
-- [ ] 更新処理
+- [x] /admin/hospitals/[id]/edit ページ
+- [x] 既存データの取得・表示
+- [x] 更新処理
 
 ### 削除機能
-- [ ] 削除確認ダイアログ
-- [ ] 削除処理
-- [ ] 成功・エラーメッセージ
+- [x] 削除確認ダイアログ
+- [x] 削除処理
+- [x] 成功・エラーメッセージ
 
 ## 実装例
 
@@ -277,13 +278,14 @@ export default function HospitalForm({ hospital, action, mode }: HospitalFormPro
 ```
 
 ## 受け入れ基準
-- [ ] 新規病院の登録ができる
-- [ ] 既存病院の編集ができる
-- [ ] 病院の削除ができる
-- [ ] バリデーションエラーが適切に表示される
-- [ ] 成功・エラーメッセージが表示される
-- [ ] 保存後にリストページにリダイレクトされる
-- [ ] 未認証ユーザーはアクセスできない
+- [x] 新規病院の登録ができる
+- [x] 既存病院の編集ができる
+- [x] 病院の削除ができる
+- [x] バリデーションエラーが適切に表示される
+- [x] 成功・エラーメッセージが表示される
+- [x] 保存後にリストページにリダイレクトされる
+- [x] 未認証ユーザーはアクセスできない（Middleware で保護）
+- [x] ビルドテストが成功する
 
 ## 依存関係
 - 001-データベース設計・構築
@@ -296,7 +298,60 @@ export default function HospitalForm({ hospital, action, mode }: HospitalFormPro
 - `/home/masayuki/NextJs/byouin-nabi/src/app/admin/hospitals/[id]/edit/page.tsx`
 - `/home/masayuki/NextJs/byouin-nabi/src/components/Admin/HospitalForm.tsx`
 
+## 実装詳細
+
+### 作成したファイル
+
+**Server Actions:**
+- `/src/app/admin/actions.ts` - createHospital, updateHospital, deleteHospital
+
+**コンポーネント:**
+- `/src/components/Admin/HospitalForm.tsx` - 登録・編集共用フォーム
+
+**ページ:**
+- `/src/app/admin/hospitals/page.tsx` - 病院一覧（更新）
+- `/src/app/admin/hospitals/new/page.tsx` - 新規登録
+- `/src/app/admin/hospitals/[id]/edit/page.tsx` - 編集
+
+### 認証チェック
+
+Server Actions 内で `cookies()` を使用して Cookie を検証:
+
+```typescript
+async function verifyAdminAuth() {
+  const cookieStore = await cookies();
+  const adminAuth = cookieStore.get('admin-auth');
+
+  if (!adminAuth || adminAuth.value !== 'true') {
+    throw new Error('管理者権限が必要です');
+  }
+}
+```
+
+### バリデーション
+
+- 必須項目: 病院名、住所、電話番号、市町村、診療科
+- 診療科はカンマ区切りで入力し、配列に変換
+- サーバー側で再度バリデーション実施
+
+### Server Actions の動作
+
+1. **createHospital**: 登録後に `revalidatePath()` でキャッシュ無効化、`redirect()` で一覧ページへ遷移
+2. **updateHospital**: ID を `bind()` で渡し、更新後にリダイレクト
+3. **deleteHospital**: 確認ダイアログ後に削除、クライアント側でリスト更新
+
+### ビルド結果
+
+```
+✓ Compiled successfully in 16.2s
+Route (app)                         Size  First Load JS
+├ ○ /admin/hospitals              1.7 kB         122 kB
+├ ƒ /admin/hospitals/[id]/edit       0 B         122 kB
+├ ○ /admin/hospitals/new             0 B         122 kB
+```
+
 ## 備考
 - Server Actions を使用して実装（Next.js 15のベストプラクティス）
 - フォームバリデーションはクライアント・サーバー両方で実施
 - 削除は物理削除（論理削除は将来対応）
+- 検索・フィルター機能は将来実装予定

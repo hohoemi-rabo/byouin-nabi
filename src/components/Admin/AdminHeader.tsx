@@ -34,13 +34,13 @@ export default function AdminHeader() {
   };
 
   return (
-    <header className="bg-white border-b border-gray-200 px-6 py-4">
+    <header className="bg-white border-b border-gray-200 px-6 py-3">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-foreground">
+          <h2 className="text-lg font-bold text-foreground">
             管理システム
           </h2>
-          <p className="text-sm text-gray-600 mt-1">
+          <p className="text-xs text-gray-600">
             病院情報の管理・編集
           </p>
         </div>
@@ -50,6 +50,7 @@ export default function AdminHeader() {
             variant="secondary"
             onClick={handleLogout}
             disabled={loading}
+            className="text-sm px-3 py-2"
           >
             {loading ? 'ログアウト中...' : 'ログアウト'}
           </Button>

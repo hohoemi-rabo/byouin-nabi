@@ -11,6 +11,7 @@ export interface Hospital {
   city: string;
   opening_hours?: string | null;
   google_map_url?: string | null;
+  website?: string | null;
   note?: string | null;
   created_at?: string;
   updated_at?: string;

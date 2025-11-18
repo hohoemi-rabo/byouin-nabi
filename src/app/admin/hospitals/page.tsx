@@ -1,12 +1,16 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useTransition } from 'react';
+import Link from 'next/link';
 import type { Hospital } from '@/types/hospital';
+import Button from '@/components/Common/Button';
+import { deleteHospital } from '@/app/admin/actions';
 
 export default function AdminHospitalsPage() {
   const [hospitals, setHospitals] = useState<Hospital[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isPending, startTransition] = useTransition();
 
   useEffect(() => {
     const fetchHospitals = async () => {
@@ -31,94 +35,131 @@ export default function AdminHospitalsPage() {
     fetchHospitals();
   }, []);
 
+  const handleDelete = async (hospital: Hospital) => {
+    if (
+      !confirm(
+        `本当に「${hospital.name}」を削除しますか？\nこの操作は取り消せません。`
+      )
+    ) {
+      return;
+    }
+
+    startTransition(async () => {
+      try {
+        await deleteHospital(hospital.id);
+        // 削除成功後、リストを再取得
+        setHospitals(hospitals.filter(h => h.id !== hospital.id));
+        alert('病院を削除しました');
+      } catch (err) {
+        console.error('Delete error:', err);
+        alert(err instanceof Error ? err.message : '削除に失敗しました');
+      }
+    });
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <p className="text-xl text-gray-600">読み込み中...</p>
+        <p className="text-base text-gray-600">読み込み中...</p>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="bg-error/10 border-2 border-error rounded-lg p-6">
-        <p className="text-error font-bold text-xl">❌ {error}</p>
+      <div className="bg-error/10 border-2 border-error rounded-lg p-4">
+        <p className="text-error font-bold text-sm">❌ {error}</p>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-4xl font-bold text-foreground mb-2">
+          <h1 className="text-2xl font-bold text-foreground mb-1">
             病院管理
           </h1>
-          <p className="text-lg text-gray-600">
+          <p className="text-sm text-gray-600">
             登録されている病院の一覧（{hospitals.length}件）
           </p>
         </div>
 
-        <div className="bg-gray-100 border-2 border-gray-300 rounded-lg px-6 py-3">
-          <p className="text-lg text-gray-600">
-            病院の登録・編集・削除機能は<br />
-            チケット009で実装予定です
-          </p>
-        </div>
+        <Link href="/admin/hospitals/new">
+          <Button variant="primary" className="text-sm">
+            ➕ 新規登録
+          </Button>
+        </Link>
       </div>
 
       {hospitals.length === 0 ? (
-        <div className="bg-gray-100 rounded-lg p-12 text-center">
-          <p className="text-2xl text-gray-600">
+        <div className="bg-gray-100 rounded-lg p-8 text-center">
+          <p className="text-lg text-gray-600">
             病院が登録されていません
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-4">
+        <div className="grid grid-cols-1 gap-3">
           {hospitals.map((hospital) => (
             <div
               key={hospital.id}
-              className="bg-white rounded-lg shadow-md p-6"
+              className="bg-white rounded-lg shadow p-4"
             >
-              <div className="flex items-start justify-between">
+              <div className="flex items-start justify-between gap-4">
                 <div className="flex-1">
-                  <h2 className="text-2xl font-bold text-foreground mb-2">
+                  <h2 className="text-lg font-bold text-foreground mb-2">
                     {hospital.name}
                   </h2>
 
-                  <div className="space-y-2">
+                  <div className="space-y-1">
                     <div className="flex items-center gap-2">
-                      <span className="text-lg font-medium text-gray-700">
+                      <span className="text-sm font-medium text-gray-700">
                         📍
                       </span>
-                      <p className="text-lg text-gray-600">
+                      <p className="text-sm text-gray-600">
                         {hospital.address} ({hospital.city})
                       </p>
                     </div>
 
                     <div className="flex items-center gap-2">
-                      <span className="text-lg font-medium text-gray-700">
+                      <span className="text-sm font-medium text-gray-700">
                         📞
                       </span>
-                      <p className="text-lg text-gray-600">{hospital.tel}</p>
+                      <p className="text-sm text-gray-600">{hospital.tel}</p>
                     </div>
 
                     {hospital.opening_hours && (
                       <div className="flex items-center gap-2">
-                        <span className="text-lg font-medium text-gray-700">
+                        <span className="text-sm font-medium text-gray-700">
                           🕒
                         </span>
-                        <p className="text-lg text-gray-600">
+                        <p className="text-sm text-gray-600">
                           {hospital.opening_hours}
                         </p>
                       </div>
                     )}
 
-                    <div className="flex flex-wrap gap-2 mt-3">
+                    {hospital.website && (
+                      <div className="flex items-baseline gap-2">
+                        <span className="text-sm font-medium text-gray-700">
+                          🌐
+                        </span>
+                        <a
+                          href={hospital.website}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-sm text-primary hover:underline"
+                        >
+                          {hospital.website}
+                        </a>
+                      </div>
+                    )}
+
+                    <div className="flex flex-wrap gap-1 mt-2">
                       {hospital.category.map((cat) => (
                         <span
                           key={cat}
-                          className="px-3 py-1 bg-primary/10 text-primary rounded-lg text-base font-medium"
+                          className="px-2 py-0.5 bg-primary/10 text-primary rounded text-xs font-medium"
                         >
                           {cat}
                         </span>
@@ -126,13 +167,29 @@ export default function AdminHospitalsPage() {
                     </div>
 
                     {hospital.note && (
-                      <div className="mt-3 p-3 bg-gray-50 rounded-lg">
-                        <p className="text-base text-gray-700">
+                      <div className="mt-2 p-2 bg-gray-50 rounded">
+                        <p className="text-xs text-gray-700">
                           💡 {hospital.note}
                         </p>
                       </div>
                     )}
                   </div>
+                </div>
+
+                <div className="flex flex-col gap-2">
+                  <Link href={`/admin/hospitals/${hospital.id}/edit`}>
+                    <Button variant="secondary" className="w-full text-sm px-3 py-2">
+                      ✏️ 編集
+                    </Button>
+                  </Link>
+                  <Button
+                    variant="secondary"
+                    onClick={() => handleDelete(hospital)}
+                    disabled={isPending}
+                    className="bg-error/10 text-error hover:bg-error/20 border-error text-sm px-3 py-2"
+                  >
+                    🗑️ 削除
+                  </Button>
                 </div>
               </div>
             </div>
