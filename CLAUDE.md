@@ -19,6 +19,30 @@
 
 ---
 
+## 🚨 重要な注意事項
+
+### Supabase プロジェクトの使用について
+
+**絶対に以下のプロジェクトを使用しないでください：**
+
+- ❌ **taihei-studio** (プロジェクトID: `gzwugjcjobnsbuagjjyf`)
+  - **理由**: 本番環境で別サービスが稼働中
+  - **状態**: 絶対に操作・変更・削除禁止
+
+**このプロジェクトで使用するSupabaseプロジェクト：**
+
+- ✅ **byouin-nabi** (プロジェクトID: `xsydqbczmzfufeywjfps`)
+  - **リージョン**: 東京 (ap-northeast-1)
+  - **用途**: 病院ナビ南信 専用
+  - **URL**: https://xsydqbczmzfufeywjfps.supabase.co
+
+**開発時の確認事項：**
+- Supabase MCP を使用する際は、必ずプロジェクトIDが `xsydqbczmzfufeywjfps` であることを確認
+- .env.local ファイルの NEXT_PUBLIC_SUPABASE_URL が `https://xsydqbczmzfufeywjfps.supabase.co` であることを確認
+- 誤って taihei-studio を操作した場合は、即座にユーザーに報告
+
+---
+
 ## 技術スタック
 
 ### コア依存関係
