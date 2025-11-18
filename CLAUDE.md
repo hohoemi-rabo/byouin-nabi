@@ -1430,5 +1430,161 @@ grep -c "^- \[x\]" docs/*.md
 
 ---
 
-**更新日**: 2025 年 1 月 17 日
+## 実装完了状況
+
+### 完了済みチケット（2025年11月18日時点）
+
+#### ✅ チケット 000: プロジェクトセットアップ
+- Next.js 15.5.6 + React 19 + TypeScript プロジェクト構築完了
+- Tailwind CSS 設定完了
+- プロジェクト構造確立
+
+#### ✅ チケット 001: データベース設計・構築
+- Supabase プロジェクト作成（byouin-nabi: xsydqbczmzfufeywjfps）
+- hospitals テーブル作成・設定完了
+- カラム構成:
+  - id (UUID, Primary Key)
+  - name (TEXT)
+  - category (TEXT[]) - 診療科の配列
+  - address (TEXT)
+  - tel (TEXT)
+  - city (TEXT)
+  - opening_hours (TEXT, nullable)
+  - google_map_url (TEXT, nullable)
+  - website (TEXT, nullable) - **2025/11/18追加**
+  - note (TEXT, nullable)
+  - created_at, updated_at (TIMESTAMP)
+
+#### ✅ チケット 002: 基本UI構築
+- レイアウトコンポーネント実装（Header, Footer, AdminLayout）
+- 共通コンポーネント実装（Button, LoadingSpinner）
+- レスポンシブデザイン対応
+
+#### ✅ チケット 003: アンケート機能実装
+- QuestionnaireContext によるグローバル状態管理
+- 多段階フォーム実装（部位選択 → 詳細症状 → 補足情報）
+- LocalStorage への自動保存機能
+- バリデーション実装
+
+#### ✅ チケット 004: 症状説明文生成機能
+- テンプレートベースの症状説明文生成API実装
+- `/api/symptoms/generate` エンドポイント作成
+- SymptomDescription コンポーネント実装
+
+#### ✅ チケット 005: 診療科マッピング機能
+- 部位と症状から診療科を推奨する機能実装
+- `/lib/departmentMapping.ts` 実装
+- RecommendedDepartments コンポーネント実装
+
+#### ✅ チケット 006: 病院検索・表示機能
+- `/api/hospitals` エンドポイント実装（全病院取得）
+- `/api/hospitals/search` エンドポイント実装（診療科フィルタリング）
+- HospitalList コンポーネント実装
+- HospitalCard コンポーネント実装
+  - 地図表示ボタン（🗺️ Google Maps）
+  - Webサイトボタン（🌐 外部リンク）
+
+#### ✅ チケット 007: 画像保存機能
+- html2canvas 統合
+- ImageSaveButton コンポーネント実装
+- 症状説明文のスクリーンショット保存機能
+
+#### ✅ チケット 008: 管理画面構築
+- Cookie ベース認証システム実装
+  - `/api/admin/login` - ログインAPI
+  - `/api/admin/logout` - ログアウトAPI
+  - `/middleware.ts` - 認証ガード（/admin 保護）
+- AdminLayout 実装（条件付きレンダリング対応）
+  - `/admin/login` ページでは管理画面レイアウトを非表示
+- AdminSidebar, AdminHeader コンポーネント実装
+- `/admin/dashboard` ページ実装
+
+#### ✅ チケット 009: 病院CRUD機能
+- **実装日**: 2025年11月18日
+- **重要な技術的解決事項**:
+  - **Supabase RLS問題の解決**: Service Role Key を使用した管理用クライアント作成
+  - **ファイル**: `/src/lib/supabase-admin.ts`
+  - **環境変数**: `SUPABASE_SERVICE_ROLE_KEY` 追加
+
+**実装内容:**
+
+1. **Server Actions** (`/src/app/admin/actions.ts`):
+   ```typescript
+   'use server'
+
+   // 認証チェック
+   async function verifyAdminAuth()
+
+   // CRUD操作（全てsupabaseAdminを使用）
+   export async function createHospital(formData: FormData)
+   export async function updateHospital(hospitalId: string, formData: FormData)
+   export async function deleteHospital(hospitalId: string)
+   ```
+
+2. **HospitalForm コンポーネント** (`/src/components/Admin/HospitalForm.tsx`):
+   - 新規登録・編集共用フォーム
+   - `useTransition()` による非同期状態管理
+   - バリデーション（クライアント側・サーバー側）
+   - 入力フィールド:
+     - 病院名、診療科（カンマ区切り）、住所、市町村、電話番号
+     - 診療時間、Google Maps URL、Webサイト、備考
+
+3. **管理画面ページ**:
+   - `/admin/hospitals` - 病院一覧（編集・削除ボタン付き）
+   - `/admin/hospitals/new` - 新規登録
+   - `/admin/hospitals/[id]/edit` - 編集（動的ルート）
+
+4. **UI調整**:
+   - 管理画面のフォントサイズ・パディング最適化
+   - シニア向けサイズ（text-4xl, p-6）→ デスクトップ管理者向け（text-2xl, p-4）に調整
+
+5. **Websiteフィールド追加** (2025/11/18):
+   - データベースに `website` カラム追加
+   - Hospital型定義に `website?: string | null` 追加
+   - フォーム入力欄追加
+   - 管理画面一覧にWebサイト表示（🌐アイコン + リンク）
+   - 公開ページ（HospitalCard）にWebサイトボタン追加
+
+**受け入れ基準:**
+- ✅ 病院の新規登録が管理画面から可能
+- ✅ 病院情報の編集が可能
+- ✅ 病院の削除が可能（確認ダイアログ付き）
+- ✅ 診療科の複数選択対応（カンマ区切り入力）
+- ✅ バリデーション実装（必須項目チェック）
+- ✅ エラーハンドリング実装
+- ✅ 成功・失敗時のフィードバック表示
+- ✅ 本番ビルド成功確認（npm run build）
+
+### ビルドテスト結果（2025年11月18日）
+
+```
+✓ Compiled successfully in 16.3s
+✓ Linting and checking validity of types
+✓ Generating static pages (16/16)
+
+Route (app)                         Size  First Load JS
+┌ ○ /                              647 B         119 kB
+├ ○ /admin/dashboard             1.27 kB         121 kB
+├ ○ /admin/hospitals             1.78 kB         122 kB
+├ ƒ /admin/hospitals/[id]/edit       0 B         122 kB
+├ ○ /admin/hospitals/new             0 B         122 kB
+├ ○ /admin/login                 1.16 kB         121 kB
+├ ○ /questionnaire               3.02 kB         122 kB
+└ ○ /results                     50.6 kB         169 kB
+
+型エラー: なし
+リントエラー: なし
+```
+
+### 次の実装予定
+
+- **チケット 010**: CSVインポート機能（Excel/CSV一括登録）
+- **チケット 011**: AI診断機能（実験的、オプション）
+- **チケット 012**: UI/UXブラッシュアップ
+- **チケット 013**: テスト実装
+- **チケット 014**: 本番環境構築・デプロイ
+
+---
+
+**更新日**: 2025 年 11 月 18 日
 **作成者**: Claude Code (AI Assistant)
