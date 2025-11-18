@@ -15,6 +15,9 @@ export default function HospitalList({ departments }: HospitalListProps) {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    // AbortControllerで重複リクエストをキャンセル
+    const abortController = new AbortController();
+
     const fetchHospitals = async () => {
       if (departments.length === 0) {
         setLoading(false);
@@ -24,7 +27,10 @@ export default function HospitalList({ departments }: HospitalListProps) {
       try {
         setLoading(true);
         const categoriesParam = departments.join(',');
-        const response = await fetch(`/api/hospitals/search?categories=${encodeURIComponent(categoriesParam)}`);
+        const response = await fetch(
+          `/api/hospitals/search?categories=${encodeURIComponent(categoriesParam)}`,
+          { signal: abortController.signal }
+        );
 
         if (!response.ok) {
           const errorData = await response.json();
@@ -34,6 +40,10 @@ export default function HospitalList({ departments }: HospitalListProps) {
         const data = await response.json();
         setHospitals(data.hospitals);
       } catch (err) {
+        // AbortErrorは無視（正常なキャンセル）
+        if (err instanceof Error && err.name === 'AbortError') {
+          return;
+        }
         console.error('Hospital fetch error:', err);
         setError(err instanceof Error ? err.message : '病院の検索に失敗しました');
       } finally {
@@ -42,6 +52,11 @@ export default function HospitalList({ departments }: HospitalListProps) {
     };
 
     fetchHospitals();
+
+    // クリーンアップ：コンポーネントがアンマウントされたらリクエストをキャンセル
+    return () => {
+      abortController.abort();
+    };
   }, [departments]);
 
   if (loading) {

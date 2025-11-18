@@ -6,6 +6,7 @@ import { QuestionnaireProvider, useQuestionnaire } from '@/context/Questionnaire
 import SymptomDescription from '@/components/SymptomResult/SymptomDescription';
 import RecommendedDepartments from '@/components/SymptomResult/RecommendedDepartments';
 import HospitalList from '@/components/HospitalList/HospitalList';
+import ImageSaveButton from '@/components/SymptomResult/ImageSaveButton';
 import LoadingSpinner from '@/components/Common/LoadingSpinner';
 import Button from '@/components/Common/Button';
 import { getDepartments } from '@/lib/departmentMapping';
@@ -128,6 +129,11 @@ function ResultsContent() {
 
         {/* 症状説明文 */}
         <SymptomDescription description={description} />
+
+        {/* 画像保存ボタン */}
+        <div className="mb-8">
+          <ImageSaveButton targetId="symptom-description" />
+        </div>
 
         {/* アクションボタン */}
         <div className="mt-12 flex flex-col md:flex-row gap-4 justify-center">

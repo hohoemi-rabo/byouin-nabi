@@ -23,8 +23,8 @@ export default function SymptomDescription({ description }: SymptomDescriptionPr
 
   return (
     <div className="space-y-6">
-      {/* 症状説明文 */}
-      <div className="bg-gray-50 border-2 border-gray-300 rounded-lg p-6">
+      {/* 症状説明文（画像保存対象） */}
+      <div id="symptom-description" className="bg-white border-2 border-gray-300 rounded-lg p-8 shadow-sm">
         <h2 className="text-2xl font-bold mb-4 text-primary">
           症状のまとめ
         </h2>
@@ -56,11 +56,11 @@ export default function SymptomDescription({ description }: SymptomDescriptionPr
           </li>
           <li className="flex gap-2">
             <span className="flex-shrink-0">2.</span>
-            <span>病院の受付や医師に見せてください</span>
+            <span>「症状説明を画像で保存」ボタンで画像として保存できます</span>
           </li>
           <li className="flex gap-2">
             <span className="flex-shrink-0">3.</span>
-            <span>画像として保存したい場合は、スクリーンショットを撮ってください</span>
+            <span>病院の受付や医師に見せてください</span>
           </li>
         </ul>
       </div>
