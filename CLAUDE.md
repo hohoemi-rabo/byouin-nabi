@@ -1576,9 +1576,91 @@ Route (app)                         Size  First Load JS
 リントエラー: なし
 ```
 
+#### ✅ チケット 010: CSVインポート機能
+- **実装日**: 2025年11月19日
+
+**実装内容:**
+
+1. **パッケージインストール**:
+   - `papaparse` (CSV解析)
+   - `xlsx` (Excel解析)
+   - `@types/papaparse` (型定義)
+
+2. **Server Actions** (`/src/app/admin/actions.ts`に追加):
+   ```typescript
+   export async function importHospitals(formData: FormData): Promise<ImportResult>
+   export async function exportHospitalsCSV(): Promise<string>
+   ```
+
+3. **インポート機能** (`/src/app/admin/hospitals/import/page.tsx`):
+   - CSV/Excelファイルアップロード
+   - ファイル形式自動判定（.csv, .xlsx, .xls）
+   - データバリデーション（必須項目チェック）
+   - エラー行の詳細レポート
+   - 既存データ全削除 + 新規データインポート（フル置換方式）
+   - ConfirmModal による確認ダイアログ
+   - LoadingSpinner によるインポート中表示
+   - 完了モーダル（成功件数・エラー件数表示）
+
+4. **CSVエクスポート機能**:
+   - 登録済み病院データのCSVダウンロード
+   - UTF-8 BOM 対応（Excelでの文字化け防止）
+   - ダウンロードファイル名: `hospitals_YYYY-MM-DD.csv`
+
+5. **ワークフロー**:
+   - ① 登録データをCSVでダウンロード
+   - ② Excelやテキストエディタで編集（追加・修正・削除）
+   - ③ 編集したCSVをインポート（既存データを全削除してから新規データを挿入）
+
+6. **UI/UX改善（追加実装）**:
+   - リッチモーダルシステム（ConfirmModal, SuccessModal）
+   - トースト通知（Toast）
+   - CSS アニメーション（fadeIn, slideIn, bounceIn, slideInRight）
+   - 全ての `window.confirm()` と `alert()` をリッチモーダルに置き換え:
+     - 病院削除確認
+     - CSVインポート確認
+     - アンケートリセット確認
+     - 削除成功メッセージ
+     - インポート完了メッセージ
+     - 登録・更新時のトースト通知
+
+**受け入れ基準:**
+- ✅ CSVファイルからインポートできる
+- ✅ Excelファイルからインポートできる
+- ✅ バリデーションエラーが適切に報告される
+- ✅ 成功件数とエラー件数が表示される
+- ✅ エラー行が特定できる
+- ✅ 登録データCSVダウンロード機能
+- ✅ インポート前の確認モーダル表示
+- ✅ インポート中のローディング表示
+- ✅ インポート完了モーダル表示
+- ✅ 既存データ全削除 + 新規データインポート（フル置換方式）
+- ✅ 本番ビルド成功確認（npm run build）
+
+### ビルドテスト結果（2025年11月19日）
+
+```
+✓ Compiled successfully in 19.4s
+✓ Linting and checking validity of types
+✓ Generating static pages (17/17)
+
+Route (app)                         Size  First Load JS
+┌ ○ /                              647 B         119 kB
+├ ○ /admin/dashboard             1.27 kB         121 kB
+├ ○ /admin/hospitals             2.81 kB         123 kB
+├ ƒ /admin/hospitals/[id]/edit       0 B         122 kB
+├ ○ /admin/hospitals/import      3.65 kB         124 kB
+├ ○ /admin/hospitals/new             0 B         122 kB
+├ ○ /admin/login                 1.16 kB         121 kB
+├ ○ /questionnaire               3.47 kB         122 kB
+└ ○ /results                     50.7 kB         169 kB
+
+型エラー: なし
+リントエラー: なし
+```
+
 ### 次の実装予定
 
-- **チケット 010**: CSVインポート機能（Excel/CSV一括登録）
 - **チケット 011**: AI診断機能（実験的、オプション）
 - **チケット 012**: UI/UXブラッシュアップ
 - **チケット 013**: テスト実装
@@ -1586,5 +1668,5 @@ Route (app)                         Size  First Load JS
 
 ---
 
-**更新日**: 2025 年 11 月 18 日
+**更新日**: 2025 年 11 月 19 日
 **作成者**: Claude Code (AI Assistant)
