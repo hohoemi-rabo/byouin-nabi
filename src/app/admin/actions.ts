@@ -60,7 +60,7 @@ export async function createHospital(formData: FormData) {
   }
 
   revalidatePath('/admin/hospitals');
-  redirect('/admin/hospitals');
+  redirect('/admin/hospitals?success=created');
 }
 
 // 病院更新
@@ -106,7 +106,7 @@ export async function updateHospital(hospitalId: string, formData: FormData) {
   }
 
   revalidatePath('/admin/hospitals');
-  redirect('/admin/hospitals');
+  redirect('/admin/hospitals?success=updated');
 }
 
 // 病院削除

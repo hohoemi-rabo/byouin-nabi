@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useQuestionnaire } from '@/context/QuestionnaireContext';
 import QuestionOption from './QuestionOption';
 import Button from '@/components/Common/Button';
+import ConfirmModal from '@/components/Common/ConfirmModal';
 import {
   LOCATION_OPTIONS,
   DURATION_OPTIONS,
@@ -29,13 +30,17 @@ export default function QuestionnaireForm() {
   } = useQuestionnaire();
 
   const [errors, setErrors] = useState<string[]>([]);
+  const [showResetModal, setShowResetModal] = useState(false);
 
   // 最初からやり直す
   const handleReset = () => {
-    if (confirm('入力内容がすべてクリアされます。よろしいですか？')) {
-      resetData();
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
+    setShowResetModal(true);
+  };
+
+  const handleConfirmReset = () => {
+    setShowResetModal(false);
+    resetData();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   // 症状の選択/解除
@@ -103,6 +108,18 @@ export default function QuestionnaireForm() {
 
   return (
     <div className="max-w-3xl mx-auto">
+      {/* リセット確認モーダル */}
+      <ConfirmModal
+        isOpen={showResetModal}
+        title="最初からやり直す"
+        message="入力内容がすべてクリアされます。&#10;&#10;よろしいですか？"
+        confirmText="やり直す"
+        cancelText="キャンセル"
+        type="warning"
+        onConfirm={handleConfirmReset}
+        onCancel={() => setShowResetModal(false)}
+      />
+
       {/* 最初からやり直すボタン */}
       <div className="mb-8 text-right">
         <Button

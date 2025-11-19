@@ -5,12 +5,14 @@ import { useRouter } from 'next/navigation';
 import { importHospitals, exportHospitalsCSV, type ImportResult } from '@/app/admin/actions';
 import Button from '@/components/Common/Button';
 import LoadingSpinner from '@/components/Common/LoadingSpinner';
+import ConfirmModal from '@/components/Common/ConfirmModal';
 
 export default function ImportPage() {
   const router = useRouter();
   const [file, setFile] = useState<File | null>(null);
   const [isImporting, setIsImporting] = useState(false);
   const [importComplete, setImportComplete] = useState(false);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [result, setResult] = useState<ImportResult | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -29,19 +31,14 @@ export default function ImportPage() {
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!file) return;
+    setShowConfirmModal(true);
+  };
 
-    // 確認ダイアログ
-    const confirmed = window.confirm(
-      '⚠️ 重要な確認\n\n既存の病院データをすべて削除してから、新しいデータをインポートします。\nこの操作は取り消せません。\n\nよろしいですか？'
-    );
-
-    if (!confirmed) {
-      return;
-    }
-
+  const handleConfirmImport = async () => {
+    setShowConfirmModal(false);
     setIsImporting(true);
     setError(null);
     setResult(null);
@@ -49,7 +46,7 @@ export default function ImportPage() {
 
     try {
       const formData = new FormData();
-      formData.append('file', file);
+      formData.append('file', file!);
 
       const importResult = await importHospitals(formData);
       setResult(importResult);
@@ -70,6 +67,18 @@ export default function ImportPage() {
 
   return (
     <>
+      {/* 確認モーダル */}
+      <ConfirmModal
+        isOpen={showConfirmModal}
+        title="重要な確認"
+        message={`既存の病院データをすべて削除してから、新しいデータをインポートします。\n\nこの操作は取り消せません。\n\nよろしいですか？`}
+        confirmText="インポート実行"
+        cancelText="キャンセル"
+        type="danger"
+        onConfirm={handleConfirmImport}
+        onCancel={() => setShowConfirmModal(false)}
+      />
+
       {/* インポート中のローディングモーダル */}
       {isImporting && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">

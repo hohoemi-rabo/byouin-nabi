@@ -1,16 +1,27 @@
 'use client';
 
-import { useEffect, useState, useTransition } from 'react';
+import { useEffect, useState, useTransition, Suspense } from 'react';
+import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import type { Hospital } from '@/types/hospital';
 import Button from '@/components/Common/Button';
+import ConfirmModal from '@/components/Common/ConfirmModal';
+import SuccessModal from '@/components/Common/SuccessModal';
+import Toast from '@/components/Common/Toast';
 import { deleteHospital } from '@/app/admin/actions';
 
-export default function AdminHospitalsPage() {
+function AdminHospitalsContent() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
   const [hospitals, setHospitals] = useState<Hospital[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
+  const [hospitalToDelete, setHospitalToDelete] = useState<Hospital | null>(null);
 
   useEffect(() => {
     const fetchHospitals = async () => {
@@ -35,21 +46,38 @@ export default function AdminHospitalsPage() {
     fetchHospitals();
   }, []);
 
-  const handleDelete = async (hospital: Hospital) => {
-    if (
-      !confirm(
-        `本当に「${hospital.name}」を削除しますか？\nこの操作は取り消せません。`
-      )
-    ) {
-      return;
+  // クエリパラメータから成功メッセージを検知
+  useEffect(() => {
+    const success = searchParams.get('success');
+    if (success === 'created') {
+      setToastMessage('病院を登録しました');
+      setShowToast(true);
+      // URLパラメータをクリア
+      router.replace('/admin/hospitals');
+    } else if (success === 'updated') {
+      setToastMessage('病院を更新しました');
+      setShowToast(true);
+      // URLパラメータをクリア
+      router.replace('/admin/hospitals');
     }
+  }, [searchParams, router]);
+
+  const handleDelete = (hospital: Hospital) => {
+    setHospitalToDelete(hospital);
+    setShowConfirmModal(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!hospitalToDelete) return;
+
+    setShowConfirmModal(false);
 
     startTransition(async () => {
       try {
-        await deleteHospital(hospital.id);
-        // 削除成功後、リストを再取得
-        setHospitals(hospitals.filter(h => h.id !== hospital.id));
-        alert('病院を削除しました');
+        await deleteHospital(hospitalToDelete.id);
+        // 削除成功後、リストを更新
+        setHospitals(hospitals.filter(h => h.id !== hospitalToDelete.id));
+        setShowSuccessModal(true);
       } catch (err) {
         console.error('Delete error:', err);
         alert(err instanceof Error ? err.message : '削除に失敗しました');
@@ -74,8 +102,37 @@ export default function AdminHospitalsPage() {
   }
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
+    <>
+      {/* トースト通知 */}
+      <Toast
+        message={toastMessage}
+        type="success"
+        isVisible={showToast}
+        onClose={() => setShowToast(false)}
+      />
+
+      {/* 確認モーダル */}
+      <ConfirmModal
+        isOpen={showConfirmModal}
+        title="病院の削除"
+        message={hospitalToDelete ? `本当に「${hospitalToDelete.name}」を削除しますか？\n\nこの操作は取り消せません。` : ''}
+        confirmText="削除する"
+        cancelText="キャンセル"
+        type="danger"
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setShowConfirmModal(false)}
+      />
+
+      {/* 成功モーダル */}
+      <SuccessModal
+        isOpen={showSuccessModal}
+        title="削除完了"
+        message="病院を削除しました"
+        onClose={() => setShowSuccessModal(false)}
+      />
+
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-foreground mb-1">
             病院管理
@@ -197,5 +254,14 @@ export default function AdminHospitalsPage() {
         </div>
       )}
     </div>
+    </>
+  );
+}
+
+export default function AdminHospitalsPage() {
+  return (
+    <Suspense fallback={<div className="p-4 text-center">読み込み中...</div>}>
+      <AdminHospitalsContent />
+    </Suspense>
   );
 }
