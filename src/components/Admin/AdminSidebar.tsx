@@ -17,6 +17,11 @@ export default function AdminSidebar() {
       label: '病院管理',
       icon: '🏥',
     },
+    {
+      href: '/admin/hospitals/import',
+      label: 'データインポート',
+      icon: '📥',
+    },
   ];
 
   return (

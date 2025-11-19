@@ -131,12 +131,12 @@ function ResultsContent() {
         <SymptomDescription description={description} />
 
         {/* 画像保存ボタン */}
-        <div className="mb-8">
+        <div className="mt-8 mb-12 flex justify-center">
           <ImageSaveButton targetId="symptom-description" />
         </div>
 
         {/* アクションボタン */}
-        <div className="mt-12 flex flex-col md:flex-row gap-4 justify-center">
+        <div className="flex flex-col md:flex-row gap-4 justify-center">
           <Button
             variant="secondary"
             onClick={() => router.push('/questionnaire')}
