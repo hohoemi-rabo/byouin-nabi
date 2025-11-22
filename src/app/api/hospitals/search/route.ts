@@ -31,7 +31,10 @@ export async function GET(request: NextRequest) {
     // 診療科の配列と重複する病院を検索
     const { data: hospitals, error } = await supabase
       .from('hospitals')
-      .select('*')
+      .select(`
+        *,
+        schedules:hospital_schedules(*)
+      `)
       .overlaps('category', categories)
       .order('name');
 

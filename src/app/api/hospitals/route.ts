@@ -10,7 +10,10 @@ export async function GET() {
   try {
     const { data: hospitals, error } = await supabase
       .from('hospitals')
-      .select('*')
+      .select(`
+        *,
+        schedules:hospital_schedules(*)
+      `)
       .order('name');
 
     if (error) {

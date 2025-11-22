@@ -280,3 +280,82 @@ export async function exportHospitalsCSV(): Promise<string> {
 
   return csvContent;
 }
+
+// ========================================
+// 診療時間管理
+// ========================================
+
+export interface ScheduleFormData {
+  day_of_week: number;
+  morning_start: string;
+  morning_end: string;
+  afternoon_start: string;
+  afternoon_end: string;
+  is_closed: boolean;
+  note: string;
+}
+
+/**
+ * 病院の診療時間を取得
+ */
+export async function getHospitalSchedules(hospitalId: string) {
+  await verifyAdminAuth();
+
+  const { data: schedules, error } = await supabaseAdmin
+    .from('hospital_schedules')
+    .select('*')
+    .eq('hospital_id', hospitalId)
+    .order('day_of_week');
+
+  if (error) {
+    throw new Error('診療時間の取得に失敗しました: ' + error.message);
+  }
+
+  return schedules || [];
+}
+
+/**
+ * 病院の診療時間を一括更新（既存を削除して新規作成）
+ */
+export async function updateHospitalSchedules(
+  hospitalId: string,
+  schedulesData: ScheduleFormData[]
+) {
+  await verifyAdminAuth();
+
+  // 既存の診療時間を全削除
+  const { error: deleteError } = await supabaseAdmin
+    .from('hospital_schedules')
+    .delete()
+    .eq('hospital_id', hospitalId);
+
+  if (deleteError) {
+    throw new Error('既存診療時間の削除に失敗しました: ' + deleteError.message);
+  }
+
+  // 新しい診療時間を挿入
+  const newSchedules = schedulesData.map(schedule => ({
+    hospital_id: hospitalId,
+    day_of_week: schedule.day_of_week,
+    morning_start: schedule.morning_start || null,
+    morning_end: schedule.morning_end || null,
+    afternoon_start: schedule.afternoon_start || null,
+    afternoon_end: schedule.afternoon_end || null,
+    is_closed: schedule.is_closed,
+    note: schedule.note || null,
+  }));
+
+  const { error: insertError } = await supabaseAdmin
+    .from('hospital_schedules')
+    .insert(newSchedules);
+
+  if (insertError) {
+    throw new Error('診療時間の登録に失敗しました: ' + insertError.message);
+  }
+
+  // キャッシュ再検証
+  revalidatePath('/admin/hospitals');
+  revalidatePath('/results');
+
+  return { success: true };
+}

@@ -239,6 +239,11 @@ function AdminHospitalsContent() {
                       ✏️ 編集
                     </Button>
                   </Link>
+                  <Link href={`/admin/hospitals/${hospital.id}/schedules`}>
+                    <Button variant="secondary" className="w-full text-sm px-3 py-2">
+                      🕒 診療時間
+                    </Button>
+                  </Link>
                   <Button
                     variant="secondary"
                     onClick={() => handleDelete(hospital)}
