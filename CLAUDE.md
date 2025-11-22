@@ -1058,6 +1058,35 @@ CREATE INDEX idx_hospitals_city ON hospitals(city);
 CREATE INDEX idx_hospitals_category ON hospitals USING GIN(category);
 ```
 
+### hospital_schedules テーブル
+
+```sql
+CREATE TABLE hospital_schedules (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  hospital_id UUID NOT NULL REFERENCES hospitals(id) ON DELETE CASCADE,
+  day_of_week INTEGER NOT NULL CHECK (day_of_week >= 0 AND day_of_week <= 6),
+  morning_start TIME,
+  morning_end TIME,
+  afternoon_start TIME,
+  afternoon_end TIME,
+  is_closed BOOLEAN DEFAULT false,
+  note TEXT,
+  created_at TIMESTAMP DEFAULT NOW(),
+  updated_at TIMESTAMP DEFAULT NOW(),
+  UNIQUE(hospital_id, day_of_week)
+);
+
+-- インデックス
+CREATE INDEX idx_hospital_schedules_hospital_id ON hospital_schedules(hospital_id);
+
+-- コメント
+-- day_of_week: 0=日, 1=月, 2=火, 3=水, 4=木, 5=金, 6=土
+-- morning_start/end: 午前診療時間
+-- afternoon_start/end: 午後診療時間
+-- is_closed: 休診日フラグ
+-- note: 備考（第3土曜休診など）
+```
+
 ### Supabase Auth 設定
 
 - 認証方法: メール + パスワード
@@ -1654,6 +1683,103 @@ Route (app)                         Size  First Load JS
 ├ ○ /admin/login                 1.16 kB         121 kB
 ├ ○ /questionnaire               3.47 kB         122 kB
 └ ○ /results                     50.7 kB         169 kB
+
+型エラー: なし
+リントエラー: なし
+```
+
+#### ✅ 診療時間テーブル機能
+- **実装日**: 2025年11月19日
+
+**実装内容:**
+
+1. **データベーステーブル追加**:
+   - `hospital_schedules` テーブル作成
+   - 曜日別（0=日, 1=月, ..., 6=土）の診療時間管理
+   - 午前・午後の時間帯（TIME型）
+   - 休診日フラグ（`is_closed`）
+   - 備考フィールド（第3土曜休診など）
+   - `hospital_id` による外部キー制約（ON DELETE CASCADE）
+
+2. **TypeScript型定義** (`/src/types/hospital.ts`):
+   ```typescript
+   export interface HospitalSchedule {
+     id: string;
+     hospital_id: string;
+     day_of_week: number;
+     morning_start: string | null;
+     morning_end: string | null;
+     afternoon_start: string | null;
+     afternoon_end: string | null;
+     is_closed: boolean;
+     note: string | null;
+     created_at?: string;
+     updated_at?: string;
+   }
+
+   export interface Hospital {
+     // ...既存フィールド
+     schedules?: HospitalSchedule[]; // リレーション
+   }
+   ```
+
+3. **Server Actions** (`/src/app/admin/actions.ts`に追加):
+   ```typescript
+   export async function getHospitalSchedules(hospitalId: string)
+   export async function updateHospitalSchedules(
+     hospitalId: string,
+     schedulesData: ScheduleFormData[]
+   )
+   ```
+
+4. **管理画面 - 診療時間編集ページ** (`/src/app/admin/hospitals/[id]/schedules/page.tsx`):
+   - 7曜日分の診療時間入力フォーム
+   - 午前・午後それぞれに開始時刻・終了時刻を入力（`<input type="time">`）
+   - 休診チェックボックス（チェック時は時刻入力を非表示）
+   - 備考入力欄（各曜日ごと）
+   - 一括保存機能（既存削除 + 新規挿入）
+
+5. **管理画面 - 病院一覧ページ更新**:
+   - 「🕒 診療時間」ボタン追加
+   - `/admin/hospitals/[id]/schedules` へのリンク
+
+6. **API更新**:
+   - `/api/hospitals` - `schedules:hospital_schedules(*)` を join
+   - `/api/hospitals/search` - `schedules:hospital_schedules(*)` を join
+
+7. **HospitalCard コンポーネント** (`/src/components/HospitalList/HospitalCard.tsx`):
+   - **テーブル形式で診療時間を表示**:
+     - 曜日 × 午前・午後のテーブル
+     - 休診日は「休診」と表示
+     - 備考がある曜日は表下に表示
+   - **フォールバック**: `schedules` がない場合は `opening_hours` を従来通り表示（後方互換性）
+
+**受け入れ基準:**
+- ✅ 管理画面で診療時間を曜日別・午前午後別に入力可能
+- ✅ 休診日を設定可能
+- ✅ 備考（第3土曜休診など）を入力可能
+- ✅ 診療時間がテーブル形式で見やすく表示される
+- ✅ 既存の opening_hours フィールドとの互換性維持
+- ✅ 本番ビルド成功確認（npm run build）
+
+### ビルドテスト結果（2025年11月19日 - 最新）
+
+```
+✓ Compiled successfully in 21.1s
+✓ Linting and checking validity of types
+✓ Generating static pages (17/17)
+
+Route (app)                             Size  First Load JS
+┌ ○ /                                  647 B         119 kB
+├ ○ /admin/dashboard                 1.27 kB         121 kB
+├ ○ /admin/hospitals                 2.85 kB         123 kB
+├ ƒ /admin/hospitals/[id]/edit           0 B         122 kB
+├ ƒ /admin/hospitals/[id]/schedules  53.5 kB         173 kB  ← 新規追加
+├ ○ /admin/hospitals/import          3.65 kB         124 kB
+├ ○ /admin/hospitals/new                 0 B         122 kB
+├ ○ /admin/login                     1.16 kB         121 kB
+├ ○ /questionnaire                   3.47 kB         122 kB
+└ ○ /results                         51.1 kB         170 kB
 
 型エラー: なし
 リントエラー: なし

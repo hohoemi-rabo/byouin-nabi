@@ -30,10 +30,10 @@ export default function HospitalSchedulesPage({ params }: Props) {
   const initializeSchedules = (): ScheduleFormData[] => {
     return Array.from({ length: 7 }, (_, i) => ({
       day_of_week: i,
-      morning_start: '',
-      morning_end: '',
-      afternoon_start: '',
-      afternoon_end: '',
+      morning_start: '00:00',
+      morning_end: '00:00',
+      afternoon_start: '00:00',
+      afternoon_end: '00:00',
       is_closed: false,
       note: '',
     }));
@@ -62,10 +62,10 @@ export default function HospitalSchedulesPage({ params }: Props) {
           // 既存データを変換
           const formattedSchedules = existingSchedules.map(s => ({
             day_of_week: s.day_of_week,
-            morning_start: s.morning_start || '',
-            morning_end: s.morning_end || '',
-            afternoon_start: s.afternoon_start || '',
-            afternoon_end: s.afternoon_end || '',
+            morning_start: s.morning_start || '00:00',
+            morning_end: s.morning_end || '00:00',
+            afternoon_start: s.afternoon_start || '00:00',
+            afternoon_end: s.afternoon_end || '00:00',
             is_closed: s.is_closed,
             note: s.note || '',
           }));
