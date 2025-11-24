@@ -15,6 +15,12 @@ export default function Header() {
         </Link>
 
         <div className="flex items-center gap-4">
+          <Link
+            href="/search"
+            className="bg-primary text-white px-4 py-2 rounded-lg font-medium text-base hover:bg-primary/90 transition-colors min-h-tap"
+          >
+            🔍 検索
+          </Link>
           <FontSizeToggle />
         </div>
       </div>
