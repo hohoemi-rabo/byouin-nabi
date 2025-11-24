@@ -35,21 +35,33 @@ export default async function HospitalDetailPage({ params, searchParams }: Props
     notFound();
   }
 
-  // 検索条件をURLクエリパラメータとして構築
-  const queryParams = new URLSearchParams();
-  if (resolvedSearchParams.categories) {
-    queryParams.append('categories', resolvedSearchParams.categories as string);
-  }
-  if (resolvedSearchParams.cities) {
-    queryParams.append('cities', resolvedSearchParams.cities as string);
-  }
-  if (resolvedSearchParams.keyword) {
-    queryParams.append('keyword', resolvedSearchParams.keyword as string);
-  }
+  // 戻り先を判定
+  const from = resolvedSearchParams.from as string | undefined;
 
-  const backUrl = queryParams.toString()
-    ? `/search?${queryParams.toString()}`
-    : '/search';
+  let backUrl = '/search';
+  let backText = '← 検索結果に戻る';
+
+  if (from === 'results') {
+    // /results ページから来た場合
+    backUrl = '/results';
+    backText = '← 症状結果に戻る';
+  } else {
+    // /search ページから来た場合、検索条件を保持
+    const queryParams = new URLSearchParams();
+    if (resolvedSearchParams.categories) {
+      queryParams.append('categories', resolvedSearchParams.categories as string);
+    }
+    if (resolvedSearchParams.cities) {
+      queryParams.append('cities', resolvedSearchParams.cities as string);
+    }
+    if (resolvedSearchParams.keyword) {
+      queryParams.append('keyword', resolvedSearchParams.keyword as string);
+    }
+
+    if (queryParams.toString()) {
+      backUrl = `/search?${queryParams.toString()}`;
+    }
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4">
@@ -59,7 +71,7 @@ export default async function HospitalDetailPage({ params, searchParams }: Props
             href={backUrl}
             className="text-primary hover:underline text-lg"
           >
-            ← 検索結果に戻る
+            {backText}
           </Link>
         </div>
 

@@ -2,10 +2,10 @@
 
 import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import Link from 'next/link';
 import { ALL_DEPARTMENTS, ALL_CITIES } from '@/lib/masterData';
 import type { Hospital } from '@/types/hospital';
 import LoadingSpinner from '@/components/Common/LoadingSpinner';
+import HospitalListItem from '@/components/HospitalList/HospitalListItem';
 
 function SearchContent() {
   const router = useRouter();
@@ -241,44 +241,17 @@ function SearchContent() {
                 </p>
               </div>
             ) : (
-              <div className="space-y-4">
+              <div className="space-y-3">
                 {hospitals.map((hospital) => {
                   // 現在の検索条件をクエリパラメータとして詳細ページに渡す
                   const detailUrl = `/hospital/${hospital.id}?${searchParams.toString()}`;
 
                   return (
-                    <Link
+                    <HospitalListItem
                       key={hospital.id}
-                      href={detailUrl}
-                      className="block bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow"
-                    >
-                    <h3 className="text-2xl font-bold mb-3 text-primary">
-                      {hospital.name}
-                    </h3>
-
-                    <div className="space-y-2">
-                      <p className="text-lg">
-                        <span className="mr-2">📍</span>
-                        {hospital.address}
-                      </p>
-
-                      <p className="text-lg">
-                        <span className="mr-2">📞</span>
-                        {hospital.tel}
-                      </p>
-
-                      <div className="flex flex-wrap gap-2 mt-3">
-                        {hospital.category.map((cat) => (
-                          <span
-                            key={cat}
-                            className="px-3 py-1 bg-primary/10 text-primary rounded-full text-base font-medium"
-                          >
-                            {cat}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  </Link>
+                      hospital={hospital}
+                      detailUrl={detailUrl}
+                    />
                   );
                 })}
               </div>

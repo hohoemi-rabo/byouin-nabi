@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import HospitalCard from './HospitalCard';
+import HospitalListItem from './HospitalListItem';
 import LoadingSpinner from '@/components/Common/LoadingSpinner';
 import type { Hospital } from '@/types/hospital';
 
@@ -94,19 +94,20 @@ export default function HospitalList({ departments }: HospitalListProps) {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="bg-info/10 border border-info rounded-lg p-4">
-        <p className="text-lg text-gray-700">
+    <div className="space-y-4">
+      <div className="bg-info/10 border border-info rounded-lg p-3">
+        <p className="text-base text-gray-700">
           <strong>{hospitals.length}件</strong>の病院が見つかりました
         </p>
       </div>
 
-      <div className="space-y-6">
+      <div className="space-y-3">
         {hospitals.map((hospital) => (
-          <HospitalCard
+          <HospitalListItem
             key={hospital.id}
             hospital={hospital}
             highlightCategories={departments}
+            detailUrl={`/hospital/${hospital.id}?from=results`}
           />
         ))}
       </div>
