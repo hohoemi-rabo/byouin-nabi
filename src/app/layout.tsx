@@ -3,6 +3,7 @@ import { Noto_Sans_JP } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/Common/Header";
 import Footer from "@/components/Common/Footer";
+import ScrollToTop from "@/components/Common/ScrollToTop";
 
 const notoSansJP = Noto_Sans_JP({
   subsets: ["latin"],
@@ -25,9 +26,21 @@ export default function RootLayout({
   return (
     <html lang="ja">
       <body className={`${notoSansJP.variable} antialiased flex flex-col min-h-screen`}>
+        {/* スキップリンク（キーボードナビゲーション） */}
+        <a href="#main-content" className="skip-link">
+          メインコンテンツへスキップ
+        </a>
+
         <Header />
-        <main className="flex-1">{children}</main>
+
+        <main id="main-content" className="flex-1" role="main">
+          {children}
+        </main>
+
         <Footer />
+
+        {/* スクロールトップボタン */}
+        <ScrollToTop />
       </body>
     </html>
   );

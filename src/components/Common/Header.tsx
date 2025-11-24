@@ -3,9 +3,13 @@ import FontSizeToggle from './FontSizeToggle';
 
 export default function Header() {
   return (
-    <header className="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
+    <header className="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm" role="banner">
       <div className="container mx-auto px-4 py-4 flex items-center justify-between min-h-header">
-        <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+        <Link
+          href="/"
+          className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+          aria-label="病院ナビ南信 ホームページ"
+        >
           <div className="text-primary font-bold text-xl md:text-2xl">
             病院ナビ南信
           </div>
@@ -14,15 +18,16 @@ export default function Header() {
           </div>
         </Link>
 
-        <div className="flex items-center gap-4">
+        <nav className="flex items-center gap-4" role="navigation" aria-label="メインナビゲーション">
           <Link
             href="/search"
             className="bg-primary text-white px-4 py-2 rounded-lg font-medium text-base hover:bg-primary/90 transition-colors min-h-tap"
+            aria-label="病院を検索"
           >
             🔍 検索
           </Link>
           <FontSizeToggle />
-        </div>
+        </nav>
       </div>
     </header>
   );

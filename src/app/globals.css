@@ -135,3 +135,150 @@ a {
 .animate-slideInRight {
   animation: slideInRight 0.3s ease-out;
 }
+
+/* ===== アクセシビリティ向上 ===== */
+
+/* タップハイライトの色（モバイル） */
+* {
+  -webkit-tap-highlight-color: rgba(30, 64, 175, 0.3);
+}
+
+/* 減速アニメーション対応（prefers-reduced-motion） */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ハイコントラストモード対応 */
+@media (prefers-contrast: high) {
+  :root {
+    --foreground: #000000;
+    --background: #ffffff;
+    --primary: #0000ff;
+    --error: #ff0000;
+  }
+
+  /* すべてのボーダーを強調 */
+  *,
+  *::before,
+  *::after {
+    border-color: #000000 !important;
+  }
+}
+
+/* スクリーンリーダー専用テキスト */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* スキップリンク（キーボードナビゲーション） */
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  background: var(--primary);
+  color: white;
+  padding: 8px;
+  text-decoration: none;
+  z-index: 100;
+}
+
+.skip-link:focus {
+  top: 0;
+}
+
+/* フォーカス表示の強化（すべてのインタラクティブ要素） */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 3px solid var(--primary);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ===== レスポンシブタイポグラフィ ===== */
+
+/* モバイル: 最小18px */
+@media (max-width: 767px) {
+  body {
+    font-size: 18px;
+  }
+
+  h1 {
+    font-size: 2rem; /* 36px */
+  }
+
+  h2 {
+    font-size: 1.5rem; /* 27px */
+  }
+
+  h3 {
+    font-size: 1.25rem; /* 22.5px */
+  }
+}
+
+/* タブレット・デスクトップ: 18px以上 */
+@media (min-width: 768px) {
+  body {
+    font-size: 18px;
+  }
+
+  h1 {
+    font-size: 2.5rem; /* 45px */
+  }
+
+  h2 {
+    font-size: 2rem; /* 36px */
+  }
+
+  h3 {
+    font-size: 1.5rem; /* 27px */
+  }
+}
+
+/* 大文字モード: 24px以上 */
+body.large-text h1 {
+  font-size: 3rem; /* 72px */
+}
+
+body.large-text h2 {
+  font-size: 2.5rem; /* 60px */
+}
+
+body.large-text h3 {
+  font-size: 2rem; /* 48px */
+}
+
+/* ===== スクロールトップボタン ===== */
+
+/* スクロールトップボタンのフェードインアニメーション */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeInUp {
+  animation: fadeInUp 0.3s ease-out;
+}

@@ -1958,27 +1958,87 @@ Route (app)                         Size  First Load JS
 - OpenAI API 利用料金に注意（gpt-4o-mini 使用）
 - レート制限を考慮した実装が必要
 
+#### ✅ チケット 012: UI/UXブラッシュアップ
+- **実装日**: 2025年11月24日
+
+**実装内容:**
+
+1. **グローバルエラーハンドリング** (`/src/app/error.tsx`):
+   - クライアントコンポーネント (`'use client'`)
+   - エラー情報の表示（開発環境のみエラー詳細を表示）
+   - リトライボタン（`reset()` 関数）
+   - トップページへ戻るボタン
+   - 大きなフォント・明確なエラーメッセージ
+   - `useEffect` でエラーログ記録
+
+2. **グローバルローディング** (`/src/app/loading.tsx`):
+   - LoadingSpinner コンポーネントの再利用
+   - 大きなフォントで「読み込み中...」表示
+   - 中央配置、視認性の高いデザイン
+
+3. **アクセシビリティ向上スタイル** (`/src/app/globals.css`):
+   - **タップハイライト色** (`-webkit-tap-highlight-color`)
+   - **減速アニメーション対応** (`prefers-reduced-motion`)
+   - **ハイコントラストモード対応** (`prefers-contrast: high`)
+   - **スクリーンリーダー専用テキスト** (`.sr-only`)
+   - **スキップリンク** (`.skip-link`) - キーボードナビゲーション
+   - **フォーカス表示の強化** - すべてのインタラクティブ要素
+   - **レスポンシブタイポグラフィ** - モバイル18px、デスクトップ18px、大文字モード24px以上
+
+4. **レイアウトの改善** (`/src/app/layout.tsx`):
+   - スキップリンク追加（「メインコンテンツへスキップ」）
+   - セマンティックHTML (`<main id="main-content" role="main">`)
+   - キーボードユーザーの利便性向上
+
+5. **Header コンポーネントの改善** (`/src/components/Common/Header.tsx`):
+   - `role="banner"` 追加
+   - `aria-label` 追加（「病院ナビ南信 ホームページ」「病院を検索」）
+   - `<nav role="navigation" aria-label="メインナビゲーション">` でナビゲーションを明示
+
+6. **Footer コンポーネントの改善** (`/src/components/Common/Footer.tsx`):
+   - `role="contentinfo"` 追加
+   - `aria-label` 追加（「フッターナビゲーション」「利用規約」「お問い合わせ」）
+   - 免責事項に `role="note" aria-label="免責事項"` 追加
+
+**受け入れ基準:**
+- ✅ WCAG AA レベルに適合（セマンティックHTML、ARIA属性、コントラスト比）
+- ✅ 全てのボタンが48px × 48px以上（`min-h-tap` クラスで統一）
+- ✅ フォントサイズが18px以上（レスポンシブタイポグラフィで保証）
+- ✅ キーボードのみで全機能が操作できる（スキップリンク、フォーカス表示強化）
+- ✅ エラー状態が適切に処理される（error.tsx で統一）
+- ✅ Loading状態が視覚的に分かりやすい（loading.tsx で統一）
+- ✅ 本番ビルド成功確認（npm run build）
+
+**アクセシビリティ機能:**
+- スキップリンク: Tab キーでフォーカス時に表示
+- スクリーンリーダー対応: ARIA ラベル、role 属性
+- ハイコントラストモード: 自動対応（`prefers-contrast: high`）
+- 減速アニメーション: 自動対応（`prefers-reduced-motion: reduce`）
+- レスポンシブタイポグラフィ: 画面サイズに応じて最適なフォントサイズ
+
 ### ビルドテスト結果（2025年11月24日 - 最新）
 
 ```
-✓ Compiled successfully in 21.5s
+✓ Compiled successfully in 21.1s
 ✓ Linting and checking validity of types
 ✓ Generating static pages (20/20)
 
 Route (app)                             Size  First Load JS
-┌ ○ /                                  647 B         119 kB
-├ ○ /admin/dashboard                 1.27 kB         121 kB
-├ ○ /admin/hospitals                 2.85 kB         123 kB
-├ ƒ /admin/hospitals/[id]/edit           0 B         122 kB
-├ ƒ /admin/hospitals/[id]/schedules  53.5 kB         173 kB
-├ ○ /admin/hospitals/import          3.65 kB         124 kB
-├ ○ /admin/hospitals/new                 0 B         122 kB
-├ ○ /admin/login                     1.16 kB         121 kB
-├ ƒ /hospital/[id]                       0 B         119 kB
-├ ○ /questionnaire                   3.47 kB         122 kB
-├ ○ /results                         51.6 kB         170 kB
-├ ○ /search                          2.74 kB         121 kB
-└ API Routes (12) ...
+┌ ○ /                                  647 B         121 kB
+├ ○ /admin/dashboard                 1.27 kB         123 kB
+├ ○ /admin/hospitals                 2.85 kB         124 kB
+├ ƒ /admin/hospitals/[id]/edit           0 B         123 kB
+├ ƒ /admin/hospitals/[id]/schedules  53.5 kB         175 kB
+├ ○ /admin/hospitals/import          3.65 kB         125 kB
+├ ○ /admin/hospitals/new                 0 B         123 kB
+├ ○ /admin/login                     1.16 kB         123 kB
+├ ƒ /hospital/[id]                       0 B         120 kB
+├ ○ /questionnaire                   3.47 kB         123 kB
+├ ○ /results                         51.6 kB         172 kB
+├ ○ /search                          2.74 kB         123 kB
+└ API Routes (6) ...
+
+First Load JS: 224 kB (アクセシビリティスタイル追加により +2kB)
 
 型エラー: なし
 リントエラー: なし
@@ -1986,7 +2046,6 @@ Route (app)                             Size  First Load JS
 
 ### 次の実装予定
 
-- **チケット 012**: UI/UXブラッシュアップ
 - **チケット 013**: テスト実装
 - **チケット 014**: 本番環境構築・デプロイ
 
