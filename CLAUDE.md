@@ -1839,10 +1839,60 @@ Route (app)                         Size  First Load JS
 - ✅ ヘッダーに検索リンクが表示される
 - ✅ 本番ビルド成功確認（npm run build）
 
+#### ✅ UI/UX改善 - 病院リスト表示の最適化
+- **実装日**: 2025年11月24日
+
+**実装内容:**
+
+1. **市町村マスターデータの最適化** (`/src/lib/masterData.ts`):
+   - 対象地域を飯田市・下伊那郡に限定
+   - 22自治体 → **15自治体**に削減
+   - 削除: 上伊那郡全域（辰野町、箕輪町、飯島町、南箕輪村、中川村、宮田村）、駒ヶ根市、伊那市
+
+2. **HospitalListItem コンポーネント作成** (`/src/components/HospitalList/HospitalListItem.tsx`):
+   - シンプルなリスト形式の病院表示
+   - **Grid レイアウト** (`grid-cols-[1fr_auto]`) で診療科と電話番号を配置
+   - 診療科（左側）: 可変幅、複数行に自動折り返し
+   - 電話番号（右側）: 固定幅、常に右上に配置
+   - `opening_hours` カラムの内容を1行表示
+
+3. **電話番号ボタンの実装**:
+   - 緑色のクリック可能ボタン (`bg-success`)
+   - `<a href="tel:${hospital.tel}">` で電話アプリ起動
+   - `onClick={(e) => e.stopPropagation()}` で詳細ページへの遷移を防止
+   - 視覚的に分かりやすいデザイン（ホバー効果、十分なタップ領域）
+
+4. **コンテナ幅の調整**:
+   - `/results` ページ: `max-w-4xl` → `max-w-5xl` (1024px)
+   - `/search` ページ: `max-w-6xl` (1152px) - 検索フォームが多いため維持
+   - ページの用途に応じた最適な幅設定
+
+5. **レイアウトの統一**:
+   - `/results` と `/search` の両ページで `HospitalListItem` を共通使用
+   - 一貫したUI/UX体験を提供
+   - `detailUrl` プロップで柔軟なURL指定が可能
+
+6. **表示内容の最適化**:
+   - **リスト表示** (`HospitalListItem`): `opening_hours` カラムのみ
+   - **詳細ページ** (`HospitalCard`):
+     - 優先: `hospital_schedules` テーブル（テーブル形式）
+     - フォールバック: `opening_hours` カラム（テキスト形式）
+     - 後方互換性を維持
+
+**受け入れ基準:**
+- ✅ 市町村リストが15自治体に削減
+- ✅ 病院リストがシンプルで見やすいレイアウト
+- ✅ 診療科が多くても電話番号が右上に固定
+- ✅ 電話番号ボタンから直接電話をかけられる
+- ✅ /results と /search のレイアウトが統一
+- ✅ コンテナ幅が適切に調整
+- ✅ 詳細ページで診療時間テーブルが優先表示
+- ✅ 本番ビルド成功確認（npm run build）
+
 ### ビルドテスト結果（2025年11月24日 - 最新）
 
 ```
-✓ Compiled successfully in 21.1s
+✓ Compiled successfully in 22.2s
 ✓ Linting and checking validity of types
 ✓ Generating static pages (19/19)
 
@@ -1855,10 +1905,10 @@ Route (app)                             Size  First Load JS
 ├ ○ /admin/hospitals/import          3.65 kB         124 kB
 ├ ○ /admin/hospitals/new                 0 B         122 kB
 ├ ○ /admin/login                     1.16 kB         121 kB
-├ ƒ /hospital/[id]                       0 B         120 kB  ← 新規追加
+├ ƒ /hospital/[id]                       0 B         119 kB
 ├ ○ /questionnaire                   3.47 kB         122 kB
-├ ○ /results                         51.1 kB         170 kB
-├ ○ /search                          2.57 kB         122 kB  ← 新規追加
+├ ○ /results                         50.7 kB         169 kB
+├ ○ /search                          2.74 kB         121 kB
 └ ○ /favicon.ico                         0 B             0 B
 
 型エラー: なし
