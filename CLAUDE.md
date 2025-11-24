@@ -1889,12 +1889,81 @@ Route (app)                         Size  First Load JS
 - ✅ 詳細ページで診療時間テーブルが優先表示
 - ✅ 本番ビルド成功確認（npm run build）
 
+#### ✅ チケット 011: AI診断機能実装（実験的）
+- **実装日**: 2025年11月24日
+
+**実装内容:**
+
+1. **パッケージインストール**:
+   - `openai` (^4.77.3) - OpenAI API クライアント
+
+2. **環境変数設定**:
+   ```bash
+   # AI Diagnosis Feature (実験的機能)
+   NEXT_PUBLIC_AI_DIAGNOSIS=true
+
+   # OpenAI API Key
+   OPENAI_API_KEY=sk-proj-...
+   ```
+
+3. **API エンドポイント** (`/src/app/api/symptoms/ai-diagnosis/route.ts`):
+   - `POST /api/symptoms/ai-diagnosis` 実装
+   - OpenAI API (`gpt-4o-mini`) との連携
+   - 機能フラグ (`NEXT_PUBLIC_AI_DIAGNOSIS`) による制御
+   - プロンプトテンプレート実装:
+     - 考えられる可能性（3つまで）
+     - 緊急度（高/中/低）
+     - 推奨診療科
+     - 受診時の注意点
+     - 日常生活でのケア
+   - エラーハンドリング（OpenAI API エラー、バリデーションエラー）
+
+4. **AIDiagnosisButton コンポーネント** (`/src/components/SymptomResult/AIDiagnosisButton.tsx`):
+   - クライアントコンポーネント (`'use client'`)
+   - 機能フラグによる表示制御（無効時は `null` を返す）
+   - 免責事項の強調表示:
+     - 赤枠・赤文字での警告
+     - 「医学的診断ではない」の明示
+     - 「必ず医師の診察を受けてください」の強調
+     - 緊急時の119番通報指示
+   - 同意チェックボックス（必須）
+   - LoadingSpinner によるAI分析中表示
+   - 分析結果の表示（整形済み）
+   - 再度の免責事項表示（結果下部）
+
+5. **結果ページへの統合** (`/src/app/results/page.tsx`):
+   - AIDiagnosisButton コンポーネント追加
+   - QuestionnaireContext の `data` を渡す
+   - 型の整合性確保（nullable フィールド対応）
+
+6. **型定義の更新**:
+   - AIDiagnosisButton の Props インターフェース定義
+   - nullable 型 (`string | null`) 対応
+   - 必須項目バリデーション実装
+
+**受け入れ基準:**
+- ✅ 開発環境でAI診断が動作する
+- ✅ 本番環境ではボタンが表示されない（機能フラグで制御）
+- ✅ 免責事項が明確に表示される（赤枠・赤文字）
+- ✅ ユーザー同意が必須である（チェックボックス）
+- ✅ AI分析結果が適切にフォーマットされる
+- ✅ エラーハンドリングが適切に実装されている
+- ✅ 環境変数で機能のON/OFFができる
+- ✅ 本番ビルド成功確認（npm run build）
+
+**注意事項:**
+- この機能は**実験的**で、初期リリース時は**無効化推奨**
+- 本番環境では `NEXT_PUBLIC_AI_DIAGNOSIS=false` を設定
+- 法務レビュー完了後に有効化を検討
+- OpenAI API 利用料金に注意（gpt-4o-mini 使用）
+- レート制限を考慮した実装が必要
+
 ### ビルドテスト結果（2025年11月24日 - 最新）
 
 ```
-✓ Compiled successfully in 22.2s
+✓ Compiled successfully in 21.5s
 ✓ Linting and checking validity of types
-✓ Generating static pages (19/19)
+✓ Generating static pages (20/20)
 
 Route (app)                             Size  First Load JS
 ┌ ○ /                                  647 B         119 kB
@@ -1907,9 +1976,9 @@ Route (app)                             Size  First Load JS
 ├ ○ /admin/login                     1.16 kB         121 kB
 ├ ƒ /hospital/[id]                       0 B         119 kB
 ├ ○ /questionnaire                   3.47 kB         122 kB
-├ ○ /results                         50.7 kB         169 kB
+├ ○ /results                         51.6 kB         170 kB
 ├ ○ /search                          2.74 kB         121 kB
-└ ○ /favicon.ico                         0 B             0 B
+└ API Routes (12) ...
 
 型エラー: なし
 リントエラー: なし
@@ -1917,7 +1986,6 @@ Route (app)                             Size  First Load JS
 
 ### 次の実装予定
 
-- **チケット 011**: AI診断機能（実験的、オプション）
 - **チケット 012**: UI/UXブラッシュアップ
 - **チケット 013**: テスト実装
 - **チケット 014**: 本番環境構築・デプロイ

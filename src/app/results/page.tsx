@@ -7,6 +7,7 @@ import SymptomDescription from '@/components/SymptomResult/SymptomDescription';
 import RecommendedDepartments from '@/components/SymptomResult/RecommendedDepartments';
 import HospitalList from '@/components/HospitalList/HospitalList';
 import ImageSaveButton from '@/components/SymptomResult/ImageSaveButton';
+import AIDiagnosisButton from '@/components/SymptomResult/AIDiagnosisButton';
 import LoadingSpinner from '@/components/Common/LoadingSpinner';
 import Button from '@/components/Common/Button';
 import { getDepartments } from '@/lib/departmentMapping';
@@ -118,6 +119,11 @@ function ResultsContent() {
 
         {/* 推奨される診療科 */}
         <RecommendedDepartments departments={recommendedDepartments} />
+
+        {/* AI診断機能（実験的） */}
+        <div className="mb-8">
+          <AIDiagnosisButton questionnaireData={data} />
+        </div>
 
         {/* 対応病院リスト */}
         <div className="mb-8">
