@@ -227,9 +227,11 @@ function SearchContent() {
           </div>
         ) : searched ? (
           <div>
-            <h2 className="text-2xl font-bold mb-4">
-              検索結果: {hospitals.length}件
-            </h2>
+            <div className="bg-blue-50 border-2 border-primary rounded-lg p-4 mb-6">
+              <h2 className="text-2xl font-bold text-gray-800">
+                検索結果: <span className="text-primary">{hospitals.length}件</span>
+              </h2>
+            </div>
 
             {hospitals.length === 0 ? (
               <div className="bg-white rounded-lg shadow-md p-8 text-center">
@@ -241,7 +243,7 @@ function SearchContent() {
                 </p>
               </div>
             ) : (
-              <div className="space-y-3">
+              <div className="space-y-4">
                 {hospitals.map((hospital) => {
                   // 現在の検索条件をクエリパラメータとして詳細ページに渡す
                   const detailUrl = `/hospital/${hospital.id}?${searchParams.toString()}`;

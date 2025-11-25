@@ -94,14 +94,14 @@ export default function HospitalList({ departments }: HospitalListProps) {
   }
 
   return (
-    <div className="space-y-4">
-      <div className="bg-info/10 border border-info rounded-lg p-3">
-        <p className="text-base text-gray-700">
-          <strong>{hospitals.length}件</strong>の病院が見つかりました
+    <div className="space-y-6">
+      <div className="bg-blue-50 border-2 border-primary rounded-lg p-4">
+        <p className="text-lg text-gray-800 font-medium">
+          <strong className="text-primary text-xl">{hospitals.length}件</strong>の病院が見つかりました
         </p>
       </div>
 
-      <div className="space-y-3">
+      <div className="space-y-4">
         {hospitals.map((hospital) => (
           <HospitalListItem
             key={hospital.id}

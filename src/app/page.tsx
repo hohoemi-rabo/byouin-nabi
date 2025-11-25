@@ -1,4 +1,6 @@
 import StartQuestionnaireButton from "@/components/Common/StartQuestionnaireButton";
+import Link from "next/link";
+import Button from "@/components/Common/Button";
 
 export default function Home() {
   return (
@@ -13,9 +15,19 @@ export default function Home() {
         <p className="text-xl md:text-2xl text-gray-600 mb-8">
           そんな悩みを解決します
         </p>
-        <StartQuestionnaireButton className="text-xl px-12 py-6">
-          症状から病院を探す
-        </StartQuestionnaireButton>
+
+        {/* ボタングループ */}
+        <div className="flex flex-col md:flex-row gap-4 justify-center items-center">
+          <StartQuestionnaireButton className="text-xl px-12 py-6 w-full md:w-auto">
+            症状から病院を探す
+          </StartQuestionnaireButton>
+
+          <Link href="/search" className="w-full md:w-auto">
+            <Button variant="secondary" className="text-xl px-12 py-6 w-full">
+              🔍 地域・診療科から探す
+            </Button>
+          </Link>
+        </div>
       </section>
 
       {/* サービス説明セクション */}
@@ -106,9 +118,19 @@ export default function Home() {
         <p className="text-xl text-gray-700 mb-8">
           症状がある方は、お早めに適切な医療機関を受診しましょう。
         </p>
-        <StartQuestionnaireButton className="text-xl px-12 py-6">
-          アンケートを始める
-        </StartQuestionnaireButton>
+
+        {/* ボタングループ */}
+        <div className="flex flex-col md:flex-row gap-4 justify-center items-center">
+          <StartQuestionnaireButton className="text-xl px-12 py-6 w-full md:w-auto">
+            アンケートを始める
+          </StartQuestionnaireButton>
+
+          <Link href="/search" className="w-full md:w-auto">
+            <Button variant="secondary" className="text-xl px-12 py-6 w-full">
+              🔍 地域・診療科から探す
+            </Button>
+          </Link>
+        </div>
       </section>
     </div>
   );

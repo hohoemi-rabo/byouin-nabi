@@ -28,7 +28,7 @@ export default function HospitalListItem({
   return (
     <div
       onClick={handleClick}
-      className="border-l-4 border-primary bg-white p-4 hover:bg-gray-50 transition-colors cursor-pointer shadow-sm"
+      className="border-l-4 border-primary bg-white p-4 hover:bg-blue-50 hover:shadow-xl hover:scale-[1.02] hover:-translate-y-1 active:bg-blue-100 active:scale-100 transition-all duration-200 cursor-pointer shadow-md rounded-r-lg"
     >
       {/* 病院名 */}
       <h3 className="text-xl font-bold mb-3 text-foreground">
