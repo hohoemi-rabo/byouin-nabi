@@ -9,11 +9,15 @@ const DAYS = ['日', '月', '火', '水', '木', '金', '土'];
 
 /**
  * 時刻文字列をフォーマット（HH:MM → HH:MM）
+ * 00:00:00の場合は空文字を返す
  */
 const formatTime = (time: string | null): string => {
   if (!time) return '';
   // "09:00:00" → "09:00" に変換
-  return time.substring(0, 5);
+  const formatted = time.substring(0, 5);
+  // 00:00の場合は空文字を返す（未設定とみなす）
+  if (formatted === '00:00') return '';
+  return formatted;
 };
 
 /**
