@@ -95,9 +95,9 @@ export default function HospitalList({ departments }: HospitalListProps) {
 
   return (
     <div className="space-y-6">
-      <div className="bg-blue-50 border-2 border-primary rounded-lg p-4">
+      <div className="bg-purple-light border-l-8 border-purple rounded-lg p-4 shadow-md">
         <p className="text-lg text-gray-800 font-medium">
-          <strong className="text-primary text-xl">{hospitals.length}件</strong>の病院が見つかりました
+          <strong className="text-purple text-xl">{hospitals.length}件</strong>の病院が見つかりました
         </p>
       </div>
 

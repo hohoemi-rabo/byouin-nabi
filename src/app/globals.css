@@ -21,6 +21,14 @@
   --error: #dc2626;
   --info: #0ea5e9;
 
+  /* 追加カラー（多彩な配色） */
+  --orange: #f97316;
+  --orange-light: #fed7aa;
+  --purple: #9333ea;
+  --purple-light: #e9d5ff;
+  --green-light: #d1fae5;
+  --blue-light: #dbeafe;
+
   /* グレースケール（高コントラスト） */
   --gray-50: #f9fafb;
   --gray-100: #f3f4f6;

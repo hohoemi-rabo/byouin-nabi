@@ -23,6 +23,16 @@ const config: Config = {
         warning: "var(--warning)",
         error: "var(--error)",
         info: "var(--info)",
+        orange: {
+          DEFAULT: "var(--orange)",
+          light: "var(--orange-light)",
+        },
+        purple: {
+          DEFAULT: "var(--purple)",
+          light: "var(--purple-light)",
+        },
+        'green-light': "var(--green-light)",
+        'blue-light': "var(--blue-light)",
         gray: {
           50: "var(--gray-50)",
           100: "var(--gray-100)",

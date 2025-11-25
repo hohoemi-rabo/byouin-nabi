@@ -3,17 +3,17 @@ import FontSizeToggle from './FontSizeToggle';
 
 export default function Header() {
   return (
-    <header className="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm" role="banner">
-      <div className="container mx-auto px-4 py-4 flex items-center justify-between min-h-header">
+    <header className="bg-gradient-to-r from-blue-50 to-white border-b-4 border-primary sticky top-0 z-50 shadow-md" role="banner">
+      <div className="container mx-auto px-4 flex items-center justify-between" style={{ height: '88px' }}>
         <Link
           href="/"
           className="flex items-center gap-2 hover:opacity-80 transition-opacity"
           aria-label="病院ナビ南信 ホームページ"
         >
-          <div className="text-primary font-bold text-xl md:text-2xl">
+          <div className="text-primary font-bold text-xl md:text-2xl leading-none">
             病院ナビ南信
           </div>
-          <div className="text-gray-600 text-sm hidden md:block">
+          <div className="text-gray-600 text-sm hidden md:block leading-none">
             症状から探す 安心の病院ナビ
           </div>
         </Link>
@@ -21,7 +21,7 @@ export default function Header() {
         <nav className="flex items-center gap-4" role="navigation" aria-label="メインナビゲーション">
           <Link
             href="/search"
-            className="bg-primary text-white px-4 py-2 rounded-lg font-medium text-base hover:bg-primary/90 transition-colors min-h-tap"
+            className="bg-success text-white px-4 py-2 rounded-lg font-medium text-base hover:bg-success-dark transition-colors min-h-tap shadow-sm"
             aria-label="病院を検索"
           >
             🔍 検索

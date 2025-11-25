@@ -24,8 +24,8 @@ export default function SymptomDescription({ description }: SymptomDescriptionPr
   return (
     <div className="space-y-6">
       {/* 症状説明文（画像保存対象） */}
-      <div id="symptom-description" className="bg-white border-2 border-gray-300 rounded-lg p-8 shadow-sm">
-        <h2 className="text-2xl font-bold mb-4 text-primary">
+      <div id="symptom-description" className="bg-green-light border-l-8 border-success rounded-lg p-8 shadow-md">
+        <h2 className="text-2xl font-bold mb-4 text-success">
           症状のまとめ
         </h2>
         <pre className="whitespace-pre-wrap font-sans text-lg leading-relaxed text-foreground">

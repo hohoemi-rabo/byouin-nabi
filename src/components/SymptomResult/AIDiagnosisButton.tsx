@@ -66,8 +66,8 @@ export default function AIDiagnosisButton({ questionnaireData }: AIDiagnosisButt
 
   return (
     <div className="mt-8 border-t pt-8">
-      <div className="bg-yellow-50 border-2 border-yellow-300 rounded-lg p-6">
-        <h3 className="text-2xl font-bold text-yellow-800 mb-4 flex items-center gap-2">
+      <div className="bg-orange-light border-l-8 border-orange rounded-lg p-6 shadow-md">
+        <h3 className="text-2xl font-bold text-orange mb-4 flex items-center gap-2">
           🧪 AI診断（実験的機能）
         </h3>
 
@@ -110,7 +110,7 @@ export default function AIDiagnosisButton({ questionnaireData }: AIDiagnosisButt
           <button
             onClick={handleAnalyze}
             disabled={!agreed || isLoading}
-            className="bg-yellow-600 text-white px-6 py-3 rounded-lg font-bold text-lg hover:bg-yellow-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors min-h-tap w-full md:w-auto"
+            className="bg-orange text-white px-6 py-3 rounded-lg font-bold text-lg hover:bg-orange/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors min-h-tap w-full md:w-auto shadow-md"
           >
             {isLoading ? (
               <span className="flex items-center justify-center gap-2">

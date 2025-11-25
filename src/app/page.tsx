@@ -1,6 +1,5 @@
 import StartQuestionnaireButton from "@/components/Common/StartQuestionnaireButton";
 import Link from "next/link";
-import Button from "@/components/Common/Button";
 
 export default function Home() {
   return (
@@ -23,9 +22,9 @@ export default function Home() {
           </StartQuestionnaireButton>
 
           <Link href="/search" className="w-full md:w-auto">
-            <Button variant="secondary" className="text-xl px-12 py-6 w-full">
+            <button className="bg-success text-white px-12 py-6 rounded-lg font-bold text-xl hover:bg-success-dark transition-colors min-h-tap w-full shadow-md">
               🔍 地域・診療科から探す
-            </Button>
+            </button>
           </Link>
         </div>
       </section>
@@ -37,9 +36,9 @@ export default function Home() {
         </h2>
 
         <div className="grid md:grid-cols-3 gap-8">
-          <div className="bg-gray-50 p-6 rounded-lg border border-gray-200">
+          <div className="bg-blue-light p-6 rounded-lg border-2 border-primary shadow-md">
             <div className="text-4xl mb-4">📝</div>
-            <h3 className="text-xl font-bold mb-3">簡単アンケート</h3>
+            <h3 className="text-xl font-bold mb-3 text-primary">簡単アンケート</h3>
             <p className="text-gray-700">
               症状や痛みの場所を選ぶだけ。
               <br />
@@ -47,9 +46,9 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="bg-gray-50 p-6 rounded-lg border border-gray-200">
+          <div className="bg-green-light p-6 rounded-lg border-2 border-success shadow-md">
             <div className="text-4xl mb-4">🏥</div>
-            <h3 className="text-xl font-bold mb-3">最適な病院を提案</h3>
+            <h3 className="text-xl font-bold mb-3 text-success">最適な病院を提案</h3>
             <p className="text-gray-700">
               症状に合った診療科の病院を自動で表示。
               <br />
@@ -57,9 +56,9 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="bg-gray-50 p-6 rounded-lg border border-gray-200">
+          <div className="bg-orange-light p-6 rounded-lg border-2 border-orange shadow-md">
             <div className="text-4xl mb-4">💬</div>
-            <h3 className="text-xl font-bold mb-3">症状を文章で説明</h3>
+            <h3 className="text-xl font-bold mb-3 text-orange">症状を文章で説明</h3>
             <p className="text-gray-700">
               医師に見せられる症状説明文を自動作成。
               <br />
@@ -75,11 +74,11 @@ export default function Home() {
 
         <ol className="space-y-6">
           <li className="flex gap-4">
-            <span className="flex-shrink-0 w-12 h-12 bg-primary text-white rounded-full flex items-center justify-center text-xl font-bold">
+            <span className="flex-shrink-0 w-12 h-12 bg-primary text-white rounded-full flex items-center justify-center text-xl font-bold shadow-md">
               1
             </span>
             <div>
-              <h3 className="text-xl font-bold mb-2">症状を選ぶ</h3>
+              <h3 className="text-xl font-bold mb-2 text-primary">症状を選ぶ</h3>
               <p className="text-gray-700">
                 痛みや症状がある場所、いつから症状があるかなどを選択します。
               </p>
@@ -87,11 +86,11 @@ export default function Home() {
           </li>
 
           <li className="flex gap-4">
-            <span className="flex-shrink-0 w-12 h-12 bg-primary text-white rounded-full flex items-center justify-center text-xl font-bold">
+            <span className="flex-shrink-0 w-12 h-12 bg-success text-white rounded-full flex items-center justify-center text-xl font-bold shadow-md">
               2
             </span>
             <div>
-              <h3 className="text-xl font-bold mb-2">病院を確認</h3>
+              <h3 className="text-xl font-bold mb-2 text-success">病院を確認</h3>
               <p className="text-gray-700">
                 症状に合った診療科の病院リストが表示されます。電話番号や地図も確認できます。
               </p>
@@ -99,11 +98,11 @@ export default function Home() {
           </li>
 
           <li className="flex gap-4">
-            <span className="flex-shrink-0 w-12 h-12 bg-primary text-white rounded-full flex items-center justify-center text-xl font-bold">
+            <span className="flex-shrink-0 w-12 h-12 bg-orange text-white rounded-full flex items-center justify-center text-xl font-bold shadow-md">
               3
             </span>
             <div>
-              <h3 className="text-xl font-bold mb-2">病院へ連絡・受診</h3>
+              <h3 className="text-xl font-bold mb-2 text-orange">病院へ連絡・受診</h3>
               <p className="text-gray-700">
                 気になる病院に電話で問い合わせ、または直接受診してください。
               </p>
@@ -126,9 +125,9 @@ export default function Home() {
           </StartQuestionnaireButton>
 
           <Link href="/search" className="w-full md:w-auto">
-            <Button variant="secondary" className="text-xl px-12 py-6 w-full">
+            <button className="bg-success text-white px-12 py-6 rounded-lg font-bold text-xl hover:bg-success-dark transition-colors min-h-tap w-full shadow-md">
               🔍 地域・診療科から探す
-            </Button>
+            </button>
           </Link>
         </div>
       </section>

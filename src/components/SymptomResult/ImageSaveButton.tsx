@@ -64,14 +64,13 @@ export default function ImageSaveButton({ targetId }: ImageSaveButtonProps) {
     <div className="space-y-4">
       {/* 保存ボタン */}
       {!isSaved && (
-        <Button
-          variant="primary"
+        <button
           onClick={handleSave}
           disabled={isLoading}
-          className="text-lg px-8 py-4 w-full md:w-auto"
+          className="bg-purple text-white px-8 py-4 rounded-lg font-bold text-lg hover:bg-purple/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors min-h-tap w-full md:w-auto shadow-md"
         >
           {isLoading ? '保存中...' : '📸 症状説明を画像で保存'}
-        </Button>
+        </button>
       )}
 
       {/* エラーメッセージ */}

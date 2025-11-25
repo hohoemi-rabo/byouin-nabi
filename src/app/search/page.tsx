@@ -227,9 +227,9 @@ function SearchContent() {
           </div>
         ) : searched ? (
           <div>
-            <div className="bg-blue-50 border-2 border-primary rounded-lg p-4 mb-6">
+            <div className="bg-purple-light border-l-8 border-purple rounded-lg p-4 mb-6 shadow-md">
               <h2 className="text-2xl font-bold text-gray-800">
-                検索結果: <span className="text-primary">{hospitals.length}件</span>
+                検索結果: <span className="text-purple">{hospitals.length}件</span>
               </h2>
             </div>
 
