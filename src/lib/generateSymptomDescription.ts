@@ -5,7 +5,7 @@ export function generateSymptomDescription(data: QuestionnaireData): string {
 
   // 【症状について】セクション
   description += '【症状について】\n';
-  description += `${data.location}が気になります。\n`;
+  description += `${data.location.join('、')}が気になります。\n`;
 
   if (data.symptoms.length > 0) {
     description += `症状は「${data.symptoms.join('、')}」があります。\n`;

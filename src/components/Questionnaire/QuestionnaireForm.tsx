@@ -43,6 +43,14 @@ export default function QuestionnaireForm() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  // 部位の選択/解除
+  const handleLocationToggle = (location: string) => {
+    const newLocations = data.location.includes(location)
+      ? data.location.filter(l => l !== location)
+      : [...data.location, location];
+    updateLocation(newLocations);
+  };
+
   // 症状の選択/解除
   const handleSymptomToggle = (symptom: string) => {
     const newSymptoms = data.symptoms.includes(symptom)
@@ -74,7 +82,7 @@ export default function QuestionnaireForm() {
   const validateForm = (): boolean => {
     const newErrors: string[] = [];
 
-    if (!data.location) {
+    if (data.location.length === 0) {
       newErrors.push('どこが気になるか選択してください');
     }
     if (!data.duration) {
@@ -151,6 +159,7 @@ export default function QuestionnaireForm() {
         <section>
           <h2 className="text-2xl font-bold mb-4">
             <span className="text-primary">Q1.</span> どこが気になりますか？
+            <span className="text-sm text-gray-600 ml-2">（複数選択可）</span>
           </h2>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
             {LOCATION_OPTIONS.map((location) => (
@@ -158,8 +167,8 @@ export default function QuestionnaireForm() {
                 key={location}
                 value={location}
                 label={location}
-                selected={data.location === location}
-                onSelect={updateLocation}
+                selected={data.location.includes(location)}
+                onSelect={() => handleLocationToggle(location)}
               />
             ))}
           </div>

@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
     const { location, duration, symptoms, conditions, medicine, memo } = body;
 
     // バリデーション
-    if (!location || !duration) {
+    if (!location || !Array.isArray(location) || location.length === 0 || !duration) {
       return NextResponse.json(
         { error: '必須項目が不足しています' },
         { status: 400 }
@@ -41,7 +41,7 @@ export async function POST(request: NextRequest) {
 以下の症状情報から、可能性のある疾患や受診のアドバイスを提供してください。
 
 【症状情報】
-- 部位: ${location}
+- 部位: ${location.join('、')}
 - 期間: ${duration}
 - 症状: ${symptoms && symptoms.length > 0 ? symptoms.join('、') : 'なし'}
 - 持病: ${conditions && conditions.length > 0 ? conditions.join('、') : 'なし'}

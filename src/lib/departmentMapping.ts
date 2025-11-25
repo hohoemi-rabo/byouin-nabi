@@ -35,13 +35,21 @@ const SKIN_SYMPTOMS = [
 
 /**
  * 症状部位と症状から推奨される診療科を判定する
- * @param location 症状部位
+ * @param locations 症状部位のリスト（複数選択可）
  * @param symptoms 症状リスト
  * @returns 推奨診療科のリスト（優先順位付き）
  */
-export function getDepartments(location: string, symptoms: string[]): string[] {
-  // 基本的なマッピングから診療科を取得
-  let departments = [...(DEPARTMENT_MAPPING[location] || ['内科'])];
+export function getDepartments(locations: string[], symptoms: string[]): string[] {
+  // 複数の部位から診療科を統合
+  const allDepartments: string[] = [];
+
+  locations.forEach(location => {
+    const depts = DEPARTMENT_MAPPING[location] || ['内科'];
+    allDepartments.push(...depts);
+  });
+
+  // 部位が選択されていない場合のフォールバック
+  let departments = allDepartments.length > 0 ? [...allDepartments] : ['内科'];
 
   // 緊急性の高い症状がある場合、内科を最優先にする
   const hasEmergency = symptoms.some(s => EMERGENCY_SYMPTOMS.includes(s));

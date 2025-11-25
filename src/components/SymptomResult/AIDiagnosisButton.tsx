@@ -7,7 +7,7 @@ const AI_ENABLED = process.env.NEXT_PUBLIC_AI_DIAGNOSIS === 'true';
 
 interface AIDiagnosisButtonProps {
   questionnaireData: {
-    location: string | null;
+    location: string[];
     duration: string | null;
     symptoms: string[];
     conditions: string[];
@@ -34,7 +34,7 @@ export default function AIDiagnosisButton({ questionnaireData }: AIDiagnosisButt
     }
 
     // 必須データのチェック
-    if (!questionnaireData.location || !questionnaireData.duration) {
+    if (questionnaireData.location.length === 0 || !questionnaireData.duration) {
       setError('症状データが不完全です。アンケートをやり直してください。');
       return;
     }

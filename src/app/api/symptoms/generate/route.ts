@@ -7,7 +7,7 @@ export async function POST(request: NextRequest) {
     const body: QuestionnaireData = await request.json();
 
     // バリデーション
-    if (!body.location) {
+    if (!body.location || body.location.length === 0) {
       return NextResponse.json(
         { error: 'どこが気になるか選択してください' },
         { status: 400 }

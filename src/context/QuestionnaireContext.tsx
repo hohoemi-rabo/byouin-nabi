@@ -6,7 +6,7 @@ import type { QuestionnaireData } from '@/types/questionnaire';
 interface QuestionnaireContextType {
   data: QuestionnaireData;
   isLoaded: boolean;
-  updateLocation: (location: string) => void;
+  updateLocation: (locations: string[]) => void;
   updateDuration: (duration: string) => void;
   updateSymptoms: (symptoms: string[]) => void;
   updateLumpSize: (size: string | null) => void;
@@ -21,7 +21,7 @@ const QuestionnaireContext = createContext<QuestionnaireContextType | null>(null
 const STORAGE_KEY = 'byouin-nabi-questionnaire-data';
 
 const initialData: QuestionnaireData = {
-  location: null,
+  location: [],
   duration: null,
   symptoms: [],
   lumpSize: null,
@@ -60,8 +60,8 @@ export function QuestionnaireProvider({ children }: { children: ReactNode }) {
     }
   }, [data, isLoaded]);
 
-  const updateLocation = (location: string) => {
-    setData(prev => ({ ...prev, location }));
+  const updateLocation = (locations: string[]) => {
+    setData(prev => ({ ...prev, location: locations }));
   };
 
   const updateDuration = (duration: string) => {

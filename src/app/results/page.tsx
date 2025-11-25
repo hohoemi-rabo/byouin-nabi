@@ -27,7 +27,7 @@ function ResultsContent() {
       }
 
       // データが空の場合、アンケートページに戻る
-      if (!data.location || !data.duration) {
+      if (data.location.length === 0 || !data.duration) {
         router.push('/questionnaire');
         return;
       }
@@ -97,7 +97,7 @@ function ResultsContent() {
   }
 
   // 推奨される診療科を計算
-  const recommendedDepartments = getDepartments(data.location!, data.symptoms);
+  const recommendedDepartments = getDepartments(data.location, data.symptoms);
 
   // トップページに戻る際にデータをクリア
   const handleBackToHome = () => {
@@ -125,20 +125,38 @@ function ResultsContent() {
           <AIDiagnosisButton questionnaireData={data} />
         </div>
 
+        {/* 症状説明文 */}
+        <SymptomDescription description={description} />
+
+        {/* 画像保存ボタン */}
+        <div className="mt-8 mb-8 flex justify-center">
+          <ImageSaveButton targetId="symptom-description" />
+        </div>
+
+        {/* アクションボタン（中間） */}
+        <div className="flex flex-col md:flex-row gap-4 justify-center mb-12">
+          <Button
+            variant="secondary"
+            onClick={() => router.push('/questionnaire')}
+            className="text-lg px-8 py-4"
+          >
+            アンケートに戻る
+          </Button>
+          <Button
+            variant="primary"
+            onClick={handleBackToHome}
+            className="text-lg px-8 py-4"
+          >
+            トップページに戻る
+          </Button>
+        </div>
+
         {/* 対応病院リスト */}
         <div className="mb-8">
           <h2 className="text-2xl md:text-3xl font-bold mb-6 text-foreground">
             対応している病院
           </h2>
           <HospitalList departments={recommendedDepartments} />
-        </div>
-
-        {/* 症状説明文 */}
-        <SymptomDescription description={description} />
-
-        {/* 画像保存ボタン */}
-        <div className="mt-8 mb-12 flex justify-center">
-          <ImageSaveButton targetId="symptom-description" />
         </div>
 
         {/* アクションボタン */}

@@ -1,5 +1,5 @@
 export interface QuestionnaireData {
-  location: string | null;              // のど, むね, おなか, etc.
+  location: string[];                   // のど, むね, おなか, etc. (複数選択可)
   duration: string | null;              // 今日, 2-3日前, 1週間前, etc.
   symptoms: string[];                   // 痛い, しこり・ふくらみ, かゆい, etc.
   lumpSize?: string | null;             // 条件付き: 小さい（〜1cm）, 1〜3cm, 3cm以上
