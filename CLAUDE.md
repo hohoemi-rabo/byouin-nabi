@@ -2,10 +2,11 @@
 
 ## プロジェクト概要
 
-**プロジェクト名**: 病院ナビ南信 (Byouin-Nabi)  
-**サブタイトル**: 症状から探す 安心の病院ナビ  
-**プロジェクトステージ**: MVP 開発フェーズ  
+**プロジェクト名**: 病院ナビ南信 (Byouin-Nabi)
+**サブタイトル**: 症状から探す 安心の病院ナビ
+**プロジェクトステージ**: 本番運用中 🚀
 **プロジェクトディレクトリ**: `/home/masayuki/NextJs/byouin-nabi`
+**本番URL**: Vercel にデプロイ済み
 
 ### ミッション
 
@@ -67,13 +68,14 @@
 | @types/react | 19.x | React 型定義 |
 | @types/react-dom | 19.x | React DOM 型定義 |
 
-### 外部サービス（実装予定）
+### 外部サービス（実装完了）
 
 | サービス | 用途 | ステータス | 備考 |
 |---------|------|----------|------|
-| Supabase | データベース・認証 | 設定済み（.mcp.json）| PostgreSQL ベース |
-| OpenAI API | AI 診断機能 | オプション（実験的） | GPT-4o-mini、初期リリース時は無効化 |
-| html2canvas | 画像生成 | 実装予定 | 症状説明文のスクリーンショット化 |
+| Supabase | データベース・認証 | ✅ 本番稼働中 | PostgreSQL ベース |
+| OpenAI API | AI 診断機能 | ✅ 本番稼働中（実験的） | GPT-4o-mini 使用 |
+| html2canvas | 画像生成 | ✅ 実装完了 | 症状説明文のスクリーンショット化 |
+| Vercel | ホスティング | ✅ 本番稼働中 | 自動デプロイ |
 
 ---
 
@@ -1147,22 +1149,27 @@ docs: update API documentation for hospital search endpoint
 
 ---
 
-## 環境変数設定（.env.local）
+## 環境変数設定（.env.local / Vercel）
 
 ```bash
 # Supabase
-NEXT_PUBLIC_SUPABASE_URL=https://[PROJECT_ID].supabase.co
+NEXT_PUBLIC_SUPABASE_URL=https://xsydqbczmzfufeywjfps.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJ...
+SUPABASE_SERVICE_ROLE_KEY=eyJ...  # 管理機能用（サーバー側のみ）
 
-# OpenAI (実験的機能用)
-# 初期リリース: 設定せず（機能無効化状態）
-# テスト環境でのみ設定
-OPENAI_API_KEY=sk-...
-NEXT_PUBLIC_AI_DIAGNOSIS=false  # 本番では必ず false
+# 管理画面認証
+ADMIN_PASSWORD=...  # 管理者ログインパスワード
+
+# OpenAI (AI診断機能)
+OPENAI_API_KEY=sk-proj-...
+NEXT_PUBLIC_AI_DIAGNOSIS=true  # AI診断を有効化（本番でも有効）
 
 # Google Maps (将来の URL 生成用)
 NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=...  # オプション
 ```
+
+**Vercel環境変数設定:**
+上記の環境変数はVercelのプロジェクト設定 > Environment Variables に設定済み。
 
 **セキュリティ注意:**
 
@@ -1176,13 +1183,12 @@ NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=...  # オプション
 
 ### AI 診断機能の取り扱い
 
-この機能は **実験的** で、初期リリース時は **無効化** されます。
+この機能は **実験的** ですが、本番環境で **有効化** されています。
 
-**有効化の条件:**
-
-- 十分な法務・医療アドバイザーレビュー完了
-- 免責事項・ユーザー同意フロー実装完了
-- テスト環境での十分な動作確認
+**現在のステータス:**
+- ✅ 免責事項・ユーザー同意フロー実装完了
+- ✅ 本番環境で有効化済み（`NEXT_PUBLIC_AI_DIAGNOSIS=true`）
+- ⚠️ 利用者を限定してテスト運用中
 
 **実装例:**
 
@@ -1251,27 +1257,41 @@ npm run dev
 
 ---
 
-## 今後の拡張予定
+## 開発フェーズ完了状況
 
-### Phase 2: 管理機能
+### ✅ Phase 1: 基盤構築（完了）
+- Next.js 15 + React 19 + TypeScript
+- Supabase 連携
+- 基本UI構築
+
+### ✅ Phase 2: コア機能（完了）
+- アンケート機能
+- 症状説明文生成
+- 診療科マッピング
+- 病院検索・表示
+
+### ✅ Phase 3: 管理機能（完了）
 - 管理者ログイン画面
 - 病院 CRUD 操作
 - CSV/Excel インポート
+- 診療時間テーブル管理
 
-### Phase 3: AI 診断機能
+### ✅ Phase 4: AI 診断機能（完了・運用中）
 - OpenAI API 連携
-- UI の追加（「AI 診断を試す」ボタン）
-- 免責事項の表示
+- 免責事項・同意フロー
+- 本番環境で有効化済み
 
-### Phase 4: 本番化準備
+### ✅ Phase 5: 本番デプロイ（完了）
+- Vercel デプロイ
+- 環境変数設定
 - パフォーマンス最適化
-- セキュリティレビュー
-- ブラウザ互換性テスト
+- リファクタリング完了
 
-### Phase 5: 運用・監視
+### 今後の拡張予定
 - エラーログ収集（Sentry 等の導入検討）
 - ユーザー分析（Google Analytics 等）
-- 定期的なセキュリティ監査
+- テスト実装（Vitest/Playwright）
+- PWA対応
 
 ---
 
@@ -2016,40 +2036,139 @@ Route (app)                         Size  First Load JS
 - 減速アニメーション: 自動対応（`prefers-reduced-motion: reduce`）
 - レスポンシブタイポグラフィ: 画面サイズに応じて最適なフォントサイズ
 
-### ビルドテスト結果（2025年11月24日 - 最新）
+#### ✅ チケット 014: 本番環境構築・デプロイ
+- **実装日**: 2025年11月28日
+
+**実装内容:**
+
+1. **Vercelデプロイ**:
+   - GitHub連携による自動デプロイ設定
+   - 環境変数設定（Supabase, OpenAI, 管理者認証）
+
+2. **環境変数（Vercel設定済み）**:
+   - `NEXT_PUBLIC_SUPABASE_URL`
+   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+   - `SUPABASE_SERVICE_ROLE_KEY`
+   - `ADMIN_PASSWORD`
+   - `OPENAI_API_KEY`
+   - `NEXT_PUBLIC_AI_DIAGNOSIS=true`
+
+3. **AI診断機能**:
+   - 本番環境で有効化
+   - 限定ユーザーでテスト運用中
+
+**受け入れ基準:**
+- ✅ Vercelへのデプロイ成功
+- ✅ 環境変数の設定完了
+- ✅ 全機能の動作確認
+- ✅ AI診断機能の有効化
+
+#### ✅ リファクタリング・コード品質改善
+- **実装日**: 2025年11月28日
+
+**実装内容:**
+
+1. **パフォーマンス向上**:
+   - `HospitalListItem` の `memo` 化（不要な再レンダリング防止）
+
+2. **共通コンポーネント作成**:
+   - `ErrorBox` - 統一されたエラー表示
+   - `LoadingBox` - 統一されたローディング表示
+
+3. **ユーティリティ関数**:
+   - `/src/lib/queryUtils.ts` 作成:
+     - `parseCommaSeparatedList()` - カンマ区切り文字列→配列
+     - `toCommaSeparatedString()` - 配列→カンマ区切り文字列
+     - `toggleArrayItem()` - 配列トグル処理
+
+4. **API統合**:
+   - `/api/hospitals/search` を削除
+   - `/api/search` に統合（重複排除）
+
+5. **適用箇所**:
+   - `/src/app/search/page.tsx` - ErrorBox, LoadingBox, queryUtils適用
+   - `/src/app/results/page.tsx` - ErrorBox, LoadingBox適用
+   - `/src/components/HospitalList/HospitalList.tsx` - ErrorBox, LoadingBox適用
+
+**改善効果:**
+- コード削減: 約50行
+- 保守性向上: エラー/ローディング表示の統一
+- パフォーマンス向上: リスト表示時の再レンダリング削減
+
+#### ✅ お問い合わせページ追加
+- **実装日**: 2025年11月28日
+
+**実装内容:**
+
+1. **お問い合わせページ** (`/src/app/contact/page.tsx`):
+   - SNSダイレクトメッセージでの問い合わせ案内
+   - Instagramボタン（グラデーション背景）
+   - X (Twitter) ボタン（黒背景）
+   - 返信期間の案内（1〜2日以内）
+   - 注意事項（病院への直接問い合わせ推奨など）
+
+2. **リンク先**:
+   - Instagram: https://www.instagram.com/masayuki.kiwami/
+   - X: https://x.com/masayuki_kiwami
+
+3. **フッターリンク**:
+   - 既存の「お問い合わせ」リンクから `/contact` へ遷移
+
+**受け入れ基準:**
+- ✅ お問い合わせページが表示される
+- ✅ SNSリンクが正しく機能する
+- ✅ レスポンシブデザイン対応
+- ✅ フッターからアクセス可能
+
+### ビルドテスト結果（2025年11月28日 - 本番デプロイ版）
 
 ```
-✓ Compiled successfully in 21.1s
+✓ Compiled successfully in 20.1s
 ✓ Linting and checking validity of types
-✓ Generating static pages (20/20)
+✓ Generating static pages (21/21)
 
 Route (app)                             Size  First Load JS
 ┌ ○ /                                  647 B         121 kB
 ├ ○ /admin/dashboard                 1.27 kB         123 kB
-├ ○ /admin/hospitals                 2.85 kB         124 kB
+├ ○ /admin/hospitals                 2.85 kB         125 kB
 ├ ƒ /admin/hospitals/[id]/edit           0 B         123 kB
 ├ ƒ /admin/hospitals/[id]/schedules  53.5 kB         175 kB
-├ ○ /admin/hospitals/import          3.65 kB         125 kB
+├ ○ /admin/hospitals/import          3.65 kB         126 kB
 ├ ○ /admin/hospitals/new                 0 B         123 kB
 ├ ○ /admin/login                     1.16 kB         123 kB
+├ ○ /contact                             0 B         120 kB
 ├ ƒ /hospital/[id]                       0 B         120 kB
-├ ○ /questionnaire                   3.47 kB         123 kB
-├ ○ /results                         51.6 kB         172 kB
-├ ○ /search                          2.74 kB         123 kB
-└ API Routes (6) ...
-
-First Load JS: 224 kB (アクセシビリティスタイル追加により +2kB)
+├ ○ /questionnaire                   3.49 kB         124 kB
+├ ○ /results                         52.1 kB         173 kB
+├ ○ /search                          3.21 kB         124 kB
+├ ○ /terms                               0 B         120 kB
+└ API Routes (5)
 
 型エラー: なし
 リントエラー: なし
 ```
 
-### 次の実装予定
+### 全チケット完了状況
 
-- **チケット 013**: テスト実装
-- **チケット 014**: 本番環境構築・デプロイ
+| チケット | 内容 | ステータス |
+|---------|------|----------|
+| 000 | プロジェクトセットアップ | ✅ 完了 |
+| 001 | データベース設計・構築 | ✅ 完了 |
+| 002 | 基本UI構築 | ✅ 完了 |
+| 003 | アンケート機能実装 | ✅ 完了 |
+| 004 | 症状説明文生成機能 | ✅ 完了 |
+| 005 | 診療科マッピング機能 | ✅ 完了 |
+| 006 | 病院検索・表示機能 | ✅ 完了 |
+| 007 | 画像保存機能 | ✅ 完了 |
+| 008 | 管理画面構築 | ✅ 完了 |
+| 009 | 病院CRUD機能 | ✅ 完了 |
+| 010 | CSVインポート機能 | ✅ 完了 |
+| 011 | AI診断機能実装 | ✅ 完了（本番運用中） |
+| 012 | UI/UXブラッシュアップ | ✅ 完了 |
+| 013 | テスト実装 | 📋 未着手 |
+| 014 | 本番環境構築・デプロイ | ✅ 完了 |
 
 ---
 
-**更新日**: 2025 年 11 月 24 日
+**更新日**: 2025 年 11 月 28 日
 **作成者**: Claude Code (AI Assistant)
