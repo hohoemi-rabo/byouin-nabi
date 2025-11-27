@@ -8,7 +8,8 @@ import RecommendedDepartments from '@/components/SymptomResult/RecommendedDepart
 import HospitalList from '@/components/HospitalList/HospitalList';
 import ImageSaveButton from '@/components/SymptomResult/ImageSaveButton';
 import AIDiagnosisButton from '@/components/SymptomResult/AIDiagnosisButton';
-import LoadingSpinner from '@/components/Common/LoadingSpinner';
+import ErrorBox from '@/components/Common/ErrorBox';
+import LoadingBox from '@/components/Common/LoadingBox';
 import Button from '@/components/Common/Button';
 import { getDepartments } from '@/lib/departmentMapping';
 
@@ -63,10 +64,7 @@ function ResultsContent() {
   if (loading) {
     return (
       <div className="container mx-auto px-4 py-12">
-        <div className="text-center">
-          <LoadingSpinner size="lg" className="mb-4" />
-          <p className="text-xl text-gray-600">症状をまとめています...</p>
-        </div>
+        <LoadingBox message="症状をまとめています..." size="lg" />
       </div>
     );
   }
@@ -75,11 +73,8 @@ function ResultsContent() {
     return (
       <div className="container mx-auto px-4 py-12">
         <div className="max-w-2xl mx-auto">
-          <div className="bg-error/10 border-2 border-error rounded-lg p-6 mb-8">
-            <h2 className="text-2xl font-bold text-error mb-3">
-              エラーが発生しました
-            </h2>
-            <p className="text-lg text-gray-700 mb-6">{error}</p>
+          <ErrorBox error={error} />
+          <div className="mt-6">
             <Button
               variant="primary"
               onClick={() => router.push('/questionnaire')}

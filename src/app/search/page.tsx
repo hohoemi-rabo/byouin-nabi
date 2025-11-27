@@ -1,19 +1,21 @@
 'use client';
 
-import { useState, useEffect, Suspense } from 'react';
+import { useState, useEffect, Suspense, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ALL_DEPARTMENTS, ALL_CITIES } from '@/lib/masterData';
+import { parseCommaSeparatedList, toCommaSeparatedString, toggleArrayItem } from '@/lib/queryUtils';
 import type { Hospital } from '@/types/hospital';
-import LoadingSpinner from '@/components/Common/LoadingSpinner';
+import ErrorBox from '@/components/Common/ErrorBox';
+import LoadingBox from '@/components/Common/LoadingBox';
 import HospitalListItem from '@/components/HospitalList/HospitalListItem';
 
 function SearchContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  // URLパラメータから初期値を取得
-  const initialCategories = searchParams.get('categories')?.split(',').filter(Boolean) || [];
-  const initialCities = searchParams.get('cities')?.split(',').filter(Boolean) || [];
+  // URLパラメータから初期値を取得（queryUtils使用）
+  const initialCategories = parseCommaSeparatedList(searchParams.get('categories'));
+  const initialCities = parseCommaSeparatedList(searchParams.get('cities'));
   const initialKeyword = searchParams.get('keyword') || '';
   const shouldAutoSearch = searchParams.toString().length > 0;
 
@@ -25,21 +27,14 @@ function SearchContent() {
   const [searched, setSearched] = useState(false);
   const [error, setError] = useState<string>('');
 
-  const handleDepartmentToggle = (dept: string) => {
-    setSelectedDepartments(prev =>
-      prev.includes(dept)
-        ? prev.filter(d => d !== dept)
-        : [...prev, dept]
-    );
-  };
+  // トグル処理を汎用化
+  const handleDepartmentToggle = useCallback((dept: string) => {
+    setSelectedDepartments(prev => toggleArrayItem(prev, dept));
+  }, []);
 
-  const handleCityToggle = (city: string) => {
-    setSelectedCities(prev =>
-      prev.includes(city)
-        ? prev.filter(c => c !== city)
-        : [...prev, city]
-    );
-  };
+  const handleCityToggle = useCallback((city: string) => {
+    setSelectedCities(prev => toggleArrayItem(prev, city));
+  }, []);
 
   const handleSearch = async () => {
     setLoading(true);
@@ -49,12 +44,14 @@ function SearchContent() {
     try {
       const params = new URLSearchParams();
 
-      if (selectedDepartments.length > 0) {
-        params.append('categories', selectedDepartments.join(','));
+      const categoriesStr = toCommaSeparatedString(selectedDepartments);
+      if (categoriesStr) {
+        params.append('categories', categoriesStr);
       }
 
-      if (selectedCities.length > 0) {
-        params.append('cities', selectedCities.join(','));
+      const citiesStr = toCommaSeparatedString(selectedCities);
+      if (citiesStr) {
+        params.append('cities', citiesStr);
       }
 
       if (keyword.trim()) {
@@ -215,16 +212,14 @@ function SearchContent() {
 
         {/* エラー表示 */}
         {error && (
-          <div className="bg-red-50 border-2 border-red-200 rounded-lg p-4 mb-8">
-            <p className="text-red-700 text-lg">{error}</p>
+          <div className="mb-8">
+            <ErrorBox error={error} title="検索に失敗しました" onDismiss={() => setError('')} />
           </div>
         )}
 
         {/* 検索結果 */}
         {loading ? (
-          <div className="flex justify-center items-center py-12">
-            <LoadingSpinner size="lg" />
-          </div>
+          <LoadingBox message="検索中..." size="lg" />
         ) : searched ? (
           <div>
             <div className="bg-purple-light border-l-8 border-purple rounded-lg p-4 mb-6 shadow-md">
@@ -268,8 +263,8 @@ function SearchContent() {
 export default function SearchPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-gray-50 py-8 px-4 flex justify-center items-center">
-        <LoadingSpinner size="lg" />
+      <div className="min-h-screen bg-gray-50 py-8 px-4">
+        <LoadingBox message="ページを読み込み中..." size="lg" />
       </div>
     }>
       <SearchContent />

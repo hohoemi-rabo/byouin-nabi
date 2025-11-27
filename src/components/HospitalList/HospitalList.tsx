@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import HospitalListItem from './HospitalListItem';
-import LoadingSpinner from '@/components/Common/LoadingSpinner';
+import ErrorBox from '@/components/Common/ErrorBox';
+import LoadingBox from '@/components/Common/LoadingBox';
 import type { Hospital } from '@/types/hospital';
 
 interface HospitalListProps {
@@ -28,7 +29,7 @@ export default function HospitalList({ departments }: HospitalListProps) {
         setLoading(true);
         const categoriesParam = departments.join(',');
         const response = await fetch(
-          `/api/hospitals/search?categories=${encodeURIComponent(categoriesParam)}`,
+          `/api/search?categories=${encodeURIComponent(categoriesParam)}`,
           { signal: abortController.signal }
         );
 
@@ -60,23 +61,11 @@ export default function HospitalList({ departments }: HospitalListProps) {
   }, [departments]);
 
   if (loading) {
-    return (
-      <div className="text-center py-12">
-        <LoadingSpinner size="lg" className="mb-4" />
-        <p className="text-xl text-gray-600">病院を検索しています...</p>
-      </div>
-    );
+    return <LoadingBox message="病院を検索しています..." size="lg" />;
   }
 
   if (error) {
-    return (
-      <div className="bg-error/10 border-2 border-error rounded-lg p-6">
-        <h3 className="text-xl font-bold text-error mb-2">
-          エラーが発生しました
-        </h3>
-        <p className="text-lg text-gray-700">{error}</p>
-      </div>
-    );
+    return <ErrorBox error={error} title="病院の検索に失敗しました" />;
   }
 
   if (hospitals.length === 0) {

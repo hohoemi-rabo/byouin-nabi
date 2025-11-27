@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
+import { parseCommaSeparatedList } from '@/lib/queryUtils';
 import type { Hospital } from '@/types/hospital';
 
 /**
@@ -9,8 +10,8 @@ import type { Hospital } from '@/types/hospital';
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;
-    const categoriesParam = searchParams.get('categories');
-    const citiesParam = searchParams.get('cities');
+    const categories = parseCommaSeparatedList(searchParams.get('categories'));
+    const cities = parseCommaSeparatedList(searchParams.get('cities'));
     const keyword = searchParams.get('keyword');
 
     // ベースクエリ
@@ -23,27 +24,13 @@ export async function GET(request: NextRequest) {
       .order('name');
 
     // 診療科でフィルタリング
-    if (categoriesParam) {
-      const categories = categoriesParam
-        .split(',')
-        .map(c => c.trim())
-        .filter(Boolean);
-
-      if (categories.length > 0) {
-        query = query.overlaps('category', categories);
-      }
+    if (categories.length > 0) {
+      query = query.overlaps('category', categories);
     }
 
     // 市町村でフィルタリング
-    if (citiesParam) {
-      const cities = citiesParam
-        .split(',')
-        .map(c => c.trim())
-        .filter(Boolean);
-
-      if (cities.length > 0) {
-        query = query.in('city', cities);
-      }
+    if (cities.length > 0) {
+      query = query.in('city', cities);
     }
 
     // キーワードでフィルタリング（病院名）

@@ -1,5 +1,6 @@
 'use client';
 
+import { memo } from 'react';
 import { useRouter } from 'next/navigation';
 import type { Hospital } from '@/types/hospital';
 
@@ -12,8 +13,9 @@ interface HospitalListItemProps {
 /**
  * シンプルな病院リスト項目コンポーネント
  * クリックで詳細ページに遷移
+ * memo化により不要な再レンダリングを防止
  */
-export default function HospitalListItem({
+const HospitalListItem = memo(function HospitalListItem({
   hospital,
   highlightCategories = [],
   detailUrl
@@ -72,4 +74,6 @@ export default function HospitalListItem({
       )}
     </div>
   );
-}
+});
+
+export default HospitalListItem;
