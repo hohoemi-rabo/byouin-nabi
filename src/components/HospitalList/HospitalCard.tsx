@@ -132,26 +132,25 @@ export default function HospitalCard({
               <span className="mr-2">📍</span>
               <span className="text-gray-700">{hospital.address}</span>
             </p>
-            <p className="flex items-center">
-              <span className="mr-2">📞</span>
-              <a
-                href={`tel:${hospital.tel}`}
-                className="text-primary underline font-medium hover:text-primary/80 min-h-tap"
-              >
-                {hospital.tel}
-              </a>
-            </p>
           </div>
         </div>
 
         {/* 右側: アクションボタン */}
         <div className="flex flex-row md:flex-col gap-2">
+          {/* 電話ボタン */}
+          <a
+            href={`tel:${hospital.tel}`}
+            className="inline-flex items-center justify-center gap-2 bg-success text-white px-5 py-3 rounded-lg hover:bg-success/90 active:bg-success/80 transition-colors font-bold text-lg min-h-tap text-center whitespace-nowrap shadow-md hover:shadow-lg"
+          >
+            <span className="text-xl">📞</span>
+            <span>{hospital.tel}</span>
+          </a>
           {hospital.google_map_url && (
             <a
               href={hospital.google_map_url}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-block bg-success text-white px-4 py-2 rounded-lg hover:bg-success/90 transition-colors font-medium text-base min-h-tap text-center whitespace-nowrap"
+              className="inline-block bg-orange text-white px-4 py-2 rounded-lg hover:bg-orange/90 transition-colors font-medium text-base min-h-tap text-center whitespace-nowrap shadow-md"
             >
               🗺️ 地図
             </a>
@@ -161,7 +160,7 @@ export default function HospitalCard({
               href={hospital.website}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-block bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors font-medium text-base min-h-tap text-center whitespace-nowrap"
+              className="inline-block bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors font-medium text-base min-h-tap text-center whitespace-nowrap shadow-md"
             >
               🌐 Web
             </a>
