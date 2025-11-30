@@ -1,10 +1,17 @@
+'use client';
+
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
+  const pathname = usePathname();
+
+  // 検索結果ページではスマホでフッターを非表示
+  const hideOnMobile = pathname === '/search/results';
 
   return (
-    <footer className="bg-gray-50 border-t border-gray-200 mt-auto" role="contentinfo">
+    <footer className={`bg-gray-50 border-t border-gray-200 mt-auto ${hideOnMobile ? 'hidden md:block' : ''}`} role="contentinfo">
       <div className="container mx-auto px-4 py-6 min-h-footer">
         <div className="flex flex-col md:flex-row items-center gap-4">
           {/* 左側: ナビゲーションリンク */}

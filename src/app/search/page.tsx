@@ -1,31 +1,23 @@
 'use client';
 
-import { useState, useEffect, Suspense, useCallback } from 'react';
+import { useState, Suspense, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ALL_DEPARTMENTS, ALL_CITIES } from '@/lib/masterData';
 import { parseCommaSeparatedList, toCommaSeparatedString, toggleArrayItem } from '@/lib/queryUtils';
-import type { Hospital } from '@/types/hospital';
-import ErrorBox from '@/components/Common/ErrorBox';
 import LoadingBox from '@/components/Common/LoadingBox';
-import HospitalListItem from '@/components/HospitalList/HospitalListItem';
 
 function SearchContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  // URLパラメータから初期値を取得（queryUtils使用）
+  // URLパラメータから初期値を取得（検索結果ページから戻ってきた場合の復元用）
   const initialCategories = parseCommaSeparatedList(searchParams.get('categories'));
   const initialCities = parseCommaSeparatedList(searchParams.get('cities'));
   const initialKeyword = searchParams.get('keyword') || '';
-  const shouldAutoSearch = searchParams.toString().length > 0;
 
   const [selectedDepartments, setSelectedDepartments] = useState<string[]>(initialCategories);
   const [selectedCities, setSelectedCities] = useState<string[]>(initialCities);
   const [keyword, setKeyword] = useState(initialKeyword);
-  const [hospitals, setHospitals] = useState<Hospital[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [searched, setSearched] = useState(false);
-  const [error, setError] = useState<string>('');
 
   // トグル処理を汎用化
   const handleDepartmentToggle = useCallback((dept: string) => {
@@ -36,85 +28,43 @@ function SearchContent() {
     setSelectedCities(prev => toggleArrayItem(prev, city));
   }, []);
 
-  const handleSearch = async () => {
-    setLoading(true);
-    setError('');
-    setSearched(true);
-
-    try {
-      const params = new URLSearchParams();
-
-      const categoriesStr = toCommaSeparatedString(selectedDepartments);
-      if (categoriesStr) {
-        params.append('categories', categoriesStr);
-      }
-
-      const citiesStr = toCommaSeparatedString(selectedCities);
-      if (citiesStr) {
-        params.append('cities', citiesStr);
-      }
-
-      if (keyword.trim()) {
-        params.append('keyword', keyword.trim());
-      }
-
-      // URLを更新
-      router.push(`/search?${params.toString()}`, { scroll: false });
-
-      const response = await fetch(`/api/search?${params.toString()}`);
-
-      if (!response.ok) {
-        throw new Error('検索に失敗しました');
-      }
-
-      const data = await response.json();
-      setHospitals(data.hospitals || []);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : '検索に失敗しました');
-    } finally {
-      setLoading(false);
+  // 検索ボタンクリック時に検索結果ページへ遷移
+  const handleSearch = () => {
+    // 検索条件がない場合は何もしない
+    if (selectedDepartments.length === 0 && selectedCities.length === 0 && !keyword.trim()) {
+      return;
     }
+
+    const params = new URLSearchParams();
+
+    const categoriesStr = toCommaSeparatedString(selectedDepartments);
+    if (categoriesStr) {
+      params.append('categories', categoriesStr);
+    }
+
+    const citiesStr = toCommaSeparatedString(selectedCities);
+    if (citiesStr) {
+      params.append('cities', citiesStr);
+    }
+
+    if (keyword.trim()) {
+      params.append('keyword', keyword.trim());
+    }
+
+    // 検索結果ページへ遷移
+    router.push(`/search/results?${params.toString()}`);
   };
-
-  // URLパラメータが変更されたら自動的に検索を実行
-  useEffect(() => {
-    if (shouldAutoSearch) {
-      const executeSearch = async () => {
-        setLoading(true);
-        setError('');
-        setSearched(true);
-
-        try {
-          const response = await fetch(`/api/search?${searchParams.toString()}`);
-
-          if (!response.ok) {
-            throw new Error('検索に失敗しました');
-          }
-
-          const data = await response.json();
-          setHospitals(data.hospitals || []);
-        } catch (err) {
-          setError(err instanceof Error ? err.message : '検索に失敗しました');
-        } finally {
-          setLoading(false);
-        }
-      };
-
-      executeSearch();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   const handleReset = () => {
     setSelectedDepartments([]);
     setSelectedCities([]);
     setKeyword('');
-    setHospitals([]);
-    setSearched(false);
-    setError('');
     // URLもクリア
     router.push('/search');
   };
+
+  // 検索条件が入力されているか
+  const hasSearchCondition = selectedDepartments.length > 0 || selectedCities.length > 0 || keyword.trim().length > 0;
 
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4">
@@ -195,66 +145,26 @@ function SearchContent() {
           <div className="flex gap-4">
             <button
               onClick={handleSearch}
-              disabled={loading}
-              className="flex-1 bg-primary text-white px-6 py-4 rounded-lg text-xl font-bold hover:bg-primary/90 transition-colors disabled:opacity-50 min-h-tap"
+              disabled={!hasSearchCondition}
+              className="flex-1 bg-primary text-white px-6 py-4 rounded-lg text-xl font-bold hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed min-h-tap"
             >
-              {loading ? '検索中...' : '検索する'}
+              検索する
             </button>
             <button
               onClick={handleReset}
-              disabled={loading}
-              className="bg-gray-200 text-gray-700 px-6 py-4 rounded-lg text-xl font-bold hover:bg-gray-300 transition-colors disabled:opacity-50 min-h-tap"
+              className="bg-gray-200 text-gray-700 px-6 py-4 rounded-lg text-xl font-bold hover:bg-gray-300 transition-colors min-h-tap"
             >
               リセット
             </button>
           </div>
+
+          {/* 検索条件未入力時のメッセージ */}
+          {!hasSearchCondition && (
+            <p className="text-center text-gray-500 mt-4">
+              診療科、市町村、または病院名を入力してください
+            </p>
+          )}
         </div>
-
-        {/* エラー表示 */}
-        {error && (
-          <div className="mb-8">
-            <ErrorBox error={error} title="検索に失敗しました" onDismiss={() => setError('')} />
-          </div>
-        )}
-
-        {/* 検索結果 */}
-        {loading ? (
-          <LoadingBox message="検索中..." size="lg" />
-        ) : searched ? (
-          <div>
-            <div className="bg-purple-light border-l-8 border-purple rounded-lg p-4 mb-6 shadow-md">
-              <h2 className="text-2xl font-bold text-gray-800">
-                検索結果: <span className="text-purple">{hospitals.length}件</span>
-              </h2>
-            </div>
-
-            {hospitals.length === 0 ? (
-              <div className="bg-white rounded-lg shadow-md p-8 text-center">
-                <p className="text-xl text-gray-600">
-                  該当する病院が見つかりませんでした
-                </p>
-                <p className="text-base text-gray-500 mt-2">
-                  検索条件を変更してお試しください
-                </p>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {hospitals.map((hospital) => {
-                  // 現在の検索条件をクエリパラメータとして詳細ページに渡す
-                  const detailUrl = `/hospital/${hospital.id}?${searchParams.toString()}`;
-
-                  return (
-                    <HospitalListItem
-                      key={hospital.id}
-                      hospital={hospital}
-                      detailUrl={detailUrl}
-                    />
-                  );
-                })}
-              </div>
-            )}
-          </div>
-        ) : null}
       </div>
     </div>
   );

@@ -136,34 +136,39 @@ export default function HospitalCard({
         </div>
 
         {/* 右側: アクションボタン */}
-        <div className="flex flex-row md:flex-col gap-2">
+        <div className="grid grid-cols-3 md:flex md:flex-col gap-2 w-full md:w-auto">
           {/* 電話ボタン */}
           <a
             href={`tel:${hospital.tel}`}
-            className="inline-flex items-center justify-center gap-2 bg-success text-white px-5 py-3 rounded-lg hover:bg-success/90 active:bg-success/80 transition-colors font-bold text-lg min-h-tap text-center whitespace-nowrap shadow-md hover:shadow-lg"
+            className="flex items-center justify-center gap-1 md:gap-2 bg-success text-white px-2 md:px-5 py-3 rounded-lg hover:bg-success/90 active:bg-success/80 transition-colors font-bold text-sm md:text-lg min-h-tap text-center shadow-md hover:shadow-lg"
           >
-            <span className="text-xl">📞</span>
-            <span>{hospital.tel}</span>
+            <span className="text-base md:text-xl">📞</span>
+            <span className="hidden md:inline">{hospital.tel}</span>
+            <span className="md:hidden">電話</span>
           </a>
-          {hospital.google_map_url && (
+          {hospital.google_map_url ? (
             <a
               href={hospital.google_map_url}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-block bg-orange text-white px-4 py-2 rounded-lg hover:bg-orange/90 transition-colors font-medium text-base min-h-tap text-center whitespace-nowrap shadow-md"
+              className="flex items-center justify-center bg-orange text-white px-2 md:px-4 py-3 md:py-2 rounded-lg hover:bg-orange/90 transition-colors font-medium text-sm md:text-base min-h-tap text-center shadow-md"
             >
               🗺️ 地図
             </a>
+          ) : (
+            <div className="md:hidden" />
           )}
-          {hospital.website && (
+          {hospital.website ? (
             <a
               href={hospital.website}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-block bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors font-medium text-base min-h-tap text-center whitespace-nowrap shadow-md"
+              className="flex items-center justify-center bg-primary text-white px-2 md:px-4 py-3 md:py-2 rounded-lg hover:bg-primary/90 transition-colors font-medium text-sm md:text-base min-h-tap text-center shadow-md"
             >
               🌐 Web
             </a>
+          ) : (
+            <div className="md:hidden" />
           )}
         </div>
       </div>
