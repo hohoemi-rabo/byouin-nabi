@@ -121,7 +121,7 @@ export default function Home() {
         {/* ボタングループ */}
         <div className="flex flex-col md:flex-row gap-4 justify-center items-center">
           <StartQuestionnaireButton className="text-xl px-12 py-6 w-full md:w-auto">
-            アンケートを始める
+            症状から病院を探す
           </StartQuestionnaireButton>
 
           <Link href="/search" className="w-full md:w-auto">
