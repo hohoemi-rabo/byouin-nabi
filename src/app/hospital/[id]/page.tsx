@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 import type { Hospital } from '@/types/hospital';
 import HospitalCard from '@/components/HospitalList/HospitalCard';
+import MobileFixedFooter from '@/components/Common/MobileFixedFooter';
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -63,22 +64,31 @@ export default async function HospitalDetailPage({ params, searchParams }: Props
     }
   }
 
+  // 戻るボタンのテキスト（スマホ用は短縮）
+  const mobileBackText = from === 'results' ? '症状結果' : '検索結果';
+
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4">
-      <div className="max-w-4xl mx-auto">
-        <div className="mb-6">
-          <Link
-            href={backUrl}
-            className="text-primary hover:underline text-lg"
-          >
-            {backText}
-          </Link>
+    <>
+      <div className="min-h-screen bg-gray-50 py-8 px-4 pb-24 md:pb-8">
+        <div className="max-w-4xl mx-auto">
+          {/* PC用の戻るリンク */}
+          <div className="mb-6 hidden md:block">
+            <Link
+              href={backUrl}
+              className="text-primary hover:underline text-lg"
+            >
+              {backText}
+            </Link>
+          </div>
+
+          <h1 className="text-3xl font-bold mb-6">病院詳細</h1>
+
+          <HospitalCard hospital={hospital} />
         </div>
-
-        <h1 className="text-3xl font-bold mb-6">病院詳細</h1>
-
-        <HospitalCard hospital={hospital} />
       </div>
-    </div>
+
+      {/* スマホ用固定フッター */}
+      <MobileFixedFooter backUrl={backUrl} backText={mobileBackText} />
+    </>
   );
 }

@@ -7,8 +7,8 @@ export default function Footer() {
   const currentYear = new Date().getFullYear();
   const pathname = usePathname();
 
-  // 検索結果ページではスマホでフッターを非表示
-  const hideOnMobile = pathname === '/search/results';
+  // 特定ページではスマホでフッターを非表示（固定フッターを使用するため）
+  const hideOnMobile = pathname === '/search/results' || pathname.startsWith('/hospital/');
 
   return (
     <footer className={`bg-gray-50 border-t border-gray-200 mt-auto ${hideOnMobile ? 'hidden md:block' : ''}`} role="contentinfo">
