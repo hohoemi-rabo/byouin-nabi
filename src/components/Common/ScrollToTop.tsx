@@ -36,7 +36,7 @@ export default function ScrollToTop() {
       {isVisible && (
         <button
           onClick={scrollToTop}
-          className="fixed bottom-6 right-6 bg-primary text-white rounded-full p-4 shadow-lg hover:bg-primary-dark hover:scale-110 transition-all duration-300 z-40 min-h-tap min-w-[60px] flex items-center justify-center animate-fadeInUp"
+          className="fixed bottom-6 right-6 bg-primary text-white rounded-full p-4 shadow-lg hover:bg-primary-dark hover:scale-110 transition-all duration-300 z-40 min-h-tap min-w-[60px] hidden md:flex items-center justify-center animate-fadeInUp"
           aria-label="ページトップへ戻る"
           title="ページトップへ戻る"
         >
