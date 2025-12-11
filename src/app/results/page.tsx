@@ -11,6 +11,8 @@ import AIDiagnosisButton from '@/components/SymptomResult/AIDiagnosisButton';
 import ErrorBox from '@/components/Common/ErrorBox';
 import LoadingBox from '@/components/Common/LoadingBox';
 import Button from '@/components/Common/Button';
+import Accordion from '@/components/Common/Accordion';
+import MobileFixedFooter from '@/components/Common/MobileFixedFooter';
 import { getDepartments } from '@/lib/departmentMapping';
 
 function ResultsContent() {
@@ -101,61 +103,69 @@ function ResultsContent() {
   };
 
   return (
-    <div className="container mx-auto px-4 py-12">
+    <div className="container mx-auto px-4 py-8 md:py-12">
       <div className="max-w-5xl mx-auto">
-        <div className="text-center mb-12">
-          <h1 className="text-3xl md:text-4xl font-bold mb-4">
+        {/* ヘッダー */}
+        <div className="text-center mb-8">
+          <h1 className="text-2xl md:text-3xl font-bold mb-2">
             症状のまとめが完成しました
           </h1>
-          <p className="text-lg text-gray-600">
-            以下の内容を病院の受付や医師に見せてください
+          <p className="text-base text-gray-600">
+            各セクションをタップして内容を確認できます
           </p>
         </div>
 
-        {/* 推奨される診療科 */}
-        <RecommendedDepartments departments={recommendedDepartments} />
+        {/* アコーディオンセクション */}
+        <div className="space-y-4 mb-8">
+          {/* 推奨される診療科（デフォルトで開く） */}
+          <Accordion title="推奨される診療科" icon="🏥" defaultOpen={true}>
+            <RecommendedDepartments departments={recommendedDepartments} />
+          </Accordion>
 
-        {/* AI診断機能（実験的） */}
-        <div className="mb-8">
-          <AIDiagnosisButton questionnaireData={data} />
-        </div>
-
-        {/* 症状説明文 */}
-        <SymptomDescription description={description} />
-
-        {/* 画像保存ボタン */}
-        <div className="mt-8 mb-8 flex justify-center">
-          <ImageSaveButton targetId="symptom-description" />
-        </div>
-
-        {/* アクションボタン（中間） */}
-        <div className="flex flex-col md:flex-row gap-4 justify-center mb-12">
-          <Button
-            variant="secondary"
-            onClick={() => router.push('/questionnaire')}
-            className="text-lg px-8 py-4"
+          {/* 症状まとめ */}
+          <Accordion
+            title="症状まとめを見る"
+            icon="📝"
+            description="病院で見せられる説明文を作成しました"
+            badge="便利"
+            badgeColor="green"
+            variant="highlight"
           >
-            アンケートに戻る
-          </Button>
-          <Button
-            variant="primary"
-            onClick={handleBackToHome}
-            className="text-lg px-8 py-4"
+            <div className="mb-6">
+              <p className="text-base text-gray-600 mb-4 text-center">
+                病院の受付や医師に見せてください
+              </p>
+              <SymptomDescription description={description} />
+            </div>
+            <div className="flex justify-center">
+              <ImageSaveButton targetId="symptom-description" />
+            </div>
+          </Accordion>
+
+          {/* AI診断 */}
+          <Accordion
+            title="AI診断を試す"
+            icon="🤖"
+            description="AIが症状を分析して可能性のある病気を提案します"
+            badge="実験的"
+            badgeColor="purple"
+            variant="gradient"
           >
-            トップページに戻る
-          </Button>
+            <AIDiagnosisButton questionnaireData={data} />
+          </Accordion>
         </div>
 
-        {/* 対応病院リスト */}
-        <div className="mb-8">
-          <h2 className="text-2xl md:text-3xl font-bold mb-6 text-foreground">
-            対応している病院
+        {/* 対応病院リスト（常に表示） */}
+        <div className="mt-8">
+          <h2 className="text-xl md:text-2xl font-bold mb-4 text-foreground flex items-center gap-2">
+            <span>📋</span>
+            <span>対応している病院</span>
           </h2>
           <HospitalList departments={recommendedDepartments} />
         </div>
 
-        {/* アクションボタン */}
-        <div className="flex flex-col md:flex-row gap-4 justify-center">
+        {/* アクションボタン（PC用） */}
+        <div className="mt-10 hidden md:flex flex-col md:flex-row gap-4 justify-center">
           <Button
             variant="secondary"
             onClick={() => router.push('/questionnaire')}
@@ -171,7 +181,13 @@ function ResultsContent() {
             トップページに戻る
           </Button>
         </div>
+
+        {/* スマホ用の余白（固定フッター分） */}
+        <div className="h-20 md:hidden" />
       </div>
+
+      {/* スマホ用固定フッター */}
+      <MobileFixedFooter backUrl="/questionnaire" backText="やり直す" />
     </div>
   );
 }

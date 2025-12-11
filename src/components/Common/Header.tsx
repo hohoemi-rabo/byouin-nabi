@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import FontSizeToggle from './FontSizeToggle';
+// import FontSizeToggle from './FontSizeToggle';
 
 export default function Header() {
   return (
@@ -26,7 +26,7 @@ export default function Header() {
           >
             🔍 検索
           </Link>
-          <FontSizeToggle />
+          {/* <FontSizeToggle /> */}
         </nav>
       </div>
     </header>

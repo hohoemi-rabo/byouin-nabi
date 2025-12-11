@@ -50,7 +50,7 @@
 
 | 技術 | バージョン | 用途 | 備考 |
 |------|-----------|------|------|
-| Next.js | 15.5.6 | フロントエンドフレームワーク | App Router を使用（Pages Router ではない） |
+| Next.js | 15.5.7 | フロントエンドフレームワーク | App Router を使用（Pages Router ではない） |
 | React | 19.1.0 | UI フレームワーク | サーバーコンポーネント対応版 |
 | React DOM | 19.1.0 | React 出力先 | - |
 | Tailwind CSS | 3.4.17 | CSS フレームワーク | ユーティリティファーストで UI 構築 |
@@ -63,7 +63,7 @@
 | パッケージ | バージョン | 用途 |
 |-----------|-----------|------|
 | ESLint | 9.x | コード品質・スタイル検査 |
-| eslint-config-next | 15.5.6 | Next.js 公式 ESLint 設定 |
+| eslint-config-next | 15.5.7 | Next.js 公式 ESLint 設定 |
 | @types/node | 20.x | Node.js 型定義 |
 | @types/react | 19.x | React 型定義 |
 | @types/react-dom | 19.x | React DOM 型定義 |
@@ -2191,7 +2191,81 @@ Route (app)                             Size  First Load JS
 | 013 | テスト実装 | 📋 未着手 |
 | 014 | 本番環境構築・デプロイ | ✅ 完了 |
 
+#### ✅ /results ページ UI改善（アコーディオン構成）
+- **実装日**: 2025年12月11日
+
+**実装内容:**
+
+1. **Accordion コンポーネント作成** (`/src/components/Common/Accordion.tsx`):
+   - 開閉アニメーション付きアコーディオン
+   - `variant` プロップ: `default`, `highlight`, `gradient`
+   - `badge` プロップ: バッジ表示（点滅アニメーション）
+   - `description` プロップ: 説明文表示
+   - `badgeColor` プロップ: `blue`, `green`, `orange`, `purple`
+   - 開いた時のリング効果
+   - ホバー時の背景色変化
+
+2. **`/results` ページ構成変更**:
+   - **推奨される診療科**（デフォルトで開く）
+   - **症状まとめを見る**（閉じている）
+     - ブルー系グラデーション背景
+     - 「便利」バッジ（緑色）
+     - 説明文:「病院で見せられる説明文を作成しました」
+   - **AI診断を試す**（閉じている）
+     - パープル〜ピンク〜オレンジのグラデーション背景
+     - 「実験的」バッジ（紫色）
+     - 説明文:「AIが症状を分析して可能性のある病気を提案します」
+   - **対応している病院**（常に表示）
+
+3. **モバイル固定フッター追加** (`/results` ページ):
+   - 「ホーム」ボタン → トップページへ
+   - 「やり直す」ボタン → アンケートページへ
+   - PC用ボタンはPCのみ表示
+
+4. **Footer コンポーネント更新**:
+   - `/results` ページでスマホ時は通常フッターを非表示
+
+5. **Header コンポーネント更新**:
+   - `FontSizeToggle` をコメントアウト（必要時に復活可能）
+
+6. **不要ファイル削除**:
+   - `SliderTabs.tsx` を削除（不採用のため）
+
+**受け入れ基準:**
+- ✅ アコーディオンで情報を整理
+- ✅ 病院リストがすぐに見える位置に表示
+- ✅ 押したくなるデザイン（グラデーション、バッジ、説明文）
+- ✅ モバイル固定フッター実装
+- ✅ 本番ビルド成功確認（npm run build）
+
+### ビルドテスト結果（2025年12月11日）
+
+```
+✓ Compiled successfully in 28.6s
+✓ Generating static pages (22/22)
+
+Route (app)                             Size  First Load JS
+┌ ○ /                                  622 B         122 kB
+├ ○ /admin/dashboard                 1.27 kB         124 kB
+├ ○ /admin/hospitals                 2.85 kB         125 kB
+├ ƒ /admin/hospitals/[id]/edit           0 B         124 kB
+├ ƒ /admin/hospitals/[id]/schedules  53.5 kB         176 kB
+├ ○ /admin/hospitals/import          3.65 kB         126 kB
+├ ○ /admin/hospitals/new                 0 B         124 kB
+├ ○ /admin/login                     1.16 kB         123 kB
+├ ○ /contact                             0 B         121 kB
+├ ƒ /hospital/[id]                     417 B         121 kB
+├ ○ /questionnaire                   3.46 kB         124 kB
+├ ○ /results                           53 kB         174 kB
+├ ○ /search                          2.14 kB         123 kB
+├ ○ /search/results                  2.67 kB         124 kB
+└ ○ /terms                               0 B         121 kB
+
+型エラー: なし
+リントエラー: なし
+```
+
 ---
 
-**更新日**: 2025 年 11 月 28 日
+**更新日**: 2025 年 12 月 11 日
 **作成者**: Claude Code (AI Assistant)

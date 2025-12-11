@@ -8,7 +8,7 @@ export default function Footer() {
   const pathname = usePathname();
 
   // 特定ページではスマホでフッターを非表示（固定フッターを使用するため）
-  const hideOnMobile = pathname === '/search/results' || pathname.startsWith('/hospital/');
+  const hideOnMobile = pathname === '/results' || pathname === '/search/results' || pathname.startsWith('/hospital/');
 
   return (
     <footer className={`bg-gray-50 border-t border-gray-200 mt-auto ${hideOnMobile ? 'hidden md:block' : ''}`} role="contentinfo">
