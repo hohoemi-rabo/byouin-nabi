@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, ReactNode } from 'react';
+import { useState, useRef, ReactNode } from 'react';
 
 type AccordionVariant = 'default' | 'highlight' | 'gradient';
 
@@ -28,6 +28,23 @@ export default function Accordion({
   className = '',
 }: AccordionProps) {
   const [isOpen, setIsOpen] = useState(defaultOpen);
+  const accordionRef = useRef<HTMLDivElement>(null);
+
+  const handleToggle = () => {
+    const willOpen = !isOpen;
+    setIsOpen(willOpen);
+
+    // 開く時にアコーディオン全体が見えるようにスクロール
+    if (willOpen && accordionRef.current) {
+      // アニメーション完了後にスクロール（300msのアニメーション + 余裕）
+      setTimeout(() => {
+        accordionRef.current?.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start',
+        });
+      }, 350);
+    }
+  };
 
   // バリアントに応じたスタイル
   const variantStyles = {
@@ -45,10 +62,10 @@ export default function Accordion({
   };
 
   return (
-    <div className={`rounded-xl shadow-md overflow-hidden transition-all duration-300 ${isOpen ? 'ring-2 ring-primary/30' : ''} ${className}`}>
+    <div ref={accordionRef} className={`rounded-xl shadow-md overflow-hidden transition-all duration-300 ${isOpen ? 'ring-2 ring-primary/30' : ''} ${className}`}>
       {/* ヘッダー（クリックで開閉） */}
       <button
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={handleToggle}
         className={`w-full flex items-center justify-between p-4 md:p-5 text-left transition-all duration-200 min-h-tap ${variantStyles[variant]}`}
         aria-expanded={isOpen}
       >
@@ -84,14 +101,26 @@ export default function Accordion({
         </div>
       </button>
 
-      {/* コンテンツ（アニメーション付き） */}
+      {/* コンテンツ（CSS Gridアニメーション） */}
+      {/*
+        元のコード（max-height方式）- 戻す場合はこちらを使用:
+        <div className={`overflow-hidden transition-all duration-300 ease-out ${
+          isOpen ? 'max-h-none opacity-100' : 'max-h-0 opacity-0'
+        }`}>
+          <div className="p-4 md:p-5 bg-white border-t border-gray-100">
+            {children}
+          </div>
+        </div>
+      */}
       <div
-        className={`overflow-hidden transition-all duration-300 ease-out ${
-          isOpen ? 'max-h-[2000px] opacity-100' : 'max-h-0 opacity-0'
+        className={`grid transition-[grid-template-rows] duration-300 ease-out ${
+          isOpen ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'
         }`}
       >
-        <div className="p-4 md:p-5 bg-white border-t border-gray-100">
-          {children}
+        <div className="overflow-hidden">
+          <div className="p-4 md:p-5 bg-white border-t border-gray-100">
+            {children}
+          </div>
         </div>
       </div>
     </div>
