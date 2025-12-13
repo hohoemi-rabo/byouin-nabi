@@ -23,20 +23,19 @@ function ResultsContent() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    // LocalStorageからのデータ読み込みを待つ
+    if (!isLoaded) {
+      return;
+    }
+
+    // データが空の場合、アンケートページに戻る
+    if (data.location.length === 0 || !data.duration) {
+      router.push('/questionnaire');
+      return;
+    }
+
     const generateDescription = async () => {
-      // LocalStorageからのデータ読み込みを待つ
-      if (!isLoaded) {
-        return;
-      }
-
-      // データが空の場合、アンケートページに戻る
-      if (data.location.length === 0 || !data.duration) {
-        router.push('/questionnaire');
-        return;
-      }
-
       try {
-        setLoading(true);
         const response = await fetch('/api/symptoms/generate', {
           method: 'POST',
           headers: {
@@ -61,7 +60,8 @@ function ResultsContent() {
     };
 
     generateDescription();
-  }, [data, router, isLoaded]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isLoaded]);
 
   if (loading) {
     return (
