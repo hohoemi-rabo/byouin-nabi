@@ -184,18 +184,28 @@ export async function importHospitals(formData: FormData): Promise<ImportResult>
     throw new Error('既存データの削除に失敗しました: ' + deleteError.message);
   }
 
-  // データのバリデーションと挿入
+  // バリデーションフェーズ: 全行を検証し、有効データとエラーを分離
+  const validData: Array<{
+    name: string;
+    category: string[];
+    address: string;
+    tel: string;
+    city: string;
+    opening_hours: string | null;
+    google_map_url: string | null;
+    website: string | null;
+    note: string | null;
+  }> = [];
+
   for (let i = 0; i < parsedData.length; i++) {
     const row = parsedData[i];
     const rowNumber = i + 2; // ヘッダー行を考慮
 
     try {
-      // バリデーション
       if (!row['病院名'] || !row['住所'] || !row['電話番号'] || !row['市町村']) {
         throw new Error('必須項目（病院名、住所、電話番号、市町村）が不足しています');
       }
 
-      // 診療科のパース
       const categories = row['診療科']
         ? String(row['診療科']).split(',').map((s: string) => s.trim()).filter((s: string) => s.length > 0)
         : [];
@@ -204,7 +214,7 @@ export async function importHospitals(formData: FormData): Promise<ImportResult>
         throw new Error('診療科を1つ以上入力してください');
       }
 
-      const hospitalData = {
+      validData.push({
         name: String(row['病院名']).trim(),
         category: categories,
         address: String(row['住所']).trim(),
@@ -214,24 +224,27 @@ export async function importHospitals(formData: FormData): Promise<ImportResult>
         google_map_url: row['Google Maps URL'] ? String(row['Google Maps URL']).trim() : null,
         website: row['Webサイト'] ? String(row['Webサイト']).trim() : null,
         note: row['備考'] ? String(row['備考']).trim() : null,
-      };
-
-      // データ挿入
-      const { error } = await supabaseAdmin
-        .from('hospitals')
-        .insert(hospitalData);
-
-      if (error) {
-        throw error;
-      }
-
-      result.success++;
+      });
     } catch (error) {
       result.errors.push({
         row: rowNumber,
         message: error instanceof Error ? error.message : '不明なエラー',
       });
     }
+  }
+
+  // インサートフェーズ: 有効データを一括挿入
+  if (validData.length > 0) {
+    const { error: insertError } = await supabaseAdmin
+      .from('hospitals')
+      .insert(validData);
+
+    if (insertError) {
+      console.error('Batch insert error:', insertError);
+      throw new Error('病院データの一括登録に失敗しました: ' + insertError.message);
+    }
+
+    result.success = validData.length;
   }
 
   // キャッシュの再検証

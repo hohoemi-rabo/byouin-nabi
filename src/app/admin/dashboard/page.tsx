@@ -1,74 +1,34 @@
-'use client';
-
-import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Button from '@/components/Common/Button';
+import { supabase } from '@/lib/supabase';
 import type { Hospital } from '@/types/hospital';
 
-interface Stats {
-  totalHospitals: number;
-  cities: string[];
-  categories: string[];
-}
-
-export default function AdminDashboardPage() {
-  const [stats, setStats] = useState<Stats | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        const response = await fetch('/api/hospitals');
-        if (!response.ok) {
-          throw new Error('データの取得に失敗しました');
-        }
-
-        const data = await response.json();
-        const hospitals: Hospital[] = data.hospitals || [];
-
-        // 統計情報を計算
-        const cities = Array.from(
-          new Set(hospitals.map(h => h.city))
-        ).sort();
-
-        const categories = Array.from(
-          new Set(hospitals.flatMap(h => h.category))
-        ).sort();
-
-        setStats({
-          totalHospitals: hospitals.length,
-          cities,
-          categories,
-        });
-      } catch (err) {
-        console.error('Stats fetch error:', err);
-        setError(
-          err instanceof Error ? err.message : 'データの取得に失敗しました'
-        );
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchStats();
-  }, []);
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <p className="text-base text-gray-600">読み込み中...</p>
-      </div>
-    );
-  }
+export default async function AdminDashboardPage() {
+  const { data: hospitals, error } = await supabase
+    .from('hospitals')
+    .select('*')
+    .order('name');
 
   if (error) {
-    return (
-      <div className="bg-error/10 border-2 border-error rounded-lg p-4">
-        <p className="text-error font-bold text-sm">❌ {error}</p>
-      </div>
-    );
+    throw new Error('データの取得に失敗しました: ' + error.message);
   }
+
+  const hospitalList: Hospital[] = hospitals || [];
+
+  // 統計情報を計算
+  const cities = Array.from(
+    new Set(hospitalList.map(h => h.city))
+  ).sort();
+
+  const categories = Array.from(
+    new Set(hospitalList.flatMap(h => h.category))
+  ).sort();
+
+  const stats = {
+    totalHospitals: hospitalList.length,
+    cities,
+    categories,
+  };
 
   return (
     <div className="space-y-4">
@@ -89,7 +49,7 @@ export default function AdminDashboardPage() {
             <div>
               <p className="text-xs text-gray-600">登録病院数</p>
               <p className="text-2xl font-bold text-primary">
-                {stats?.totalHospitals || 0}
+                {stats.totalHospitals}
               </p>
             </div>
           </div>
@@ -101,7 +61,7 @@ export default function AdminDashboardPage() {
             <div>
               <p className="text-xs text-gray-600">対応市町村数</p>
               <p className="text-2xl font-bold text-primary">
-                {stats?.cities.length || 0}
+                {stats.cities.length}
               </p>
             </div>
           </div>
@@ -113,7 +73,7 @@ export default function AdminDashboardPage() {
             <div>
               <p className="text-xs text-gray-600">診療科目数</p>
               <p className="text-2xl font-bold text-primary">
-                {stats?.categories.length || 0}
+                {stats.categories.length}
               </p>
             </div>
           </div>
@@ -138,7 +98,7 @@ export default function AdminDashboardPage() {
       </div>
 
       {/* 市町村一覧 */}
-      {stats && stats.cities.length > 0 && (
+      {stats.cities.length > 0 && (
         <div className="bg-white rounded-lg shadow p-4">
           <h2 className="text-lg font-bold mb-3">対応市町村</h2>
           <div className="flex flex-wrap gap-2">
@@ -155,7 +115,7 @@ export default function AdminDashboardPage() {
       )}
 
       {/* 診療科目一覧 */}
-      {stats && stats.categories.length > 0 && (
+      {stats.categories.length > 0 && (
         <div className="bg-white rounded-lg shadow p-4">
           <h2 className="text-lg font-bold mb-3">登録診療科目</h2>
           <div className="flex flex-wrap gap-2">

@@ -28,8 +28,7 @@ async function getHospital(id: string): Promise<Hospital | null> {
 }
 
 export default async function HospitalDetailPage({ params, searchParams }: Props) {
-  const { id } = await params;
-  const resolvedSearchParams = await searchParams;
+  const [{ id }, resolvedSearchParams] = await Promise.all([params, searchParams]);
   const hospital = await getHospital(id);
 
   if (!hospital) {

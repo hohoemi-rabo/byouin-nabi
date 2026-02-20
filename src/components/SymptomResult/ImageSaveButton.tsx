@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import html2canvas from 'html2canvas';
 import Button from '@/components/Common/Button';
 import { useRouter } from 'next/navigation';
 
@@ -25,7 +24,8 @@ export default function ImageSaveButton({ targetId }: ImageSaveButtonProps) {
         throw new Error('保存対象が見つかりません');
       }
 
-      // html2canvasでスクリーンショット作成
+      // html2canvasを動的インポート（~300KB、使用時のみロード）
+      const { default: html2canvas } = await import('html2canvas');
       const canvas = await html2canvas(element);
 
       // CanvasをBlobに変換

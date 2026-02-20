@@ -4,6 +4,8 @@ import { memo } from 'react';
 import { useRouter } from 'next/navigation';
 import type { Hospital } from '@/types/hospital';
 
+const EMPTY_CATEGORIES: string[] = [];
+
 interface HospitalListItemProps {
   hospital: Hospital;
   highlightCategories?: string[];
@@ -17,7 +19,7 @@ interface HospitalListItemProps {
  */
 const HospitalListItem = memo(function HospitalListItem({
   hospital,
-  highlightCategories = [],
+  highlightCategories = EMPTY_CATEGORIES,
   detailUrl
 }: HospitalListItemProps) {
   const router = useRouter();
