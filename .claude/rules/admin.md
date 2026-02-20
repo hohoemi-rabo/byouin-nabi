@@ -10,7 +10,7 @@ paths:
 
 ## 認証システム
 
-- Cookie ベース認証（`admin-token`）
+- Cookie ベース認証（`admin-auth`）
 - `/api/admin/login` - ログイン
 - `/api/admin/logout` - ログアウト
 - `middleware.ts` - `/admin` パスを保護（`/admin/login` は除外）
@@ -21,7 +21,7 @@ paths:
 | パス | 内容 |
 |------|------|
 | `/admin/login` | ログイン画面（AdminLayout非表示） |
-| `/admin/dashboard` | ダッシュボード |
+| `/admin/dashboard` | ダッシュボード（Server Component、クライアントJS 0B） |
 | `/admin/hospitals` | 病院一覧（編集・削除・診療時間ボタン） |
 | `/admin/hospitals/new` | 新規登録 |
 | `/admin/hospitals/[id]/edit` | 編集（動的ルート） |
@@ -42,7 +42,7 @@ paths:
 
 ## CSV インポート/エクスポート
 
-- **インポート**: CSV/Excel → パース → バリデーション → 全削除＋新規挿入（フル置換方式）
+- **インポート**: CSV/Excel → パース → バリデーション → 全削除＋バッチINSERT（フル置換方式）
 - **エクスポート**: UTF-8 BOM付き CSV（Excel文字化け防止）
 - パッケージ: `papaparse`（CSV）, `xlsx`（Excel）
 - ConfirmModal で確認 → LoadingSpinner → SuccessModal

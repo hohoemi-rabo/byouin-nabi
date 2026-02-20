@@ -28,10 +28,10 @@ CREATE TABLE hospitals (
   city TEXT NOT NULL,
   opening_hours TEXT,
   google_map_url TEXT,
-  website TEXT,                   -- 2025/11/18 追加
+  website TEXT,
   note TEXT,
-  created_at TIMESTAMP DEFAULT NOW(),
-  updated_at TIMESTAMP DEFAULT NOW()
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
 -- インデックス
@@ -53,11 +53,35 @@ CREATE TABLE hospital_schedules (
   afternoon_end TIME,
   is_closed BOOLEAN DEFAULT false,
   note TEXT,
-  created_at TIMESTAMP DEFAULT NOW(),
-  updated_at TIMESTAMP DEFAULT NOW(),
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW(),
   UNIQUE(hospital_id, day_of_week)
 );
 ```
+
+## RLS（Row Level Security）
+
+### hospitals テーブル（RLS 有効）
+
+| ポリシー名 | 操作 | 条件 |
+|-----------|------|------|
+| Public hospitals are viewable by everyone | SELECT | `true`（公開読み取り） |
+| Authenticated users can insert hospitals | INSERT | `(select auth.role()) = 'authenticated'` |
+| Authenticated users can update hospitals | UPDATE | `(select auth.role()) = 'authenticated'` |
+| Authenticated users can delete hospitals | DELETE | `(select auth.role()) = 'authenticated'` |
+
+### hospital_schedules テーブル（RLS 有効）
+
+| ポリシー名 | 操作 | 条件 |
+|-----------|------|------|
+| Public schedules are viewable by everyone | SELECT | `true`（公開読み取り） |
+
+### 権限設計
+
+- **`anon` ロール**: SELECT のみ（読み取り専用）
+- **`service_role`**: 全権限（RLS バイパス）
+- 管理操作は全て `supabaseAdmin`（Service Role Key）経由
+- RLSポリシーの `auth.role()` は `(select auth.role())` でラップ済み（パフォーマンス最適化）
 
 ## TypeScript 型定義 (`src/types/hospital.ts`)
 
@@ -100,6 +124,9 @@ supabase.from('hospitals').select(`*, schedules:hospital_schedules(*)`)
 
 // 市町村検索（IN句）
 .in('city', ['飯田市', '松川町'])
+
+// バルクインポート（バッチINSERT）
+supabaseAdmin.from('hospitals').insert(validDataArray)
 ```
 
 ## 認証
@@ -107,3 +134,11 @@ supabase.from('hospitals').select(`*, schedules:hospital_schedules(*)`)
 - 認証方法: Cookie ベース（ADMIN_PASSWORD による簡易認証）
 - 管理者数: 1名のみ
 - 管理操作は `supabaseAdmin`（Service Role Key）を使用
+
+## DB設計の注意事項
+
+- `timestamp` ではなく `timestamptz` を使用（タイムゾーン対応）
+- テーブル名・カラム名は全て snake_case（小文字）
+- FK列には必ずインデックスを作成（`hospital_id` にインデックス済み）
+- バルクINSERTはバッチ方式（ループ内個別INSERTを避ける）
+- `text` 型を使用（`varchar(255)` ではなく）

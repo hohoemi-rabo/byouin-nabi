@@ -77,6 +77,18 @@ query.in('city', cities)                // 市町村（IN句）
 query.ilike('name', `%${keyword}%`)     // キーワード（部分一致）
 ```
 
+## バッチ処理パターン
+
+- ループ内で個別 INSERT しない。バリデーション→一括 INSERT の2段階で処理する
+  ```typescript
+  // ✅ バッチINSERT（importHospitals で使用）
+  const validData = [];
+  for (const row of parsedData) {
+    // バリデーションのみ実行、validData に push
+  }
+  await supabaseAdmin.from('hospitals').insert(validData); // 一括挿入
+  ```
+
 ## AI診断機能
 
 - 機能フラグ: `NEXT_PUBLIC_AI_DIAGNOSIS === 'true'` で制御

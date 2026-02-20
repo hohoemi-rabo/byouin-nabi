@@ -68,6 +68,22 @@ const updateWithId = updateHospital.bind(null, hospitalId)
 - `next/font` でフォント最適化（Noto Sans JP）
 - 重いコンポーネントは `dynamic()` で遅延ロード
 - `React.memo`, `useMemo`, `useCallback` で不要な再レンダリング防止
+- **動的インポート**: 使用時のみロードする重いライブラリは `await import()` を使用
+  ```typescript
+  // ❌ 静的インポート（バンドルに含まれる）
+  import html2canvas from 'html2canvas';
+  // ✅ 動的インポート（使用時のみロード）
+  const { default: html2canvas } = await import('html2canvas');
+  ```
+- **非同期の並列化**: 独立した `await` は `Promise.all()` で並列実行
+  ```typescript
+  const [{ id }, resolvedSearchParams] = await Promise.all([params, searchParams]);
+  ```
+- **memo のデフォルト値巻き上げ**: 非プリミティブのデフォルト値はモジュールスコープに定義
+  ```typescript
+  const EMPTY_ARRAY: string[] = []; // モジュールスコープ
+  function Component({ items = EMPTY_ARRAY }) { ... } // 安定した参照
+  ```
 
 ## ルーティング
 
