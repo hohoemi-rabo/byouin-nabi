@@ -31,6 +31,17 @@ export interface Hospital {
   google_map_url?: string | null;
   website?: string | null;
   note?: string | null;
+  // Phase 2 追加カラム
+  latitude?: number | null;
+  longitude?: number | null;
+  online_consultation?: boolean;
+  online_consultation_url?: string | null;
+  parking?: boolean;
+  parking_capacity?: number | null;
+  barrier_free?: boolean;
+  emergency_available?: boolean;
+  shuttle_bus?: boolean;
+  shuttle_bus_info?: string | null;
   created_at?: string;
   updated_at?: string;
   schedules?: HospitalSchedule[]; // リレーション
