@@ -18,6 +18,11 @@ export default function AdminSidebar() {
       icon: '🏥',
     },
     {
+      href: '/admin/transport',
+      label: '交通手段管理',
+      icon: '🚌',
+    },
+    {
       href: '/admin/hospitals/import',
       label: 'データインポート',
       icon: '📥',
