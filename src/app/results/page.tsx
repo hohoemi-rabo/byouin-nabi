@@ -75,7 +75,7 @@ function ResultsContent() {
   if (loading) {
     return (
       <div className="container mx-auto px-4 py-12">
-        <LoadingBox message="症状をまとめていま���..." size="lg" />
+        <LoadingBox message="症状をまとめています..." size="lg" />
       </div>
     );
   }
@@ -111,17 +111,17 @@ function ResultsContent() {
   return (
     <div className="container mx-auto px-4 py-8 md:py-12">
       <div className="max-w-5xl mx-auto">
-        {/* ヘ��ダー */}
+        {/* ヘッダー */}
         <div className="text-center mb-8">
           <h1 className="text-2xl md:text-3xl font-bold mb-2">
-            症状のま���めが完成しました
+            症状のまとめが完成しました
           </h1>
           <p className="text-base text-gray-600">
-            各セクショ��をタップして内容を確認できます
+            各セクションをタップして内容を確認できます
           </p>
         </div>
 
-        {/* 緊急度判���（最上部に大きく表示） */}
+        {/* 緊急度判定（最上部に大きく表示） */}
         {aiResult && (
           <div className="mb-6">
             <UrgencyBadge
@@ -133,9 +133,9 @@ function ResultsContent() {
           </div>
         )}
 
-        {/* アコーディオンセ���ション */}
+        {/* アコーディオンセクション */}
         <div className="space-y-4 mb-8">
-          {/* 推奨される診療科（デフォルト���開く） */}
+          {/* 推奨される診療科（デフォルトで開く） */}
           <Accordion title="推奨される診療科" icon="🏥" defaultOpen={true}>
             <RecommendedDepartments departments={recommendedDepartments} />
             {aiResult?.department_reason && (
@@ -145,11 +145,11 @@ function ResultsContent() {
             )}
           </Accordion>
 
-          {/* ��状まとめ */}
+          {/* 症状まとめ */}
           <Accordion
             title="症状まとめを見る"
             icon="📝"
-            description="病院で見せられる説明文を作成��ました"
+            description="病院で見せられる説明文を作成しました"
             badge="便利"
             badgeColor="green"
             variant="highlight"
@@ -166,7 +166,7 @@ function ResultsContent() {
           </Accordion>
         </div>
 
-        {/* 対応病院リスト（常に表示��� */}
+        {/* 対応病院リスト（常に表示） */}
         <div className="mt-8">
           <h2 className="text-xl md:text-2xl font-bold mb-4 text-foreground flex items-center gap-2">
             <span>📋</span>
