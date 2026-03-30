@@ -5,6 +5,7 @@ import type { Hospital } from '@/types/hospital';
 import HospitalCard from '@/components/HospitalList/HospitalCard';
 import HospitalMapWrapper from '@/components/Map/HospitalMapWrapper';
 import MobileFixedFooter from '@/components/Common/MobileFixedFooter';
+import Button from '@/components/Common/Button';
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -96,6 +97,15 @@ export default async function HospitalDetailPage({ params, searchParams }: Props
               />
             </div>
           )}
+
+          {/* ここへの行き方ボタン */}
+          <div className="mt-6">
+            <Link href={`/route?to=${hospital.id}&name=${encodeURIComponent(hospital.name)}`}>
+              <Button variant="primary" className="w-full text-lg py-4">
+                🚌 ここへの行き方を調べる
+              </Button>
+            </Link>
+          </div>
         </div>
       </div>
 
