@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useRef, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import type { Hospital } from '@/types/hospital';
 import Button from '@/components/Common/Button';
@@ -15,6 +15,31 @@ export default function HospitalForm({ hospital, action, mode }: HospitalFormPro
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
+  const [geocoding, setGeocoding] = useState(false);
+  const latRef = useRef<HTMLInputElement>(null);
+  const lngRef = useRef<HTMLInputElement>(null);
+
+  const handleGeocode = async () => {
+    const addressInput = document.getElementById('address') as HTMLInputElement;
+    const address = addressInput?.value;
+    if (!address) {
+      setError('住所を入力してから座標取得を行ってください');
+      return;
+    }
+    setGeocoding(true);
+    setError(null);
+    try {
+      const res = await fetch(`/api/geocode?address=${encodeURIComponent(address)}`);
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      if (latRef.current) latRef.current.value = String(data.latitude);
+      if (lngRef.current) lngRef.current.value = String(data.longitude);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : '座標の取得に失敗しました');
+    } finally {
+      setGeocoding(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -138,6 +163,7 @@ export default function HospitalForm({ hospital, action, mode }: HospitalFormPro
             緯度
           </label>
           <input
+            ref={latRef}
             type="number"
             step="any"
             id="latitude"
@@ -152,6 +178,7 @@ export default function HospitalForm({ hospital, action, mode }: HospitalFormPro
             経度
           </label>
           <input
+            ref={lngRef}
             type="number"
             step="any"
             id="longitude"
@@ -162,9 +189,19 @@ export default function HospitalForm({ hospital, action, mode }: HospitalFormPro
           />
         </div>
       </div>
-      <p className="text-xs text-gray-600 -mt-2">
-        Google Maps で病院を検索し、URLの座標を入力してください。地図表示に使用します。
-      </p>
+      <div className="-mt-2 flex items-center gap-3">
+        <button
+          type="button"
+          onClick={handleGeocode}
+          disabled={geocoding}
+          className="text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1.5 rounded border border-gray-300 transition-colors disabled:opacity-50"
+        >
+          {geocoding ? '取得中...' : '📍 住所から座標を取得'}
+        </button>
+        <p className="text-xs text-gray-600">
+          または Google Maps で検索して手動入力
+        </p>
+      </div>
 
       <div>
         <label htmlFor="google_map_url" className="block text-sm font-medium mb-1">

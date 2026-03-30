@@ -382,3 +382,54 @@ export async function updateHospitalSchedules(
 
   return { success: true };
 }
+
+// 既存病院データの一括座標変換
+export async function geocodeAllHospitals(): Promise<{ updated: number; failed: number; errors: string[] }> {
+  await verifyAdminAuth();
+
+  const apiKey = process.env.GOOGLE_MAPS_API_KEY || process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+  if (!apiKey) {
+    throw new Error('Google Maps API キーが設定されていません');
+  }
+
+  const { data: hospitals, error } = await supabaseAdmin
+    .from('hospitals')
+    .select('id, name, address')
+    .is('latitude', null);
+
+  if (error) throw new Error('病院データの取得に失敗しました: ' + error.message);
+  if (!hospitals || hospitals.length === 0) return { updated: 0, failed: 0, errors: [] };
+
+  let updated = 0;
+  let failed = 0;
+  const errors: string[] = [];
+
+  for (const h of hospitals) {
+    try {
+      const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(h.address)}&key=${apiKey}&language=ja`;
+      const res = await fetch(url);
+      const data = await res.json();
+
+      if (data.status === 'OK' && data.results?.length) {
+        const { lat, lng } = data.results[0].geometry.location;
+        await supabaseAdmin
+          .from('hospitals')
+          .update({ latitude: lat, longitude: lng })
+          .eq('id', h.id);
+        updated++;
+      } else {
+        failed++;
+        errors.push(`${h.name}: 座標が見つかりません`);
+      }
+
+      // レート制限対策: 50ms待機
+      await new Promise(resolve => setTimeout(resolve, 50));
+    } catch (err) {
+      failed++;
+      errors.push(`${h.name}: ${err instanceof Error ? err.message : '不明なエラー'}`);
+    }
+  }
+
+  revalidatePath('/admin/hospitals');
+  return { updated, failed, errors };
+}
