@@ -17,54 +17,54 @@ Phase 1 の OpenAI gpt-4o-mini ベースの AI診断を廃止し、Gemini API（
 
 ### OpenAI 廃止
 
-- [ ] `openai` パッケージを削除（`npm uninstall openai`）
-- [ ] `OPENAI_API_KEY` 環境変数を `.env.local` および Vercel から削除
-- [ ] `NEXT_PUBLIC_AI_DIAGNOSIS` 環境変数を削除（常時有効化するため不要）
-- [ ] `/api/symptoms/ai-diagnosis/route.ts` を削除
-- [ ] `AIDiagnosisButton` コンポーネントから機能フラグ分岐を削除
+- [x] `openai` パッケージを削除（`npm uninstall openai`）
+- [x] `OPENAI_API_KEY` 環境変数を `.env.local` から削除（Vercel は API キー取得後に削除）
+- [x] `NEXT_PUBLIC_AI_DIAGNOSIS` 環境変数を削除（常時有効化するため不要）
+- [x] `/api/symptoms/ai-diagnosis/route.ts` を削除
+- [x] `AIDiagnosisButton` コンポーネントを削除（UrgencyBadge に置換）
+- [x] 利用規約の OpenAI 参照を Gemini に更新
 
 ### Gemini API 統合
 
-- [ ] `@google/generative-ai` パッケージをインストール
-- [ ] `GEMINI_API_KEY` 環境変数を `.env.local` および Vercel に追加
-- [ ] `src/lib/gemini.ts` — Gemini クライアント初期化ユーティリティ作成
-- [ ] `/api/symptoms/ai-recommend/route.ts` — 新規APIルート作成
+- [x] `@google/generative-ai` パッケージをインストール
+- [x] `GEMINI_API_KEY` 環境変数を `.env.local` に追加（プレースホルダー、API キー取得後に設定）
+- [x] `src/lib/gemini.ts` — Gemini クライアント初期化ユーティリティ作成
+- [x] `/api/symptoms/ai-recommend/route.ts` — 新規APIルート作成
   - リクエスト: `{ questionnaire: QuestionnaireData, age_group?, area? }`
-  - レスポンス: `{ urgency, urgency_reason, recommended_departments, department_reason, advice, disclaimer }`
-  - `response_mime_type: "application/json"` でJSON構造化出力
-  - temperature, max_tokens 等のパラメータ設定
-- [ ] System Prompt 設計（Phase2-Requirements.md セクション 4.2 のプロンプト構造に準拠）
-- [ ] 20診療科マスターからのみ選択するようプロンプトで制約
+  - レスポンス: `{ urgency, urgency_reason, recommended_departments, department_reason, advice, disclaimer, source }`
+  - `responseMimeType: "application/json"` でJSON構造化出力
+  - temperature: 0.7, maxOutputTokens: 1000
+- [x] System Prompt 設計（Phase2-Requirements.md セクション 4.2 のプロンプト構造に準拠）
+- [x] 20診療科マスターからのみ選択するようプロンプトで制約（レスポンス後にバリデーション）
 
 ### フォールバック実装
 
-- [ ] `src/lib/fallbackUrgency.ts` — ルールベース緊急度判定関数
-  - EMERGENCY_SYMPTOMS → 'emergency'
-  - SOON_SYMPTOMS → 'soon'
-  - デフォルト → 'watch'
-- [ ] AI-recommend API 内でタイムアウト5秒 + try-catch でフォールバック切替
-- [ ] フォールバック時は既存 `getDepartments()` + `fallbackUrgency()` で結果生成
+- [x] `src/lib/fallbackUrgency.ts` — ルールベース緊急度判定関数
+- [x] AI-recommend API 内でタイムアウト5秒 + try-catch でフォールバック切替
+- [x] フォールバック時は既存 `getDepartments()` + `fallbackUrgency()` で結果生成
+- [x] Gemini API キー未設定時もフォールバックで動作
 
 ### 緊急度 UI
 
-- [ ] `src/components/SymptomResult/UrgencyBadge.tsx` — 3段階緊急度バッジ
-  - 🔴 緊急（赤背景）: 119番ボタン + 救急対応病院のみ表示
+- [x] `src/components/SymptomResult/UrgencyBadge.tsx` — 3段階緊急度バッジ
+  - 🔴 緊急（赤背景）: 119番ボタン表示
   - 🟡 早めに受診（黄背景）: 当日〜翌日の受診を推奨
   - 🟢 様子を見て受診（緑背景）: 通常表示
-- [ ] `/results` ページに緊急度セクションを追加（最上部に大きく表示）
-- [ ] Phase 1 の AI診断アコーディオンを緊急度表示に置換
-- [ ] 免責事項表示は Phase 1 同等以上を維持
+- [x] `/results` ページに緊急度セクションを追加（最上部に大きく表示）
+- [x] Phase 1 の AI診断アコーディオンを緊急度表示に置換
+- [x] 免責事項表示は Phase 1 同等以上を維持
+- [x] AI推奨診療科がある場合、その理由も表示
 
 ### 型定義
 
-- [ ] `src/types/ai.ts` — AI レスポンス型（UrgencyLevel, AIRecommendResponse 等）
+- [x] `src/types/ai.ts` — AI レスポンス型（UrgencyLevel, AIRecommendResponse, AIRecommendRequest）
 
 ### テスト・確認
 
-- [ ] Gemini API の正常応答確認
-- [ ] フォールバック動作確認（API キーを無効化してテスト）
-- [ ] 緊急度 UI の3パターン表示確認
-- [ ] `npm run build` で型エラー・リントエラーなし確認
+- [x] Gemini API の正常応答確認（gemini-3.1-flash-lite-preview で3パターン正常動作）
+- [x] フォールバック動作確認（API キー未設定でフォールバック使用）
+- [x] 緊急度 UI の3パターン表示確認（emergency/soon/watch 全て正常判定）
+- [x] `npm run build` で型エラー・リントエラーなし確認
 
 ---
 

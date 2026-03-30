@@ -92,7 +92,7 @@ export default function TermsPage() {
               <ul className="list-disc list-inside space-y-2 ml-4">
                 <li>本サービスは、アンケート回答データをブラウザのローカルストレージに保存します。</li>
                 <li>入力された症状情報は、サーバーに保存されません。</li>
-                <li>AI診断機能を利用した場合、OpenAI APIに症状情報が送信されます（機能が有効な場合のみ）。</li>
+                <li>AI受診レコメンド機能を利用した場合、Google Gemini APIに症状情報が送信されます。個人を特定できる情報は送信されません。</li>
                 <li>個人を特定できる情報（氏名、住所、電話番号等）は収集しません。</li>
               </ul>
             </div>

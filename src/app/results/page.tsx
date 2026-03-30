@@ -7,66 +7,75 @@ import SymptomDescription from '@/components/SymptomResult/SymptomDescription';
 import RecommendedDepartments from '@/components/SymptomResult/RecommendedDepartments';
 import HospitalList from '@/components/HospitalList/HospitalList';
 import ImageSaveButton from '@/components/SymptomResult/ImageSaveButton';
-import AIDiagnosisButton from '@/components/SymptomResult/AIDiagnosisButton';
+import UrgencyBadge from '@/components/SymptomResult/UrgencyBadge';
 import ErrorBox from '@/components/Common/ErrorBox';
 import LoadingBox from '@/components/Common/LoadingBox';
 import Button from '@/components/Common/Button';
 import Accordion from '@/components/Common/Accordion';
 import MobileFixedFooter from '@/components/Common/MobileFixedFooter';
 import { getDepartments } from '@/lib/departmentMapping';
+import type { AIRecommendResponse } from '@/types/ai';
 
 function ResultsContent() {
   const router = useRouter();
   const { data, isLoaded, resetData } = useQuestionnaire();
   const [description, setDescription] = useState<string | null>(null);
+  const [aiResult, setAiResult] = useState<AIRecommendResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // LocalStorageからのデータ読み込みを待つ
-    if (!isLoaded) {
-      return;
-    }
+    if (!isLoaded) return;
 
-    // データが空の場合、アンケートページに戻る
     if (data.location.length === 0 || !data.duration) {
       router.push('/questionnaire');
       return;
     }
 
-    const generateDescription = async () => {
+    const fetchData = async () => {
       try {
-        const response = await fetch('/api/symptoms/generate', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(data),
-        });
+        // 症状説明文生成と AI 緊急度判定を並列実行
+        const [descRes, aiRes] = await Promise.all([
+          fetch('/api/symptoms/generate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data),
+          }),
+          fetch('/api/symptoms/ai-recommend', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ questionnaire: data }),
+          }),
+        ]);
 
-        if (!response.ok) {
-          const errorData = await response.json();
+        if (!descRes.ok) {
+          const errorData = await descRes.json();
           throw new Error(errorData.error || '症状説明文の生成に失敗しました');
         }
 
-        const result = await response.json();
-        setDescription(result.description);
+        const descResult = await descRes.json();
+        setDescription(descResult.description);
+
+        if (aiRes.ok) {
+          const aiData = await aiRes.json();
+          setAiResult(aiData);
+        }
       } catch (err) {
-        console.error('Error generating description:', err);
-        setError(err instanceof Error ? err.message : '症状説明文の生成に失敗しました');
+        console.error('Error loading results:', err);
+        setError(err instanceof Error ? err.message : '結果の取得に失敗しました');
       } finally {
         setLoading(false);
       }
     };
 
-    generateDescription();
+    fetchData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLoaded]);
 
   if (loading) {
     return (
       <div className="container mx-auto px-4 py-12">
-        <LoadingBox message="症状をまとめています..." size="lg" />
+        <LoadingBox message="症状をまとめていま���..." size="lg" />
       </div>
     );
   }
@@ -77,10 +86,7 @@ function ResultsContent() {
         <div className="max-w-2xl mx-auto">
           <ErrorBox error={error} />
           <div className="mt-6">
-            <Button
-              variant="primary"
-              onClick={() => router.push('/questionnaire')}
-            >
+            <Button variant="primary" onClick={() => router.push('/questionnaire')}>
               アンケートに戻る
             </Button>
           </div>
@@ -89,14 +95,14 @@ function ResultsContent() {
     );
   }
 
-  if (!description) {
-    return null;
-  }
+  if (!description) return null;
 
-  // 推奨される診療科を計算
-  const recommendedDepartments = getDepartments(data.location, data.symptoms);
+  // 推奨診療科: AI結果があればそちらを優先、なければルールベース
+  const ruleDepartments = getDepartments(data.location, data.symptoms);
+  const recommendedDepartments = aiResult?.recommended_departments?.length
+    ? aiResult.recommended_departments
+    : ruleDepartments;
 
-  // トップページに戻る際にデータをクリア
   const handleBackToHome = () => {
     resetData();
     router.push('/');
@@ -105,28 +111,45 @@ function ResultsContent() {
   return (
     <div className="container mx-auto px-4 py-8 md:py-12">
       <div className="max-w-5xl mx-auto">
-        {/* ヘッダー */}
+        {/* ヘ��ダー */}
         <div className="text-center mb-8">
           <h1 className="text-2xl md:text-3xl font-bold mb-2">
-            症状のまとめが完成しました
+            症状のま���めが完成しました
           </h1>
           <p className="text-base text-gray-600">
-            各セクションをタップして内容を確認できます
+            各セクショ��をタップして内容を確認できます
           </p>
         </div>
 
-        {/* アコーディオンセクション */}
+        {/* 緊急度判���（最上部に大きく表示） */}
+        {aiResult && (
+          <div className="mb-6">
+            <UrgencyBadge
+              urgency={aiResult.urgency}
+              reason={aiResult.urgency_reason}
+              advice={aiResult.advice}
+              disclaimer={aiResult.disclaimer}
+            />
+          </div>
+        )}
+
+        {/* アコーディオンセ���ション */}
         <div className="space-y-4 mb-8">
-          {/* 推奨される診療科（デフォルトで開く） */}
+          {/* 推奨される診療科（デフォルト���開く） */}
           <Accordion title="推奨される診療科" icon="🏥" defaultOpen={true}>
             <RecommendedDepartments departments={recommendedDepartments} />
+            {aiResult?.department_reason && (
+              <p className="mt-3 text-sm text-gray-600 bg-blue-50 rounded-lg p-3">
+                💡 {aiResult.department_reason}
+              </p>
+            )}
           </Accordion>
 
-          {/* 症状まとめ */}
+          {/* ��状まとめ */}
           <Accordion
             title="症状まとめを見る"
             icon="📝"
-            description="病院で見せられる説明文を作成しました"
+            description="病院で見せられる説明文を作成��ました"
             badge="便利"
             badgeColor="green"
             variant="highlight"
@@ -141,21 +164,9 @@ function ResultsContent() {
               <ImageSaveButton targetId="symptom-description" />
             </div>
           </Accordion>
-
-          {/* AI診断 */}
-          <Accordion
-            title="AI診断を試す"
-            icon="🤖"
-            description="AIが症状を分析して可能性のある病気を提案します"
-            badge="実験的"
-            badgeColor="purple"
-            variant="gradient"
-          >
-            <AIDiagnosisButton questionnaireData={data} />
-          </Accordion>
         </div>
 
-        {/* 対応病院リスト（常に表示） */}
+        {/* 対応病院リスト（常に表示��� */}
         <div className="mt-8">
           <h2 className="text-xl md:text-2xl font-bold mb-4 text-foreground flex items-center gap-2">
             <span>📋</span>
