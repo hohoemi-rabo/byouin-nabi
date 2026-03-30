@@ -132,6 +132,40 @@ export default function HospitalForm({ hospital, action, mode }: HospitalFormPro
         />
       </div>
 
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <label htmlFor="latitude" className="block text-sm font-medium mb-1">
+            緯度
+          </label>
+          <input
+            type="number"
+            step="any"
+            id="latitude"
+            name="latitude"
+            defaultValue={hospital?.latitude ?? ''}
+            placeholder="例: 35.5148"
+            className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:border-primary focus:outline-none"
+          />
+        </div>
+        <div>
+          <label htmlFor="longitude" className="block text-sm font-medium mb-1">
+            経度
+          </label>
+          <input
+            type="number"
+            step="any"
+            id="longitude"
+            name="longitude"
+            defaultValue={hospital?.longitude ?? ''}
+            placeholder="例: 136.9566"
+            className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:border-primary focus:outline-none"
+          />
+        </div>
+      </div>
+      <p className="text-xs text-gray-600 -mt-2">
+        Google Maps で病院を検索し、URLの座標を入力してください。地図表示に使用します。
+      </p>
+
       <div>
         <label htmlFor="google_map_url" className="block text-sm font-medium mb-1">
           Google Maps URL

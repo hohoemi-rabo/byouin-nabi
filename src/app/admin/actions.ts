@@ -27,6 +27,9 @@ export async function createHospital(formData: FormData) {
     .map(cat => cat.trim())
     .filter(cat => cat.length > 0);
 
+  const latStr = formData.get('latitude') as string;
+  const lngStr = formData.get('longitude') as string;
+
   const hospitalData = {
     name: formData.get('name') as string,
     category: categories,
@@ -37,6 +40,8 @@ export async function createHospital(formData: FormData) {
     google_map_url: formData.get('google_map_url') as string || null,
     website: formData.get('website') as string || null,
     note: formData.get('note') as string || null,
+    latitude: latStr ? parseFloat(latStr) : null,
+    longitude: lngStr ? parseFloat(lngStr) : null,
   };
 
   // バリデーション
@@ -73,6 +78,9 @@ export async function updateHospital(hospitalId: string, formData: FormData) {
     .map(cat => cat.trim())
     .filter(cat => cat.length > 0);
 
+  const latStr2 = formData.get('latitude') as string;
+  const lngStr2 = formData.get('longitude') as string;
+
   const hospitalData = {
     name: formData.get('name') as string,
     category: categories,
@@ -83,6 +91,8 @@ export async function updateHospital(hospitalId: string, formData: FormData) {
     google_map_url: formData.get('google_map_url') as string || null,
     website: formData.get('website') as string || null,
     note: formData.get('note') as string || null,
+    latitude: latStr2 ? parseFloat(latStr2) : null,
+    longitude: lngStr2 ? parseFloat(lngStr2) : null,
     updated_at: new Date().toISOString(),
   };
 

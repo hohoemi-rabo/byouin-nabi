@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 import type { Hospital } from '@/types/hospital';
 import HospitalCard from '@/components/HospitalList/HospitalCard';
+import HospitalMapWrapper from '@/components/Map/HospitalMapWrapper';
 import MobileFixedFooter from '@/components/Common/MobileFixedFooter';
 
 interface Props {
@@ -83,6 +84,18 @@ export default async function HospitalDetailPage({ params, searchParams }: Props
           <h1 className="text-3xl font-bold mb-6">病院詳細</h1>
 
           <HospitalCard hospital={hospital} />
+
+          {/* 地図（緯度経度がある場合のみ表示） */}
+          {hospital.latitude && hospital.longitude && (
+            <div className="mt-6 bg-white p-4 shadow-sm border-l-4 border-primary">
+              <h2 className="text-lg font-bold mb-3">📍 地図</h2>
+              <HospitalMapWrapper
+                latitude={hospital.latitude}
+                longitude={hospital.longitude}
+                hospitalName={hospital.name}
+              />
+            </div>
+          )}
         </div>
       </div>
 

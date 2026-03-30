@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
+    "@react-google-maps/api": "^2.20.8",
     "@supabase/supabase-js": "^2.81.1",
     "@types/papaparse": "^5.5.0",
     "html2canvas": "^1.4.1",
