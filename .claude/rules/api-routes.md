@@ -14,9 +14,13 @@ paths:
 | メソッド | パス | 説明 |
 |---------|------|------|
 | POST | `/api/symptoms/generate` | テンプレートベース症状説明文生成 |
-| POST | `/api/symptoms/ai-diagnosis` | AI診断（実験的、機能フラグ制御） |
+| POST | `/api/symptoms/ai-recommend` | Gemini AI 緊急度判定・受診レコメンド（Phase 2） |
 | GET | `/api/hospitals` | 全病院リスト取得（schedulesをjoin） |
 | GET | `/api/search` | 診療科・市町村・キーワード検索 |
+| GET | `/api/transport` | 交通サービス一覧（area/typeフィルタ、Phase 2） |
+| GET | `/api/transport/[id]` | 交通サービス詳細（Phase 2） |
+| POST | `/api/route/search` | ルート検索（Directions API + 地域交通、Phase 2） |
+| GET | `/api/geocode` | 住所→座標変換（Geocoding API、Phase 2） |
 
 ### 管理 API（認証必須 - Server Actions）
 
@@ -89,9 +93,11 @@ query.ilike('name', `%${keyword}%`)     // キーワード（部分一致）
   await supabaseAdmin.from('hospitals').insert(validData); // 一括挿入
   ```
 
-## AI診断機能
+## AI緊急度判定・受診レコメンド（Phase 2）
 
-- 機能フラグ: `NEXT_PUBLIC_AI_DIAGNOSIS === 'true'` で制御
-- OpenAI API: `gpt-4o-mini` 使用
+- Gemini API: `gemini-3.1-flash-lite-preview` 使用（`src/lib/gemini.ts`）
+- 常時有効（機能フラグ廃止、OpenAI 完全廃止）
+- フォールバック: Gemini障害時は `departmentMapping.ts` + `fallbackUrgency.ts` で自動切替
+- 緊急度3段階: emergency / soon / watch（`UrgencyBadge` コンポーネント）
 - 医療法準拠: 「診断」ではなく「参考情報」「受診の目安」と表現
 - 免責事項を必ず表示

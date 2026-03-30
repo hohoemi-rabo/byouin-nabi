@@ -27,8 +27,10 @@
 | React | 19.1.0 | Server Components 対応 |
 | TypeScript | 5.x | `strict: true` |
 | Tailwind CSS | 3.4.17 | ユーティリティファースト |
-| Supabase | - | PostgreSQL + 認証 |
-| OpenAI API | - | GPT-4o-mini（AI診断・実験的） |
+| Supabase | - | PostgreSQL + 認証（Phase 2: Supabase Auth 追加予定） |
+| Gemini API | - | `gemini-3.1-flash-lite-preview`（AI緊急度判定・受診レコメンド） |
+| Google Maps Platform | - | 地図表示・ルート検索・Geocoding |
+| `@react-google-maps/api` | - | Google Maps React コンポーネント |
 | html2canvas | - | 症状説明文の画像保存 |
 
 ## npm スクリプト
@@ -76,9 +78,12 @@ SUPABASE_SERVICE_ROLE_KEY=eyJ...       # 管理機能用（サーバー側のみ
 # 管理画面認証
 ADMIN_PASSWORD=...
 
-# AI診断（実験的・本番有効化済み）
-OPENAI_API_KEY=sk-proj-...
-NEXT_PUBLIC_AI_DIAGNOSIS=true
+# Gemini API（AI緊急度判定・受診レコメンド）
+GEMINI_API_KEY=...
+
+# Google Maps API（地図表示・ルート検索）
+GOOGLE_MAPS_API_KEY=...
+NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=...
 ```
 
 - `NEXT_PUBLIC_*`: クライアント側で必要な場合のみ
@@ -94,17 +99,46 @@ src/
 │   ├── layout.tsx          # ルートレイアウト
 │   ├── page.tsx            # ホーム
 │   ├── questionnaire/      # アンケート
-│   ├── results/            # 結果表示
+│   ├── results/            # 結果表示（AI緊急度判定統合）
 │   ├── search/             # 検索（条件 + 結果）
-│   ├── hospital/[id]/      # 病院詳細
+│   ├── hospital/[id]/      # 病院詳細（地図埋め込み + 行き方ボタン）
+│   ├── route/              # ルート検索結果（Phase 2）
 │   ├── contact/            # お問い合わせ
 │   ├── terms/              # 利用規約
-│   ├── admin/              # 管理画面（認証保護）
+│   ├── admin/              # 管理画面（病院 + 交通手段管理）
 │   └── api/                # APIルート
-├── components/             # UIコンポーネント
-├── context/                # React Context
-├── lib/                    # ユーティリティ（supabase, masterData, queryUtils）
+│       ├── hospitals/      # 病院データ
+│       ├── search/         # 病院検索
+│       ├── symptoms/       # 症状説明文生成 + AI緊急度判定
+│       ├── transport/      # 交通サービス
+│       ├── route/search/   # ルート検索
+│       └── geocode/        # 住所→座標変換
+├── components/
+│   ├── Common/             # 共通UI（Header, Footer, Button, Accordion 等）
+│   ├── Questionnaire/      # アンケート機能
+│   ├── SymptomResult/      # 症状結果・緊急度バッジ
+│   ├── HospitalList/       # 病院リスト・カード
+│   ├── Map/                # Google Maps 地図表示（Phase 2）
+│   ├── Route/              # ルート検索UI（Phase 2）
+│   ├── Admin/              # 管理画面フォーム
+│   └── Layout/             # AdminLayout
+├── context/                # React Context（QuestionnaireContext）
+├── lib/                    # ユーティリティ
+│   ├── supabase.ts         # 公開用クライアント（Anon Key）
+│   ├── supabase-admin.ts   # 管理用クライアント（Service Role Key）
+│   ├── gemini.ts           # Gemini AI クライアント（Phase 2）
+│   ├── departmentMapping.ts # 部位→診療科マッピング
+│   ├── fallbackUrgency.ts  # ルールベース緊急度判定（Phase 2）
+│   ├── transportMatcher.ts # 地域交通マッチング（Phase 2）
+│   └── masterData.ts       # 診療科20種・市町村14自治体
 └── types/                  # TypeScript型定義
+    ├── hospital.ts         # Hospital, HospitalSchedule
+    ├── questionnaire.ts    # QuestionnaireData
+    ├── ai.ts               # UrgencyLevel, AIRecommendResponse（Phase 2）
+    ├── transport.ts        # TransportService, BusRoute 等（Phase 2）
+    ├── route.ts            # Route, RouteSearchResponse（Phase 2）
+    ├── user.ts             # Profile, FavoriteFacility 等（Phase 2）
+    └── facility.ts         # Facility, SearchLog（Phase 2）
 ```
 
 ---
@@ -153,4 +187,4 @@ npm install && npm run dev
 
 ---
 
-**更新日**: 2026年3月29日
+**更新日**: 2026年3月30日
