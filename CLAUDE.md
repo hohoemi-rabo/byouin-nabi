@@ -27,7 +27,7 @@
 | React | 19.1.0 | Server Components 対応 |
 | TypeScript | 5.x | `strict: true` |
 | Tailwind CSS | 3.4.17 | ユーティリティファースト |
-| Supabase | - | PostgreSQL + 認証（Phase 2: Supabase Auth 追加予定） |
+| Supabase | - | PostgreSQL + Supabase Auth（`@supabase/ssr`） |
 | Gemini API | - | `gemini-3.1-flash-lite-preview`（AI緊急度判定・受診レコメンド） |
 | Google Maps Platform | - | 地図表示・ルート検索・Geocoding |
 | `@react-google-maps/api` | - | Google Maps React コンポーネント |
@@ -103,6 +103,10 @@ src/
 │   ├── search/             # 検索（条件 + 結果）
 │   ├── hospital/[id]/      # 病院詳細（地図埋め込み + 行き方ボタン）
 │   ├── route/              # ルート検索結果（Phase 2）
+│   ├── login/              # ログイン（Phase 2）
+│   ├── signup/             # 新規登録（Phase 2）
+│   ├── mypage/             # マイページ・プロフィール・設定（Phase 2）
+│   ├── auth/callback/      # Supabase Auth コールバック（Phase 2）
 │   ├── contact/            # お問い合わせ
 │   ├── terms/              # 利用規約
 │   ├── admin/              # 管理画面（病院 + 交通手段管理）
@@ -112,7 +116,8 @@ src/
 │       ├── symptoms/       # 症状説明文生成 + AI緊急度判定
 │       ├── transport/      # 交通サービス
 │       ├── route/search/   # ルート検索
-│       └── geocode/        # 住所→座標変換
+│       ├── geocode/        # 住所→座標変換
+│       └── user/           # プロフィール・かかりつけ医・履歴（Phase 2）
 ├── components/
 │   ├── Common/             # 共通UI（Header, Footer, Button, Accordion 等）
 │   ├── Questionnaire/      # アンケート機能
@@ -120,12 +125,18 @@ src/
 │   ├── HospitalList/       # 病院リスト・カード
 │   ├── Map/                # Google Maps 地図表示（Phase 2）
 │   ├── Route/              # ルート検索UI（Phase 2）
+│   ├── Auth/               # AuthGuard（Phase 2）
+│   ├── User/               # FavoriteButton, ProfileForm, HistoryRecorder（Phase 2）
 │   ├── Admin/              # 管理画面フォーム
 │   └── Layout/             # AdminLayout
-├── context/                # React Context（QuestionnaireContext）
+├── context/                # React Context
+│   ├── QuestionnaireContext.tsx  # アンケートデータ
+│   └── AuthContext.tsx          # Supabase Auth 状態管理（Phase 2）
 ├── lib/                    # ユーティリティ
 │   ├── supabase.ts         # 公開用クライアント（Anon Key）
 │   ├── supabase-admin.ts   # 管理用クライアント（Service Role Key）
+│   ├── supabase-browser.ts # ブラウザ用認証クライアント（Phase 2）
+│   ├── supabase-server.ts  # サーバー用認証クライアント（Phase 2）
 │   ├── gemini.ts           # Gemini AI クライアント（Phase 2）
 │   ├── departmentMapping.ts # 部位→診療科マッピング
 │   ├── fallbackUrgency.ts  # ルールベース緊急度判定（Phase 2）
@@ -187,4 +198,4 @@ npm install && npm run dev
 
 ---
 
-**更新日**: 2026年3月30日
+**更新日**: 2026年4月1日

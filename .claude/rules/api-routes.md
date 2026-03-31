@@ -22,6 +22,14 @@ paths:
 | POST | `/api/route/search` | ルート検索（Directions API + 地域交通、Phase 2） |
 | GET | `/api/geocode` | 住所→座標変換（Geocoding API、Phase 2） |
 
+### ユーザー API（Supabase Auth 認証必須、Phase 2）
+
+| メソッド | パス | 説明 |
+|---------|------|------|
+| GET/PUT | `/api/user/profile` | プロフィール取得・更新（upsert） |
+| GET/POST/PUT/DELETE | `/api/user/favorites` | かかりつけ医 CRUD（最大5件、GET ?check=id で1件チェック） |
+| GET/POST | `/api/user/history` | 受診履歴取得（直近10件重複除去）・記録 |
+
 ### 管理 API（認証必須 - Server Actions）
 
 | 関数 | 説明 |
