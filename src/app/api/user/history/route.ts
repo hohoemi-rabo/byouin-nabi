@@ -9,12 +9,22 @@ export async function GET() {
     return NextResponse.json({ error: '認証が必要です' }, { status: 401 });
   }
 
-  const { data, error } = await supabase
+  // 直近の履歴を取得し、同じ病院の重複を除去（最新のみ残す）
+  const { data: rawData, error } = await supabase
     .from('search_history')
     .select('*, hospital:hospitals(*)')
     .eq('user_id', user.id)
     .order('created_at', { ascending: false })
-    .limit(10);
+    .limit(30);
+
+  // 同じ病院の重複を除去して10件に絞る
+  const seen = new Set<string>();
+  const data = (rawData || []).filter(item => {
+    const key = item.result_hospital_id || item.id;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  }).slice(0, 10);
 
   if (error) {
     return NextResponse.json({ error: '履歴の取得に失敗しました' }, { status: 500 });

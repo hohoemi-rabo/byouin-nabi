@@ -14,6 +14,11 @@ export default function HistoryRecorder({ hospitalId, searchType = 'search' }: H
   useEffect(() => {
     if (!user) return;
 
+    // セッション内で同じ病院の重複記録を防止
+    const key = `history-${hospitalId}`;
+    if (sessionStorage.getItem(key)) return;
+    sessionStorage.setItem(key, '1');
+
     fetch('/api/user/history', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
