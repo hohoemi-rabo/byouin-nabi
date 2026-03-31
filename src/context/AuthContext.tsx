@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useEffect, useRef, useState } from 'react';
+import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { createSupabaseBrowser } from '@/lib/supabase-browser';
 import type { User } from '@supabase/supabase-js';
 import type { Profile } from '@/types/user';
@@ -27,7 +27,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const signingOut = useRef(false);
 
-  const fetchProfile = async (userId: string) => {
+  const fetchProfile = useCallback(async (userId: string) => {
     const supabase = createSupabaseBrowser();
     const { data } = await supabase
       .from('profiles')
@@ -35,7 +35,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       .eq('id', userId)
       .single();
     setProfile(data as Profile | null);
-  };
+  }, []);
 
   useEffect(() => {
     const supabase = createSupabaseBrowser();

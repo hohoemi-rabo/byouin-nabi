@@ -1,7 +1,7 @@
 'use client';
 
 import { useSearchParams } from 'next/navigation';
-import { useState, Suspense } from 'react';
+import { useState, useEffect, useRef, useCallback, Suspense } from 'react';
 import LocationInput from '@/components/Route/LocationInput';
 import RouteCard from '@/components/Route/RouteCard';
 import LoadingBox from '@/components/Common/LoadingBox';
@@ -18,11 +18,9 @@ function RouteContent() {
   const [result, setResult] = useState<RouteSearchResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [originSet, setOriginSet] = useState(false);
+  const autoSearched = useRef(false);
 
-  // fromParam がある場合は自動検索
-  const handleLocationSelect = async (location: { lat: number; lng: number }) => {
-    setOriginSet(true);
+  const handleLocationSelect = useCallback(async (location: { lat: number; lng: number }) => {
     setLoading(true);
     setError(null);
 
@@ -52,15 +50,18 @@ function RouteContent() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [toParam]);
 
-  // fromParam がある場合は初回自動検索
-  if (fromParam && !originSet && !loading) {
+  // fromParam がある場合は初回のみ自動検索（useEffect で実行）
+  useEffect(() => {
+    if (!fromParam || autoSearched.current) return;
+    autoSearched.current = true;
+
     const [lat, lng] = fromParam.split(',').map(Number);
     if (!isNaN(lat) && !isNaN(lng)) {
       handleLocationSelect({ lat, lng });
     }
-  }
+  }, [fromParam, handleLocationSelect]);
 
   return (
     <div className="container mx-auto px-4 py-8 md:py-12">
@@ -117,7 +118,7 @@ function RouteContent() {
 
             {/* 出発地を変更 */}
             <button
-              onClick={() => { setResult(null); setOriginSet(false); setError(null); }}
+              onClick={() => { setResult(null); autoSearched.current = false; setError(null); }}
               className="text-primary underline text-base mb-6 block"
             >
               📍 出発地を変更する

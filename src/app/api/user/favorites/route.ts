@@ -3,7 +3,7 @@ import { createSupabaseServer } from '@/lib/supabase-server';
 
 const MAX_FAVORITES = 5;
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   const supabase = await createSupabaseServer();
   const { data: { user } } = await supabase.auth.getUser();
 
@@ -11,6 +11,19 @@ export async function GET() {
     return NextResponse.json({ error: '認証が必要です' }, { status: 401 });
   }
 
+  // 単一病院のチェック（FavoriteButton用）
+  const checkId = request.nextUrl.searchParams.get('check');
+  if (checkId) {
+    const { data } = await supabase
+      .from('favorite_facilities')
+      .select('id')
+      .eq('user_id', user.id)
+      .eq('hospital_id', checkId)
+      .maybeSingle();
+    return NextResponse.json({ isFavorite: !!data });
+  }
+
+  // 全件取得（マイページ用）
   const { data, error } = await supabase
     .from('favorite_facilities')
     .select('*, hospital:hospitals(*)')

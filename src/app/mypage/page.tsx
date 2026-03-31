@@ -76,15 +76,22 @@ function MypageContent() {
     const newIndex = direction === 'up' ? index - 1 : index + 1;
     if (newIndex < 0 || newIndex >= favorites.length) return;
 
+    const previous = [...favorites];
     const reordered = [...favorites];
     [reordered[index], reordered[newIndex]] = [reordered[newIndex], reordered[index]];
     setFavorites(reordered);
 
-    await fetch('/api/user/favorites', {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ordered_ids: reordered.map(f => f.hospital_id) }),
-    });
+    try {
+      const res = await fetch('/api/user/favorites', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ordered_ids: reordered.map(f => f.hospital_id) }),
+      });
+      if (!res.ok) throw new Error();
+    } catch {
+      // 失敗時はロールバック
+      setFavorites(previous);
+    }
   };
 
   const handleSignOut = () => {

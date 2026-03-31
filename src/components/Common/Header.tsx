@@ -4,7 +4,7 @@ import HeaderAuthNav from './HeaderAuthNav';
 export default function Header() {
   return (
     <header className="bg-gradient-to-r from-blue-50 to-white border-b-4 border-primary sticky top-0 z-50 shadow-md" role="banner">
-      <div className="container mx-auto px-4 flex items-center justify-between" style={{ height: '88px' }}>
+      <div className="container mx-auto px-4 flex items-center justify-between min-h-header">
         <Link
           href="/"
           className="flex items-center gap-2 hover:opacity-80 transition-opacity"

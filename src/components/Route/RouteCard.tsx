@@ -1,5 +1,3 @@
-'use client';
-
 import type { Route } from '@/types/route';
 
 const ROUTE_ICONS: Record<string, string> = {

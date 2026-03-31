@@ -17,13 +17,14 @@ export default function FavoriteButton({ hospitalId }: FavoriteButtonProps) {
     if (!user) return;
 
     const checkFavorite = async () => {
-      const res = await fetch('/api/user/favorites');
-      if (res.ok) {
-        const data = await res.json();
-        const found = data.favorites?.some(
-          (f: { hospital_id: string }) => f.hospital_id === hospitalId
-        );
-        setIsFavorite(found);
+      try {
+        const res = await fetch(`/api/user/favorites?check=${hospitalId}`);
+        if (res.ok) {
+          const data = await res.json();
+          setIsFavorite(data.isFavorite ?? false);
+        }
+      } catch {
+        // チェック失敗は無視
       }
     };
 

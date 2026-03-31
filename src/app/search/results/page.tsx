@@ -14,7 +14,8 @@ function SearchResultsContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  // URLパラメータから検索条件を取得
+  // URLパラメータから検索条件を取得（プリミティブ値で依存管理）
+  const searchString = searchParams.toString();
   const categories = parseCommaSeparatedList(searchParams.get('categories'));
   const cities = parseCommaSeparatedList(searchParams.get('cities'));
   const keyword = searchParams.get('keyword') || '';
@@ -23,26 +24,23 @@ function SearchResultsContent() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>('');
 
-  // 検索条件がない場合は検索ページにリダイレクト
+  // 検索条件がない場合はリダイレクト、ある場合は検索実行（単一 useEffect に統合）
   useEffect(() => {
     if (categories.length === 0 && cities.length === 0 && !keyword) {
       router.push('/search');
       return;
     }
-  }, [categories.length, cities.length, keyword, router]);
 
-  // 検索を実行
-  useEffect(() => {
+    const abortController = new AbortController();
+
     const executeSearch = async () => {
-      if (categories.length === 0 && cities.length === 0 && !keyword) {
-        return;
-      }
-
       setLoading(true);
       setError('');
 
       try {
-        const response = await fetch(`/api/search?${searchParams.toString()}`);
+        const response = await fetch(`/api/search?${searchString}`, {
+          signal: abortController.signal,
+        });
 
         if (!response.ok) {
           throw new Error('検索に失敗しました');
@@ -51,6 +49,7 @@ function SearchResultsContent() {
         const data = await response.json();
         setHospitals(data.hospitals || []);
       } catch (err) {
+        if (err instanceof Error && err.name === 'AbortError') return;
         setError(err instanceof Error ? err.message : '検索に失敗しました');
       } finally {
         setLoading(false);
@@ -58,7 +57,11 @@ function SearchResultsContent() {
     };
 
     executeSearch();
-  }, [searchParams, categories.length, cities.length, keyword]);
+
+    return () => abortController.abort();
+    // searchString はプリミティブなので安定した依存値
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchString]);
 
   // 検索条件の表示用テキスト
   const getSearchSummary = () => {

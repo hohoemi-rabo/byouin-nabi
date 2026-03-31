@@ -1,5 +1,3 @@
-'use client';
-
 import type { UrgencyLevel } from '@/types/ai';
 
 interface UrgencyBadgeProps {
