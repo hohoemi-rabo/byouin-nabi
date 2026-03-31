@@ -3,15 +3,17 @@
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
 
-export default function HeaderAuthNav() {
+interface HeaderAuthNavProps {
+  initialLoggedIn: boolean;
+}
+
+export default function HeaderAuthNav({ initialLoggedIn }: HeaderAuthNavProps) {
   const { user, isLoading } = useAuth();
 
-  // ローディング中は固定幅のプレースホルダーで場所を確保（ちらつき防止）
-  if (isLoading) {
-    return <div className="w-10 h-10" />;
-  }
+  // ローディング中はサーバーサイドの初期値で表示（ちらつき防止）
+  const loggedIn = isLoading ? initialLoggedIn : !!user;
 
-  if (user) {
+  if (loggedIn) {
     return (
       <Link
         href="/mypage"

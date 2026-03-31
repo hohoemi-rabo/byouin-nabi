@@ -1,7 +1,17 @@
 import Link from 'next/link';
+import { createSupabaseServer } from '@/lib/supabase-server';
 import HeaderAuthNav from './HeaderAuthNav';
 
-export default function Header() {
+export default async function Header() {
+  // サーバーサイドでログイン状態を判定（ちらつき防止）
+  let isLoggedIn = false;
+  try {
+    const supabase = await createSupabaseServer();
+    const { data: { user } } = await supabase.auth.getUser();
+    isLoggedIn = !!user;
+  } catch {
+    // 未ログイン
+  }
   return (
     <header className="bg-gradient-to-r from-blue-50 to-white border-b-4 border-primary sticky top-0 z-50 shadow-md" role="banner">
       <div className="container mx-auto px-4 flex items-center justify-between min-h-header">
@@ -26,7 +36,7 @@ export default function Header() {
           >
             🔍 検索
           </Link>
-          <HeaderAuthNav />
+          <HeaderAuthNav initialLoggedIn={isLoggedIn} />
         </nav>
       </div>
     </header>
