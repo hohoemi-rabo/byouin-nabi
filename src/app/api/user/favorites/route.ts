@@ -61,6 +61,31 @@ export async function POST(request: NextRequest) {
   return NextResponse.json({ success: true });
 }
 
+export async function PUT(request: NextRequest) {
+  const supabase = await createSupabaseServer();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) {
+    return NextResponse.json({ error: '認証が必要です' }, { status: 401 });
+  }
+
+  const { ordered_ids } = await request.json();
+  if (!Array.isArray(ordered_ids)) {
+    return NextResponse.json({ error: '並び順が不正です' }, { status: 400 });
+  }
+
+  // 各IDにsort_orderを更新
+  for (let i = 0; i < ordered_ids.length; i++) {
+    await supabase
+      .from('favorite_facilities')
+      .update({ sort_order: i })
+      .eq('user_id', user.id)
+      .eq('hospital_id', ordered_ids[i]);
+  }
+
+  return NextResponse.json({ success: true });
+}
+
 export async function DELETE(request: NextRequest) {
   const supabase = await createSupabaseServer();
   const { data: { user } } = await supabase.auth.getUser();

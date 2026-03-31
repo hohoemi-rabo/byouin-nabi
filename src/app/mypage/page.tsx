@@ -72,6 +72,21 @@ function MypageContent() {
     }
   };
 
+  const handleReorder = async (index: number, direction: 'up' | 'down') => {
+    const newIndex = direction === 'up' ? index - 1 : index + 1;
+    if (newIndex < 0 || newIndex >= favorites.length) return;
+
+    const reordered = [...favorites];
+    [reordered[index], reordered[newIndex]] = [reordered[newIndex], reordered[index]];
+    setFavorites(reordered);
+
+    await fetch('/api/user/favorites', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ordered_ids: reordered.map(f => f.hospital_id) }),
+    });
+  };
+
   const handleSignOut = async () => {
     await signOut();
     window.location.href = '/';
@@ -118,8 +133,23 @@ function MypageContent() {
             <p className="text-gray-500">病院詳細ページから「かかりつけ医に登録」できます。（最大5件）</p>
           ) : (
             <div className="space-y-3">
-              {favorites.map(fav => (
-                <div key={fav.id} className="border rounded-lg p-3 flex items-center justify-between gap-3">
+              {favorites.map((fav, index) => (
+                <div key={fav.id} className="border rounded-lg p-3 flex items-center gap-3">
+                  {/* 並び替えボタン */}
+                  <div className="flex flex-col gap-1">
+                    <button
+                      onClick={() => handleReorder(index, 'up')}
+                      disabled={index === 0}
+                      className="text-gray-400 hover:text-gray-700 disabled:opacity-30 text-sm leading-none"
+                      aria-label="上に移動"
+                    >▲</button>
+                    <button
+                      onClick={() => handleReorder(index, 'down')}
+                      disabled={index === favorites.length - 1}
+                      className="text-gray-400 hover:text-gray-700 disabled:opacity-30 text-sm leading-none"
+                      aria-label="下に移動"
+                    >▼</button>
+                  </div>
                   <div className="flex-1 min-w-0">
                     <Link href={`/hospital/${fav.hospital_id}`} className="font-bold text-primary hover:underline">
                       {fav.hospital?.name || '不明な病院'}
