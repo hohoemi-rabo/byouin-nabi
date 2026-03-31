@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useAuth } from '@/context/AuthContext';
 
 interface HistoryRecorderProps {
@@ -10,14 +10,11 @@ interface HistoryRecorderProps {
 
 export default function HistoryRecorder({ hospitalId, searchType = 'search' }: HistoryRecorderProps) {
   const { user } = useAuth();
+  const recorded = useRef(false);
 
   useEffect(() => {
-    if (!user) return;
-
-    // セッション内で同じ病院の重複記録を防止
-    const key = `history-${hospitalId}`;
-    if (sessionStorage.getItem(key)) return;
-    sessionStorage.setItem(key, '1');
+    if (!user || recorded.current) return;
+    recorded.current = true;
 
     fetch('/api/user/history', {
       method: 'POST',
