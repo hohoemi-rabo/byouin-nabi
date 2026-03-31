@@ -6,7 +6,10 @@ import { useAuth } from '@/context/AuthContext';
 export default function HeaderAuthNav() {
   const { user, isLoading } = useAuth();
 
-  if (isLoading) return null;
+  // ローディング中は固定幅のプレースホルダーで場所を確保（ちらつき防止）
+  if (isLoading) {
+    return <div className="w-10 h-10" />;
+  }
 
   if (user) {
     return (
