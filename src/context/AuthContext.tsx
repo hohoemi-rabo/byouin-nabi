@@ -80,8 +80,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signOut = async () => {
     const supabase = createSupabaseBrowser();
     await supabase.auth.signOut();
-    setUser(null);
-    setProfile(null);
+    // state更新せず即リダイレクト（ちらつき防止）
+    window.location.href = '/';
   };
 
   return (

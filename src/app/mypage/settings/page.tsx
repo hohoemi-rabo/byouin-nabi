@@ -8,9 +8,8 @@ import Link from 'next/link';
 function SettingsContent() {
   const { user, signOut } = useAuth();
 
-  const handleSignOut = async () => {
-    await signOut();
-    window.location.href = '/';
+  const handleSignOut = () => {
+    signOut();
   };
 
   return (

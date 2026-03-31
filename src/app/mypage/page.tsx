@@ -87,9 +87,8 @@ function MypageContent() {
     });
   };
 
-  const handleSignOut = async () => {
-    await signOut();
-    window.location.href = '/';
+  const handleSignOut = () => {
+    signOut();
   };
 
   return (
