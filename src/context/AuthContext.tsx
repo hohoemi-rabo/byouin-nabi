@@ -51,26 +51,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     initAuth();
 
-    // Auth 状態変更の監視
+    // Auth 状態変更の監視（非同期処理はブロックしない）
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
+      (event, session) => {
         const currentUser = session?.user ?? null;
         setUser(currentUser);
 
-        if (currentUser) {
-          const { data } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', currentUser.id)
-            .single();
-          setProfile(data as Profile | null);
-        } else {
+        if (!currentUser || event === 'SIGNED_OUT') {
           setProfile(null);
+          return;
         }
 
-        if (event === 'SIGNED_OUT') {
-          setProfile(null);
-        }
+        // プロフィール取得は非同期で実行（リスナーをブロックしない）
+        supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', currentUser.id)
+          .single()
+          .then(({ data }) => {
+            setProfile(data as Profile | null);
+          });
       }
     );
 
