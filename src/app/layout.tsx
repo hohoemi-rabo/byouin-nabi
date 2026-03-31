@@ -4,6 +4,7 @@ import "./globals.css";
 import Header from "@/components/Common/Header";
 import Footer from "@/components/Common/Footer";
 import ScrollToTop from "@/components/Common/ScrollToTop";
+import { AuthProvider } from "@/context/AuthContext";
 
 const notoSansJP = Noto_Sans_JP({
   subsets: ["latin"],
@@ -26,21 +27,23 @@ export default function RootLayout({
   return (
     <html lang="ja">
       <body className={`${notoSansJP.variable} antialiased flex flex-col min-h-screen`}>
-        {/* スキップリンク（キーボードナビゲーション） */}
-        <a href="#main-content" className="skip-link">
-          メインコンテンツへスキップ
-        </a>
+        <AuthProvider>
+          {/* スキップリンク（キーボードナビゲーション） */}
+          <a href="#main-content" className="skip-link">
+            メインコンテンツへスキップ
+          </a>
 
-        <Header />
+          <Header />
 
-        <main id="main-content" className="flex-1" role="main">
-          {children}
-        </main>
+          <main id="main-content" className="flex-1" role="main">
+            {children}
+          </main>
 
-        <Footer />
+          <Footer />
 
-        {/* スクロールトップボタン */}
-        <ScrollToTop />
+          {/* スクロールトップボタン */}
+          <ScrollToTop />
+        </AuthProvider>
       </body>
     </html>
   );
