@@ -52,7 +52,7 @@ function MypageContent() {
             <div className="space-y-2 text-base">
               <p><span className="text-gray-500">表示名:</span> {profile.display_name}</p>
               <p><span className="text-gray-500">年齢層:</span> {AGE_LABELS[profile.age_group] || profile.age_group}</p>
-              <p><span className="text-gray-500">居住地区:</span> {profile.area}</p>
+              <p><span className="text-gray-500">住所:</span> {profile.area}</p>
               <p><span className="text-gray-500">自家用車:</span> {profile.has_car ? 'あり' : 'なし'}</p>
               <p><span className="text-gray-500">移動補助:</span> {MOBILITY_LABELS[profile.mobility_aid] || 'なし'}</p>
             </div>

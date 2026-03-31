@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ALL_CITIES } from '@/lib/masterData';
 import { useAuth } from '@/context/AuthContext';
 import Button from '@/components/Common/Button';
 import type { Profile } from '@/types/user';
@@ -127,20 +126,17 @@ export default function ProfileForm({ profile }: ProfileFormProps) {
 
       <div>
         <label htmlFor="area" className="block text-base font-bold mb-2">
-          居住地区 <span className="text-error">*</span>
+          住所 <span className="text-error">*</span>
         </label>
-        <select
+        <input
+          type="text"
           id="area"
           name="area"
           defaultValue={profile?.area || ''}
           required
+          placeholder="例: 長野県飯田市○○町1-2-3"
           className="w-full border-2 border-gray-300 rounded-xl px-4 py-3 text-base focus:border-primary focus:outline-none"
-        >
-          <option value="">選んでください</option>
-          {ALL_CITIES.map(city => (
-            <option key={city} value={city}>{city}</option>
-          ))}
-        </select>
+        />
       </div>
 
       <div>
