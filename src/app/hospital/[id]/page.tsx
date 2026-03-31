@@ -7,6 +7,7 @@ import HospitalMapWrapper from '@/components/Map/HospitalMapWrapper';
 import MobileFixedFooter from '@/components/Common/MobileFixedFooter';
 import Button from '@/components/Common/Button';
 import FavoriteButton from '@/components/User/FavoriteButton';
+import HistoryRecorder from '@/components/User/HistoryRecorder';
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -85,6 +86,7 @@ export default async function HospitalDetailPage({ params, searchParams }: Props
 
           <h1 className="text-3xl font-bold mb-6">病院詳細</h1>
 
+          <HistoryRecorder hospitalId={hospital.id} />
           <HospitalCard hospital={hospital} />
 
           {/* 地図（緯度経度がある場合のみ表示） */}
