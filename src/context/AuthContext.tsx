@@ -27,17 +27,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const supabase = createSupabaseBrowser();
 
-    // 初回ロード
+    // 初回ロード（getSession でローカルキャッシュから取得 — ロック競合を回避）
     const initAuth = async () => {
       try {
-        const { data: { user } } = await supabase.auth.getUser();
-        setUser(user);
+        const { data: { session } } = await supabase.auth.getSession();
+        const currentUser = session?.user ?? null;
+        setUser(currentUser);
 
-        if (user) {
+        if (currentUser) {
           const { data } = await supabase
             .from('profiles')
             .select('*')
-            .eq('id', user.id)
+            .eq('id', currentUser.id)
             .single();
           setProfile(data as Profile | null);
         }
