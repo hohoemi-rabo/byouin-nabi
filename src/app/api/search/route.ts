@@ -18,7 +18,10 @@ export async function GET(request: NextRequest) {
     let query = supabase
       .from('hospitals')
       .select(`
-        *,
+        id, name, category, address, tel, city,
+        opening_hours, google_map_url, website, note,
+        latitude, longitude,
+        parking, barrier_free, emergency_available,
         schedules:hospital_schedules(*)
       `)
       .order('name');

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import Button from '@/components/Common/Button';
 import LoadingSpinner from '@/components/Common/LoadingSpinner';
 import type { FollowUpQuestion, FollowUpAnswer, AIRecommendResponse } from '@/types/ai';
@@ -20,7 +20,31 @@ export default function FollowUpChat({ questionnaireData, initialAiResult, onRea
   const [phase, setPhase] = useState<'idle' | 'loading-questions' | 'answering' | 'reassessing' | 'done'>('idle');
   const [error, setError] = useState<string | null>(null);
 
-  const handleStart = async () => {
+  const runReassessment = useCallback(async (finalAnswers: FollowUpAnswer[]) => {
+    setPhase('reassessing');
+
+    try {
+      const res = await fetch('/api/symptoms/ai-recommend', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          questionnaire: questionnaireData,
+          follow_up_answers: finalAnswers,
+        }),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        onReassessment(data);
+      }
+    } catch {
+      // 再判定失敗は無視（初回結果が残る）
+    } finally {
+      setPhase('done');
+    }
+  }, [questionnaireData, onReassessment]);
+
+  const handleStart = useCallback(async () => {
     setPhase('loading-questions');
     setError(null);
 
@@ -47,9 +71,9 @@ export default function FollowUpChat({ questionnaireData, initialAiResult, onRea
       setError('エラーが発生しました。');
       setPhase('idle');
     }
-  };
+  }, [questionnaireData, initialAiResult]);
 
-  const handleAnswer = (answer: string) => {
+  const handleAnswer = useCallback((answer: string) => {
     const q = questions[currentIndex];
     const newAnswers = [...answers, { question_id: q.id, question_text: q.text, answer }];
     setAnswers(newAnswers);
@@ -60,39 +84,15 @@ export default function FollowUpChat({ questionnaireData, initialAiResult, onRea
     } else {
       runReassessment(newAnswers);
     }
-  };
+  }, [questions, currentIndex, answers, runReassessment]);
 
-  const handleSkip = () => {
+  const handleSkip = useCallback(() => {
     if (currentIndex + 1 < questions.length) {
       setCurrentIndex(currentIndex + 1);
     } else {
       runReassessment(answers);
     }
-  };
-
-  const runReassessment = async (finalAnswers: FollowUpAnswer[]) => {
-    setPhase('reassessing');
-
-    try {
-      const res = await fetch('/api/symptoms/ai-recommend', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          questionnaire: questionnaireData,
-          follow_up_answers: finalAnswers,
-        }),
-      });
-
-      if (res.ok) {
-        const data = await res.json();
-        onReassessment(data);
-      }
-    } catch {
-      // 再判定失敗は無視（初回結果が残る）
-    } finally {
-      setPhase('done');
-    }
-  };
+  }, [currentIndex, questions, answers, runReassessment]);
 
   // 開始前
   if (phase === 'idle') {

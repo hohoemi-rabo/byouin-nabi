@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useQuestionnaire } from '@/context/QuestionnaireContext';
 import QuestionOption from './QuestionOption';
@@ -33,26 +33,26 @@ export default function QuestionnaireForm() {
   const [showResetModal, setShowResetModal] = useState(false);
 
   // 最初からやり直す
-  const handleReset = () => {
+  const handleReset = useCallback(() => {
     setShowResetModal(true);
-  };
+  }, []);
 
-  const handleConfirmReset = () => {
+  const handleConfirmReset = useCallback(() => {
     setShowResetModal(false);
     resetData();
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
+  }, [resetData]);
 
   // 部位の選択/解除
-  const handleLocationToggle = (location: string) => {
+  const handleLocationToggle = useCallback((location: string) => {
     const newLocations = data.location.includes(location)
       ? data.location.filter(l => l !== location)
       : [...data.location, location];
     updateLocation(newLocations);
-  };
+  }, [data.location, updateLocation]);
 
   // 症状の選択/解除
-  const handleSymptomToggle = (symptom: string) => {
+  const handleSymptomToggle = useCallback((symptom: string) => {
     const newSymptoms = data.symptoms.includes(symptom)
       ? data.symptoms.filter(s => s !== symptom)
       : [...data.symptoms, symptom];
@@ -62,10 +62,10 @@ export default function QuestionnaireForm() {
     if (!newSymptoms.includes('しこり・ふくらみ')) {
       updateLumpSize(null);
     }
-  };
+  }, [data.symptoms, updateSymptoms, updateLumpSize]);
 
   // 持病の選択/解除
-  const handleConditionToggle = (condition: string) => {
+  const handleConditionToggle = useCallback((condition: string) => {
     if (condition === 'なし') {
       // 「なし」が選択されたら、他の選択肢をすべて解除
       updateConditions(['なし']);
@@ -76,10 +76,10 @@ export default function QuestionnaireForm() {
         : [...data.conditions.filter(c => c !== 'なし'), condition];
       updateConditions(newConditions);
     }
-  };
+  }, [data.conditions, updateConditions]);
 
   // バリデーション
-  const validateForm = (): boolean => {
+  const validateForm = useCallback((): boolean => {
     const newErrors: string[] = [];
 
     if (data.location.length === 0) {
@@ -103,16 +103,16 @@ export default function QuestionnaireForm() {
 
     setErrors(newErrors);
     return newErrors.length === 0;
-  };
+  }, [data]);
 
-  const handleSubmit = () => {
+  const handleSubmit = useCallback(() => {
     if (validateForm()) {
       router.push('/results');
     } else {
       // エラーメッセージの位置までスクロール
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
-  };
+  }, [validateForm, router]);
 
   return (
     <div className="max-w-3xl mx-auto">

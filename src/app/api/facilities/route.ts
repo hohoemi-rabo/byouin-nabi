@@ -9,7 +9,7 @@ export async function GET(request: NextRequest) {
 
     let query = supabase
       .from('facilities')
-      .select('*')
+      .select('id, name, category, address, city, phone, latitude, longitude, website_url, opening_hours, notes')
       .eq('is_active', true)
       .order('name');
 

@@ -87,13 +87,15 @@ export async function PUT(request: NextRequest) {
     return NextResponse.json({ error: '並び順が不正です' }, { status: 400 });
   }
 
-  // 各IDにsort_orderを更新
-  for (let i = 0; i < ordered_ids.length; i++) {
-    await supabase
-      .from('favorite_facilities')
-      .update({ sort_order: i })
-      .eq('user_id', user.id)
-      .eq('hospital_id', ordered_ids[i]);
+  // RPC関数でバッチ更新（N+1解消）
+  const { error } = await supabase
+    .rpc('update_favorite_order', {
+      p_user_id: user.id,
+      p_ordered_ids: ordered_ids,
+    });
+
+  if (error) {
+    return NextResponse.json({ error: '並び順の更新に失敗しました' }, { status: 500 });
   }
 
   return NextResponse.json({ success: true });

@@ -6,6 +6,12 @@ import { useLocationStore } from '@/stores/locationStore';
 import Button from '@/components/Common/Button';
 import LoadingSpinner from '@/components/Common/LoadingSpinner';
 
+const MODE_BUTTONS = [
+  { key: 'gps' as const, label: '📡 現在地' },
+  { key: 'address' as const, label: '✏️ 住所入力' },
+  { key: 'city' as const, label: '🏘️ 地区選択' },
+] as const;
+
 interface LocationInputProps {
   onLocationSelect: (location: { lat: number; lng: number }) => void;
 }
@@ -95,11 +101,7 @@ export default function LocationInput({ onLocationSelect }: LocationInputProps) 
 
       {/* モード切替 */}
       <div className="flex gap-2 mb-4">
-        {[
-          { key: 'gps' as const, label: '📡 現在地' },
-          { key: 'address' as const, label: '✏️ 住所入力' },
-          { key: 'city' as const, label: '🏘️ 地区選択' },
-        ].map(({ key, label }) => (
+        {MODE_BUTTONS.map(({ key, label }) => (
           <button key={key} onClick={() => { setMode(key); setError(null); }}
             className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors min-h-tap ${
               mode === key ? 'bg-primary text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'

@@ -1,3 +1,5 @@
+import { memo } from 'react';
+
 interface QuestionOptionProps {
   value: string;
   label: string;
@@ -6,7 +8,7 @@ interface QuestionOptionProps {
   multiSelect?: boolean;
 }
 
-export default function QuestionOption({
+function QuestionOption({
   value,
   label,
   selected,
@@ -66,3 +68,5 @@ export default function QuestionOption({
     </button>
   );
 }
+
+export default memo(QuestionOption);

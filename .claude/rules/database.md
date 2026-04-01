@@ -116,8 +116,14 @@ export interface HospitalSchedule {
 ## クエリパターン
 
 ```typescript
-// スケジュールを含む病院データ取得
-supabase.from('hospitals').select(`*, schedules:hospital_schedules(*)`)
+// スケジュールを含む病院データ取得（必要カラムのみ指定）
+supabase.from('hospitals').select(`
+  id, name, category, address, tel, city,
+  opening_hours, google_map_url, website, note,
+  latitude, longitude,
+  parking, barrier_free, emergency_available,
+  schedules:hospital_schedules(*)
+`)
 
 // 診療科検索（配列の重なり）
 .overlaps('category', ['内科', '外科'])
@@ -127,7 +133,20 @@ supabase.from('hospitals').select(`*, schedules:hospital_schedules(*)`)
 
 // バルクインポート（バッチINSERT）
 supabaseAdmin.from('hospitals').insert(validDataArray)
+
+// RPC関数: かかりつけ医の並び順バッチ更新
+supabase.rpc('update_favorite_order', { p_user_id, p_ordered_ids })
+
+// RPC関数: 検索履歴の重複除去取得（DISTINCT ON）
+supabase.rpc('get_unique_history', { p_user_id, p_limit: 10 })
 ```
+
+## RPC 関数
+
+| 関数名 | 目的 | 言語 |
+|--------|------|------|
+| `update_favorite_order(p_user_id, p_ordered_ids)` | かかりつけ医の並び順バッチ更新（N+1解消） | plpgsql |
+| `get_unique_history(p_user_id, p_limit)` | 検索履歴の病院重複除去取得 | sql |
 
 ## 認証
 
@@ -142,3 +161,7 @@ supabaseAdmin.from('hospitals').insert(validDataArray)
 - FK列には必ずインデックスを作成（`hospital_id` にインデックス済み）
 - バルクINSERTはバッチ方式（ループ内個別INSERTを避ける）
 - `text` 型を使用（`varchar(255)` ではなく）
+- `select('*')` は避け、必要カラムのみ指定（ネットワーク転送量削減）
+- N+1クエリはRPC関数でバッチ処理に置き換える
+- JS側のフィルタ/重複除去はDB側（DISTINCT ON等）で行う
+- `search_history` には複合インデックス `(user_id, created_at DESC)` 設定済み

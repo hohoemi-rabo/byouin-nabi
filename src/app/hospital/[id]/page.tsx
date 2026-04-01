@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
@@ -29,6 +30,20 @@ async function getHospital(id: string): Promise<Hospital | null> {
   }
 
   return hospital as Hospital;
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { id } = await params;
+  const hospital = await getHospital(id);
+
+  if (!hospital) {
+    return { title: '病院が見つかりません | 病院ナビ南信' };
+  }
+
+  return {
+    title: `${hospital.name} | 病院ナビ南信`,
+    description: `${hospital.name}（${hospital.address}）の診療情報。診療科: ${hospital.category.join('、')}`,
+  };
 }
 
 export default async function HospitalDetailPage({ params, searchParams }: Props) {

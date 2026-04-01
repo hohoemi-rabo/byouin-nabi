@@ -1,11 +1,16 @@
 import Link from 'next/link';
 import Button from '@/components/Common/Button';
 import { supabaseAdmin } from '@/lib/supabase-admin';
-import type { Hospital } from '@/types/hospital';
+interface HospitalSummary {
+  id: string;
+  name: string;
+  city: string;
+  category: string[];
+}
 
 export default async function AdminDashboardPage() {
   const [hospitalsRes, transportRes, facilitiesRes, profilesRes, logsRes] = await Promise.all([
-    supabaseAdmin.from('hospitals').select('*').order('name'),
+    supabaseAdmin.from('hospitals').select('id, name, city, category').order('name'),
     supabaseAdmin.from('transport_services').select('id', { count: 'exact', head: true }),
     supabaseAdmin.from('facilities').select('id', { count: 'exact', head: true }),
     supabaseAdmin.from('profiles').select('id', { count: 'exact', head: true }),
@@ -13,7 +18,7 @@ export default async function AdminDashboardPage() {
       .gte('created_at', new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString()),
   ]);
 
-  const hospitalList: Hospital[] = hospitalsRes.data || [];
+  const hospitalList = (hospitalsRes.data || []) as HospitalSummary[];
   const cities = Array.from(new Set(hospitalList.map(h => h.city))).sort();
   const categories = Array.from(new Set(hospitalList.flatMap(h => h.category))).sort();
 
