@@ -26,6 +26,12 @@ export default function Home() {
               🔍 地域・診療科から探す
             </button>
           </Link>
+
+          <Link href="/outing" className="w-full md:w-auto">
+            <button className="bg-orange text-white px-12 py-6 rounded-lg font-bold text-xl hover:bg-orange/90 transition-colors min-h-tap w-full shadow-md">
+              🚶 お出かけナビ
+            </button>
+          </Link>
         </div>
       </section>
 
@@ -127,6 +133,12 @@ export default function Home() {
           <Link href="/search" className="w-full md:w-auto">
             <button className="bg-success text-white px-12 py-6 rounded-lg font-bold text-xl hover:bg-success-dark transition-colors min-h-tap w-full shadow-md">
               🔍 地域・診療科から探す
+            </button>
+          </Link>
+
+          <Link href="/outing" className="w-full md:w-auto">
+            <button className="bg-orange text-white px-12 py-6 rounded-lg font-bold text-xl hover:bg-orange/90 transition-colors min-h-tap w-full shadow-md">
+              🚶 お出かけナビ
             </button>
           </Link>
         </div>

@@ -23,6 +23,11 @@ export default function AdminSidebar() {
       icon: '🚌',
     },
     {
+      href: '/admin/facilities',
+      label: '施設管理',
+      icon: '🏪',
+    },
+    {
       href: '/admin/hospitals/import',
       label: 'データインポート',
       icon: '📥',
