@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { genAI, GEMINI_MODEL, AI_TIMEOUT_MS } from '@/lib/gemini';
+import { genAI, GEMINI_MODEL } from '@/lib/gemini';
 
 const FOLLOW_UP_PROMPT = `あなたは医療アクセスを支援するAIアシスタントです。
 以下の症状情報をもとに、より詳しい判定をするための追加質問を2〜3個生成してください。
@@ -53,7 +53,7 @@ export async function POST(request: NextRequest) {
     );
 
     const timeoutPromise = new Promise<never>((_, reject) =>
-      setTimeout(() => reject(new Error('タイムアウト')), AI_TIMEOUT_MS)
+      setTimeout(() => reject(new Error('タイムアウト')), 10000)
     );
 
     const result = await Promise.race([resultPromise, timeoutPromise]);
