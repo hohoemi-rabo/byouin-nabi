@@ -9,7 +9,7 @@ interface MobileFixedFooterProps {
 
 export default function MobileFixedFooter({ backUrl, backText = '戻る' }: MobileFixedFooterProps) {
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-2 md:hidden z-50">
+    <div className="fixed bottom-[52px] left-0 right-0 bg-white border-t border-gray-200 p-2 md:hidden z-50">
       <div className="flex gap-2">
         <Link
           href="/"

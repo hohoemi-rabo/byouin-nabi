@@ -4,6 +4,7 @@ import "./globals.css";
 import Header from "@/components/Common/Header";
 import Footer from "@/components/Common/Footer";
 import ScrollToTop from "@/components/Common/ScrollToTop";
+import BottomNav from "@/components/Common/BottomNav";
 import { AuthProvider } from "@/context/AuthContext";
 
 const notoSansJP = Noto_Sans_JP({
@@ -43,6 +44,9 @@ export default function RootLayout({
 
           {/* スクロールトップボタン */}
           <ScrollToTop />
+
+          {/* モバイル ボトムナビゲーション */}
+          <BottomNav />
         </AuthProvider>
       </body>
     </html>

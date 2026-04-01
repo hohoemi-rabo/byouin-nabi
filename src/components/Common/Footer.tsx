@@ -30,6 +30,13 @@ export default function Footer() {
             >
               利用規約
             </Link>
+            <Link
+              href="/outing"
+              className="text-gray-600 hover:text-primary transition-colors min-h-tap flex items-center"
+              aria-label="お出かけナビ"
+            >
+              お出かけナビ
+            </Link>
           </nav>
 
           {/* 中央: © 表記 */}

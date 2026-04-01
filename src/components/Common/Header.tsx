@@ -36,6 +36,13 @@ export default async function Header() {
           >
             🔍 検索
           </Link>
+          <Link
+            href="/outing"
+            className="hidden md:flex text-gray-600 hover:text-primary transition-colors text-sm font-medium min-h-tap items-center"
+            aria-label="お出かけナビ"
+          >
+            🚶 お出かけ
+          </Link>
           <HeaderAuthNav initialLoggedIn={isLoggedIn} />
         </nav>
       </div>
