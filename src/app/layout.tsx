@@ -18,6 +18,12 @@ export const metadata: Metadata = {
   title: "病院ナビ南信 | 症状から探す 安心の病院ナビ",
   description: "症状から適切な病院を探せる、南信地域の医療機関検索サービス。シニア層にも使いやすいデザインで、安心の受診をサポートします。",
   keywords: "病院, 南信, 飯田市, 症状, 診療科, シニア, 医療機関",
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "病院ナビ南信",
+  },
 };
 
 export default function RootLayout({
