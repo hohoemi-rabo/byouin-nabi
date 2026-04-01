@@ -14,9 +14,12 @@ paths:
 | メソッド | パス | 説明 |
 |---------|------|------|
 | POST | `/api/symptoms/generate` | テンプレートベース症状説明文生成 |
-| POST | `/api/symptoms/ai-recommend` | Gemini AI 緊急度判定・受診レコメンド（Phase 2） |
+| POST | `/api/symptoms/ai-recommend` | Gemini AI 緊急度判定・受診レコメンド（follow_up_answers対応、Phase 2） |
+| POST | `/api/symptoms/follow-up` | AI追加質問生成（2-3問、Phase 2） |
 | GET | `/api/hospitals` | 全病院リスト取得（schedulesをjoin） |
-| GET | `/api/search` | 診療科・市町村・キーワード検索 |
+| GET | `/api/search` | 診療科・市町村・キーワード・設備フィルター検索 |
+| GET | `/api/facilities` | お出かけナビ施設一覧（category/cityフィルタ、Phase 2） |
+| POST | `/api/logs` | 匿名検索ログ記録（Phase 2） |
 | GET | `/api/transport` | 交通サービス一覧（area/typeフィルタ、Phase 2） |
 | GET | `/api/transport/[id]` | 交通サービス詳細（Phase 2） |
 | POST | `/api/route/search` | ルート検索（Directions API + 地域交通、Phase 2） |

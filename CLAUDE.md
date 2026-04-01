@@ -31,6 +31,8 @@
 | Gemini API | - | `gemini-3.1-flash-lite-preview`（AI緊急度判定・受診レコメンド） |
 | Google Maps Platform | - | 地図表示・ルート検索・Geocoding |
 | `@react-google-maps/api` | - | Google Maps React コンポーネント |
+| Zustand | - | クライアント状態管理（出発地キャッシュ等） |
+| `@ducanh2912/next-pwa` | - | PWA（Service Worker、オフライン対応） |
 | html2canvas | - | 症状説明文の画像保存 |
 
 ## npm スクリプト
@@ -107,17 +109,22 @@ src/
 │   ├── signup/             # 新規登録（Phase 2）
 │   ├── mypage/             # マイページ・プロフィール・設定（Phase 2）
 │   ├── auth/callback/      # Supabase Auth コールバック（Phase 2）
+│   ├── outing/             # お出かけナビ（カテゴリ選択 + 施設一覧、Phase 2）
+│   ├── emergency/          # 緊急時ガイド（119番 + 救急病院、Phase 2）
+│   ├── ~offline/           # PWA オフラインページ（Phase 2）
 │   ├── contact/            # お問い合わせ
 │   ├── terms/              # 利用規約
-│   ├── admin/              # 管理画面（病院 + 交通手段管理）
+│   ├── admin/              # 管理画面（病院 + 交通手段 + 施設管理）
 │   └── api/                # APIルート
 │       ├── hospitals/      # 病院データ
 │       ├── search/         # 病院検索
-│       ├── symptoms/       # 症状説明文生成 + AI緊急度判定
+│       ├── symptoms/       # 症状説明文生成 + AI緊急度判定 + 追加質問生成
 │       ├── transport/      # 交通サービス
 │       ├── route/search/   # ルート検索
 │       ├── geocode/        # 住所→座標変換
-│       └── user/           # プロフィール・かかりつけ医・履歴（Phase 2）
+│       ├── user/           # プロフィール・かかりつけ医・履歴（Phase 2）
+│       ├── facilities/    # お出かけナビ施設（Phase 2）
+│       └── logs/          # 匿名検索ログ（Phase 2）
 ├── components/
 │   ├── Common/             # 共通UI（Header, Footer, Button, Accordion 等）
 │   ├── Questionnaire/      # アンケート機能
@@ -125,6 +132,7 @@ src/
 │   ├── HospitalList/       # 病院リスト・カード
 │   ├── Map/                # Google Maps 地図表示（Phase 2）
 │   ├── Route/              # ルート検索UI（Phase 2）
+│   ├── Outing/             # お出かけナビ FacilityCard（Phase 2）
 │   ├── Auth/               # AuthGuard（Phase 2）
 │   ├── User/               # FavoriteButton, ProfileForm, HistoryRecorder（Phase 2）
 │   ├── Admin/              # 管理画面フォーム
@@ -141,7 +149,11 @@ src/
 │   ├── departmentMapping.ts # 部位→診療科マッピング
 │   ├── fallbackUrgency.ts  # ルールベース緊急度判定（Phase 2）
 │   ├── transportMatcher.ts # 地域交通マッチング（Phase 2）
+│   ├── hospitalScoring.ts  # 病院スコアリング・営業中判定（Phase 2）
 │   └── masterData.ts       # 診療科20種・市町村14自治体
+├── stores/                 # Zustand ストア（Phase 2）
+│   ├── locationStore.ts    # 出発地キャッシュ（sessionStorage）
+│   └── uiStore.ts          # フォントサイズ設定（localStorage）
 └── types/                  # TypeScript型定義
     ├── hospital.ts         # Hospital, HospitalSchedule
     ├── questionnaire.ts    # QuestionnaireData
