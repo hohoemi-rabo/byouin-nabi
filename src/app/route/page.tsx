@@ -8,6 +8,7 @@ import LoadingBox from '@/components/Common/LoadingBox';
 import ErrorBox from '@/components/Common/ErrorBox';
 import MobileFixedFooter from '@/components/Common/MobileFixedFooter';
 import SearchLogger from '@/components/Common/SearchLogger';
+import { useLocationStore } from '@/stores/locationStore';
 import type { RouteSearchResponse } from '@/types/route';
 
 function RouteContent() {
@@ -53,16 +54,23 @@ function RouteContent() {
     }
   }, [toParam]);
 
-  // fromParam がある場合は初回のみ自動検索（useEffect で実行）
-  useEffect(() => {
-    if (!fromParam || autoSearched.current) return;
-    autoSearched.current = true;
+  const cachedLocation = useLocationStore(s => s.cachedLocation);
 
-    const [lat, lng] = fromParam.split(',').map(Number);
-    if (!isNaN(lat) && !isNaN(lng)) {
-      handleLocationSelect({ lat, lng });
+  // fromParam またはキャッシュがある場合は初回のみ自動検索
+  useEffect(() => {
+    if (autoSearched.current) return;
+
+    if (fromParam) {
+      autoSearched.current = true;
+      const [lat, lng] = fromParam.split(',').map(Number);
+      if (!isNaN(lat) && !isNaN(lng)) {
+        handleLocationSelect({ lat, lng });
+      }
+    } else if (cachedLocation) {
+      autoSearched.current = true;
+      handleLocationSelect(cachedLocation);
     }
-  }, [fromParam, handleLocationSelect]);
+  }, [fromParam, cachedLocation, handleLocationSelect]);
 
   return (
     <div className="container mx-auto px-4 py-8 md:py-12">

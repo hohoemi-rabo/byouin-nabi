@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { ALL_CITIES } from '@/lib/masterData';
+import { useLocationStore } from '@/stores/locationStore';
 import Button from '@/components/Common/Button';
 import LoadingSpinner from '@/components/Common/LoadingSpinner';
 
@@ -10,11 +11,17 @@ interface LocationInputProps {
 }
 
 export default function LocationInput({ onLocationSelect }: LocationInputProps) {
+  const { cachedLocation, setLocation } = useLocationStore();
   const [mode, setMode] = useState<'gps' | 'address' | 'city'>('gps');
   const [address, setAddress] = useState('');
   const [selectedCity, setSelectedCity] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const handleSelectAndCache = (location: { lat: number; lng: number }) => {
+    setLocation(location);
+    onLocationSelect(location);
+  };
 
   const handleGPS = () => {
     if (!navigator.geolocation) {
@@ -26,7 +33,7 @@ export default function LocationInput({ onLocationSelect }: LocationInputProps) 
     setError(null);
     navigator.geolocation.getCurrentPosition(
       (position) => {
-        onLocationSelect({ lat: position.coords.latitude, lng: position.coords.longitude });
+        handleSelectAndCache({ lat: position.coords.latitude, lng: position.coords.longitude });
         setLoading(false);
       },
       () => {
@@ -46,7 +53,7 @@ export default function LocationInput({ onLocationSelect }: LocationInputProps) 
       const res = await fetch(`/api/geocode?address=${encodeURIComponent(address)}`);
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
-      onLocationSelect({ lat: data.latitude, lng: data.longitude });
+      handleSelectAndCache({ lat: data.latitude, lng: data.longitude });
     } catch (err) {
       setError(err instanceof Error ? err.message : '住所から座標を取得できませんでした');
     } finally {
@@ -62,7 +69,7 @@ export default function LocationInput({ onLocationSelect }: LocationInputProps) 
       const res = await fetch(`/api/geocode?address=${encodeURIComponent(selectedCity + ' 役場')}`);
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
-      onLocationSelect({ lat: data.latitude, lng: data.longitude });
+      handleSelectAndCache({ lat: data.latitude, lng: data.longitude });
     } catch (err) {
       setError(err instanceof Error ? err.message : '地区の座標を取得できませんでした');
     } finally {
@@ -73,6 +80,18 @@ export default function LocationInput({ onLocationSelect }: LocationInputProps) 
   return (
     <div className="bg-white rounded-xl border-2 border-gray-200 p-5">
       <h3 className="text-lg font-bold mb-4">📍 出発地を入力</h3>
+
+      {/* 前回の出発地キャッシュ */}
+      {cachedLocation && (
+        <div className="mb-4">
+          <button
+            onClick={() => onLocationSelect(cachedLocation)}
+            className="w-full bg-blue-50 border-2 border-primary rounded-lg px-4 py-3 text-base font-medium text-primary hover:bg-blue-100 transition-colors min-h-tap"
+          >
+            📍 前回の出発地を使う
+          </button>
+        </div>
+      )}
 
       {/* モード切替 */}
       <div className="flex gap-2 mb-4">
