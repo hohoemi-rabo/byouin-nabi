@@ -172,7 +172,7 @@ function ResultsContent() {
             <span>📋</span>
             <span>対応している病院</span>
           </h2>
-          <HospitalList departments={recommendedDepartments} />
+          <HospitalList departments={recommendedDepartments} urgency={aiResult?.urgency} />
         </div>
 
         {/* アクションボタン（PC用） */}

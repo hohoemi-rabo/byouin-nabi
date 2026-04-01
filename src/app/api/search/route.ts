@@ -38,6 +38,17 @@ export async function GET(request: NextRequest) {
       query = query.ilike('name', `%${keyword.trim()}%`);
     }
 
+    // 設備フィルター（Phase 2）
+    if (searchParams.get('barrier_free') === 'true') {
+      query = query.eq('barrier_free', true);
+    }
+    if (searchParams.get('parking') === 'true') {
+      query = query.eq('parking', true);
+    }
+    if (searchParams.get('emergency') === 'true') {
+      query = query.eq('emergency_available', true);
+    }
+
     const { data: hospitals, error } = await query;
 
     if (error) {

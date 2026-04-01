@@ -18,6 +18,9 @@ function SearchContent() {
   const [selectedDepartments, setSelectedDepartments] = useState<string[]>(initialCategories);
   const [selectedCities, setSelectedCities] = useState<string[]>(initialCities);
   const [keyword, setKeyword] = useState(initialKeyword);
+  const [barrierFree, setBarrierFree] = useState(searchParams.get('barrier_free') === 'true');
+  const [parking, setParking] = useState(searchParams.get('parking') === 'true');
+  const [emergency, setEmergency] = useState(searchParams.get('emergency') === 'true');
 
   // トグル処理を汎用化
   const handleDepartmentToggle = useCallback((dept: string) => {
@@ -50,6 +53,9 @@ function SearchContent() {
     if (keyword.trim()) {
       params.append('keyword', keyword.trim());
     }
+    if (barrierFree) params.append('barrier_free', 'true');
+    if (parking) params.append('parking', 'true');
+    if (emergency) params.append('emergency', 'true');
 
     // 検索結果ページへ遷移
     router.push(`/search/results?${params.toString()}`);
@@ -59,12 +65,15 @@ function SearchContent() {
     setSelectedDepartments([]);
     setSelectedCities([]);
     setKeyword('');
+    setBarrierFree(false);
+    setParking(false);
+    setEmergency(false);
     // URLもクリア
     router.push('/search');
   };
 
   // 検索条件が入力されているか
-  const hasSearchCondition = selectedDepartments.length > 0 || selectedCities.length > 0 || keyword.trim().length > 0;
+  const hasSearchCondition = selectedDepartments.length > 0 || selectedCities.length > 0 || keyword.trim().length > 0 || barrierFree || parking || emergency;
 
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4">
@@ -138,6 +147,27 @@ function SearchContent() {
                   <span className="text-base font-medium">{city}</span>
                 </label>
               ))}
+            </div>
+          </div>
+
+          {/* 設備フィルター */}
+          <div className="mb-6">
+            <label className="block text-xl font-bold mb-3">
+              設備で絞り込み
+            </label>
+            <div className="flex flex-wrap gap-3">
+              <label className={`flex items-center p-3 border-2 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors ${barrierFree ? 'border-primary bg-blue-50' : 'border-gray-300'}`}>
+                <input type="checkbox" checked={barrierFree} onChange={(e) => setBarrierFree(e.target.checked)} className="mr-2 w-5 h-5" />
+                <span className="text-base font-medium">♿ バリアフリー</span>
+              </label>
+              <label className={`flex items-center p-3 border-2 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors ${parking ? 'border-primary bg-blue-50' : 'border-gray-300'}`}>
+                <input type="checkbox" checked={parking} onChange={(e) => setParking(e.target.checked)} className="mr-2 w-5 h-5" />
+                <span className="text-base font-medium">🅿️ 駐車場あり</span>
+              </label>
+              <label className={`flex items-center p-3 border-2 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors ${emergency ? 'border-primary bg-blue-50' : 'border-gray-300'}`}>
+                <input type="checkbox" checked={emergency} onChange={(e) => setEmergency(e.target.checked)} className="mr-2 w-5 h-5" />
+                <span className="text-base font-medium">🚑 救急対応</span>
+              </label>
             </div>
           </div>
 
