@@ -8,6 +8,7 @@ import FacilityCard from '@/components/Outing/FacilityCard';
 import LoadingBox from '@/components/Common/LoadingBox';
 import ErrorBox from '@/components/Common/ErrorBox';
 import MobileFixedFooter from '@/components/Common/MobileFixedFooter';
+import SearchLogger from '@/components/Common/SearchLogger';
 import type { Facility } from '@/types/facility';
 
 const CATEGORY_LABELS: Record<string, string> = {
@@ -49,6 +50,7 @@ export default function OutingCategoryPage() {
 
   return (
     <div className="container mx-auto px-4 py-8 md:py-12">
+      <SearchLogger logType="outing" searchData={{ category, city: filterCity }} />
       <div className="max-w-3xl mx-auto">
         <div className="mb-4">
           <Link href="/outing" className="text-primary hover:underline text-base">← カテゴリ選択に戻る</Link>

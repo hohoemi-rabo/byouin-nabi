@@ -8,6 +8,7 @@ import ErrorBox from '@/components/Common/ErrorBox';
 import LoadingBox from '@/components/Common/LoadingBox';
 import HospitalListItem from '@/components/HospitalList/HospitalListItem';
 import MobileFixedFooter from '@/components/Common/MobileFixedFooter';
+import SearchLogger from '@/components/Common/SearchLogger';
 import Link from 'next/link';
 
 function SearchResultsContent() {
@@ -82,6 +83,7 @@ function SearchResultsContent() {
 
   return (
     <>
+      <SearchLogger logType="search" searchData={{ categories, cities, keyword }} />
       <div className="min-h-screen bg-gray-50 py-8 px-4 pb-24 md:pb-8">
         <div className="max-w-4xl mx-auto">
           {/* ヘッダー */}

@@ -13,6 +13,7 @@ import LoadingBox from '@/components/Common/LoadingBox';
 import Button from '@/components/Common/Button';
 import Accordion from '@/components/Common/Accordion';
 import MobileFixedFooter from '@/components/Common/MobileFixedFooter';
+import SearchLogger from '@/components/Common/SearchLogger';
 import { getDepartments } from '@/lib/departmentMapping';
 import type { AIRecommendResponse } from '@/types/ai';
 
@@ -110,6 +111,7 @@ function ResultsContent() {
 
   return (
     <div className="container mx-auto px-4 py-8 md:py-12">
+      <SearchLogger logType="symptom" searchData={{ location: data.location, symptoms: data.symptoms }} />
       <div className="max-w-5xl mx-auto">
         {/* ヘッダー */}
         <div className="text-center mb-8">

@@ -7,6 +7,7 @@ import RouteCard from '@/components/Route/RouteCard';
 import LoadingBox from '@/components/Common/LoadingBox';
 import ErrorBox from '@/components/Common/ErrorBox';
 import MobileFixedFooter from '@/components/Common/MobileFixedFooter';
+import SearchLogger from '@/components/Common/SearchLogger';
 import type { RouteSearchResponse } from '@/types/route';
 
 function RouteContent() {
@@ -65,6 +66,7 @@ function RouteContent() {
 
   return (
     <div className="container mx-auto px-4 py-8 md:py-12">
+      {toParam && <SearchLogger logType="route" searchData={{ to: toParam }} />}
       <div className="max-w-3xl mx-auto">
         <h1 className="text-2xl md:text-3xl font-bold mb-2">
           🚌 {hospitalName} への行き方
