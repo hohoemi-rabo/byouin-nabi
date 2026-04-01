@@ -36,6 +36,7 @@ function buildUserPrompt(body: {
   };
   age_group?: string;
   area?: string;
+  follow_up_answers?: { question_id: string; question_text: string; answer: string }[];
 }): string {
   const q = body.questionnaire;
   const parts = [
@@ -49,6 +50,15 @@ function buildUserPrompt(body: {
   if (q.memo) parts.push(`【メモ】${q.memo}`);
   if (body.age_group) parts.push(`【年齢層】${body.age_group}`);
   if (body.area) parts.push(`【居住エリア】${body.area}`);
+
+  // 追加質問の回答がある場合
+  if (body.follow_up_answers && body.follow_up_answers.length > 0) {
+    parts.push('\n【追加情報（深掘り質問への回答）】');
+    for (const answer of body.follow_up_answers) {
+      parts.push(`Q: ${answer.question_text} → A: ${answer.answer}`);
+    }
+  }
+
   return parts.join('\n');
 }
 

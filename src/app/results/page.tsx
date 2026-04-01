@@ -14,6 +14,7 @@ import Button from '@/components/Common/Button';
 import Accordion from '@/components/Common/Accordion';
 import MobileFixedFooter from '@/components/Common/MobileFixedFooter';
 import SearchLogger from '@/components/Common/SearchLogger';
+import FollowUpChat from '@/components/SymptomResult/FollowUpChat';
 import { getDepartments } from '@/lib/departmentMapping';
 import type { AIRecommendResponse } from '@/types/ai';
 
@@ -167,6 +168,15 @@ function ResultsContent() {
             </div>
           </Accordion>
         </div>
+
+        {/* AI追加質問（もっと詳しく調べる） */}
+        {aiResult && (
+          <FollowUpChat
+            questionnaireData={data}
+            initialAiResult={aiResult}
+            onReassessment={(updated) => setAiResult(updated)}
+          />
+        )}
 
         {/* 対応病院リスト（常に表示） */}
         <div className="mt-8">

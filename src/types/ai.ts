@@ -14,6 +14,19 @@ export interface AIRecommendResponse {
   disclaimer: string;
 }
 
+export interface FollowUpQuestion {
+  id: string;
+  text: string;
+  type: 'select' | 'text';
+  options?: string[];
+}
+
+export interface FollowUpAnswer {
+  question_id: string;
+  question_text: string;
+  answer: string;
+}
+
 export interface AIRecommendRequest {
   questionnaire: {
     location: string[];
