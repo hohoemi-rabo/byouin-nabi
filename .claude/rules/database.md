@@ -59,6 +59,43 @@ CREATE TABLE hospital_schedules (
 );
 ```
 
+### emergency_rotations（Phase 2.1）
+
+```sql
+CREATE TABLE emergency_rotations (
+  id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  duty_date     DATE NOT NULL,                       -- 当番日
+  rotation_type TEXT NOT NULL CHECK (rotation_type IN (
+                  'night_emergency',                  -- 夜間急患診療所（365日）
+                  'duty_doctor',                      -- 休日当番医
+                  'duty_dentist',                     -- 休日当番歯科
+                  'duty_pharmacy'                     -- 休日当番薬局
+                )),
+  area          TEXT NOT NULL,                       -- 自由入力。例: 飯田地区/阿南地区/平谷村
+  department    TEXT,                                -- 薬局・夜間急患は NULL
+  hospital_id   UUID REFERENCES hospitals(id) ON DELETE SET NULL,  -- 任意紐付け
+  facility_name TEXT NOT NULL,                       -- 表示用施設名（hospitals に無い施設も含む）
+  phone         TEXT NOT NULL,
+  start_time    TIME NOT NULL,
+  end_time      TIME NOT NULL,
+  note          TEXT,
+  source_month  TEXT NOT NULL,                       -- YYYY-MM 形式。インポート単位管理
+  created_at    TIMESTAMPTZ DEFAULT NOW(),
+  updated_at    TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX idx_emergency_rotations_duty_date ON emergency_rotations(duty_date);
+CREATE INDEX idx_emergency_rotations_type_date ON emergency_rotations(rotation_type, duty_date);
+CREATE INDEX idx_emergency_rotations_source_month ON emergency_rotations(source_month);
+CREATE INDEX idx_emergency_rotations_hospital_id ON emergency_rotations(hospital_id);
+```
+
+**設計上の注意**:
+- 一意制約なし（同日・同種別・同地区・同科に複数施設が並列するケースを許容）
+- `area` は自由入力（医師会区分と自治体名が混在しうるためマスタ化しない）
+- `hospitals.emergency_available`（常時救急受入）とは別概念。共存する
+- `updated_at` は Server Action 側で手動更新（DB トリガー無し）
+
 ## RLS（Row Level Security）
 
 ### hospitals テーブル（RLS 有効）
@@ -75,6 +112,13 @@ CREATE TABLE hospital_schedules (
 | ポリシー名 | 操作 | 条件 |
 |-----------|------|------|
 | Public schedules are viewable by everyone | SELECT | `true`（公開読み取り） |
+
+### emergency_rotations テーブル（RLS 有効）
+
+| ポリシー名 | ロール | 操作 | 条件 |
+|-----------|--------|------|------|
+| Public can read emergency_rotations | anon, authenticated | SELECT | `true` |
+| （ポリシー無し） | service_role | INSERT/UPDATE/DELETE | Server Action 経由のみ |
 
 ### 権限設計
 
@@ -165,3 +209,4 @@ supabase.rpc('get_unique_history', { p_user_id, p_limit: 10 })
 - N+1クエリはRPC関数でバッチ処理に置き換える
 - JS側のフィルタ/重複除去はDB側（DISTINCT ON等）で行う
 - `search_history` には複合インデックス `(user_id, created_at DESC)` 設定済み
+- 月次データ管理は `source_month` カラム + 「同月全削除 → バッチ INSERT」パターン（`emergency_rotations` で採用）
