@@ -22,6 +22,13 @@
 
 ### 追加実装
 
+- 救急ローテーション機能（Phase 2.1、2026/05/27）
+  - `emergency_rotations` テーブル追加（duty_date / rotation_type / area / department / hospital_id / facility_name / phone / start_time / end_time / note / source_month）
+  - 4 種別: night_emergency / duty_doctor / duty_dentist / duty_pharmacy
+  - 管理画面 5 ページ（一覧 / 新規 / 編集 / インポート / 夜間自動生成）
+  - Server Actions 8 関数追加（CRUD + 月次削除 + 月別取得 + 月一覧 + インポート + 夜間自動生成）
+  - `@holiday-jp/holiday_jp` で祝日判定 → 夜間急患の昼間枠を日曜・祝日のみ自動生成
+  - CSV テンプレート 2 種（空 / 2026年6月実データ）配置
 - 診療時間テーブル機能（11/19）
 - 病院検索UI 2ページ構成（11/30）
 - 病院リスト表示最適化（11/24）
@@ -120,6 +127,7 @@ Supabase Advisor: セキュリティ WARN 2件（search_logs INSERT意図的、�
 | 029 | PWA対応 | 2-C | 完了 | 全主要機能 |
 | 030 | AI対話型症状深掘り | 2-C | 完了 | 016,025 |
 | 031 | Phase2テスト・結合・デプロイ | 2-C | 未着手 | 015〜030 |
+| 032 | 救急ローテーション機能 | 2.1 | 完了 | 015 |
 
 ### Phase 2 サブフェーズ
 

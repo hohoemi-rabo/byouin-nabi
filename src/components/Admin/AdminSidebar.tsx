@@ -28,6 +28,11 @@ export default function AdminSidebar() {
       icon: '🏪',
     },
     {
+      href: '/admin/emergency-rotations',
+      label: '救急ローテーション',
+      icon: '🚨',
+    },
+    {
       href: '/admin/hospitals/import',
       label: 'データインポート',
       icon: '📥',

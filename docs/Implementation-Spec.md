@@ -237,6 +237,11 @@ byouin-nabi/
 - **カテゴリ**: shopping / government / banking / welfare / leisure
 - **施設一覧**: 市町村フィルタ + `FacilityCard` 表示
 
+### 4.7.1 救急ローテーション（管理データ）
+
+Phase 2.1 で `emergency_rotations` テーブル + 管理画面を追加。データソースは飯伊地区包括医療協議会の予定表。
+表示側（`/emergency` ページ拡張やカレンダー）は別途実装予定（Expo 連携優先）。
+
 ### 4.8 緊急時ガイド `/emergency`
 
 - **タイプ**: Server Component（直接 Supabase 読込）
@@ -287,6 +292,11 @@ byouin-nabi/
 | `/admin/hospitals/import` | CSV/Excel 一括インポート（全削除 → バッチ INSERT） |
 | `/admin/transport` 系 | 交通サービス CRUD + インポート |
 | `/admin/facilities` 系 | お出かけナビ施設 CRUD + インポート |
+| `/admin/emergency-rotations` | 救急ローテーション一覧（月選択タブ + 種別フィルタ + 月次全削除） |
+| `/admin/emergency-rotations/new` | 新規登録 |
+| `/admin/emergency-rotations/[id]/edit` | 編集 |
+| `/admin/emergency-rotations/import` | CSV/Excel 月単位インポート |
+| `/admin/emergency-rotations/generate-night` | 夜間急患診療所の月次自動生成（夜間枠＝毎日／昼間枠＝日曜・祝日） |
 
 ### 5.1 管理 Server Actions（`src/app/admin/actions.ts`）
 
@@ -302,6 +312,14 @@ byouin-nabi/
 | `getHospitalSchedules(id)` | 診療時間取得 |
 | `updateHospitalSchedules(id, data)` | 診療時間全削除 → 一括 INSERT |
 | `geocodeAllHospitals()` | `latitude IS NULL` の病院を一括 Geocoding（50ms 待機でレート制限対策） |
+| `createEmergencyRotation(formData)` | 救急ローテーション 1 件登録 |
+| `updateEmergencyRotation(id, formData)` | 救急ローテーション 1 件更新 |
+| `deleteEmergencyRotation(id)` | 救急ローテーション 1 件削除 |
+| `deleteRotationsByMonth(sourceMonth)` | 指定月の全データ削除 |
+| `getEmergencyRotationsByMonth(sourceMonth)` | 月別取得（一覧画面用） |
+| `getAvailableSourceMonths()` | 登録済み `source_month` 一覧（タブ表示用） |
+| `importEmergencyRotations(formData, sourceMonth)` | CSV/Excel 月単位一括取込（同月全削除 → バリデーション → バッチ INSERT） |
+| `generateNightEmergencyRotations(sourceMonth, info)` | 夜間急患診療所の月次自動生成（祝日判定込み） |
 
 ---
 

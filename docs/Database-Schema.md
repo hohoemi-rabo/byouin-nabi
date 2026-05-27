@@ -94,6 +94,7 @@
 | 交通 | `bus_timetables` | バス時刻表 | 2 |
 | 施設 | `facilities` | お出かけ施設 | 2 |
 | ログ | `search_logs` | 匿名検索ログ | 2 |
+| 救急 | `emergency_rotations` | 休日当番医・夜間急患診療所のスケジュール | 2.1 |
 
 全テーブルで **RLS 有効**。
 
@@ -350,7 +351,42 @@
 - `idx_facilities_category` btree(category)
 - `idx_facilities_city` btree(city)
 
-### 4.13 `search_logs` — 匿名検索ログ
+### 4.13 `emergency_rotations` — 救急ローテーション
+
+飯伊地区包括医療協議会発行の休日当番医・夜間急患診療所予定を管理。
+
+| カラム | 型 | 制約 | 説明 |
+|--------|-----|------|------|
+| `id` | uuid | PK, default `gen_random_uuid()` | |
+| `duty_date` | date | NOT NULL | 当番日 |
+| `rotation_type` | text | NOT NULL, CHECK | `night_emergency` / `duty_doctor` / `duty_dentist` / `duty_pharmacy` |
+| `area` | text | NOT NULL | 地区（自由入力。例: 飯田地区 / 阿南地区 / 平谷村） |
+| `department` | text | NULL | 診療科。薬局・夜間急患は NULL |
+| `hospital_id` | uuid | NULL, FK → `hospitals(id)` ON DELETE SET NULL | 既存病院マスタとの紐付け（任意） |
+| `facility_name` | text | NOT NULL | 表示用施設名（hospitals に無い施設も含むため必須） |
+| `phone` | text | NOT NULL | 電話番号 |
+| `start_time` | time | NOT NULL | |
+| `end_time` | time | NOT NULL | |
+| `note` | text | NULL | 備考 |
+| `source_month` | text | NOT NULL | `YYYY-MM` 形式。インポート単位の管理用 |
+| `created_at` | timestamptz | default `now()` | |
+| `updated_at` | timestamptz | default `now()`、Server Action 側で手動更新 | |
+
+**制約**:
+- 一意制約**なし**（同日・同種別・同地区・同科に複数施設が並列するケースを許容）
+
+**インデックス**:
+- `emergency_rotations_pkey` (PK)
+- `idx_emergency_rotations_duty_date` btree(duty_date) — 「今日の当番医」クエリ用
+- `idx_emergency_rotations_type_date` btree(rotation_type, duty_date)
+- `idx_emergency_rotations_source_month` btree(source_month) — 月単位リセット用
+- `idx_emergency_rotations_hospital_id` btree(hospital_id)
+
+**RLS**:
+- `Public can read emergency_rotations`: anon/authenticated に SELECT 許可
+- INSERT/UPDATE/DELETE はポリシー無し → `service_role`（Server Action）経由のみ
+
+### 4.14 `search_logs` — 匿名検索ログ
 
 | カラム | 型 | 制約 | 説明 |
 |--------|-----|------|------|
@@ -530,6 +566,7 @@ $$;
 | 20260330085343 | add_missing_fk_indexes | 不足 FK インデックス追加 |
 | 20260330085400 | fix_family_links_policies | family_links RLS 修正 |
 | 20260401115836 | postgres_best_practices_fixes | `search_logs` RLS ロール限定 + RPC 追加 + 複合インデックス |
+| 20260527071701 | create_emergency_rotations_table | 救急ローテーションテーブル + RLS + インデックス |
 
 ---
 

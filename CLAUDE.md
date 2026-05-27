@@ -34,6 +34,7 @@
 | Zustand | - | クライアント状態管理（出発地キャッシュ等） |
 | `@ducanh2912/next-pwa` | - | PWA（Service Worker、オフライン対応） |
 | html2canvas | - | 症状説明文の画像保存 |
+| `@holiday-jp/holiday_jp` | - | 日本の祝日判定（夜間急患の昼間枠生成） |
 
 ## npm スクリプト
 
@@ -114,7 +115,7 @@ src/
 │   ├── ~offline/           # PWA オフラインページ（Phase 2）
 │   ├── contact/            # お問い合わせ
 │   ├── terms/              # 利用規約
-│   ├── admin/              # 管理画面（病院 + 交通手段 + 施設管理）
+│   ├── admin/              # 管理画面（病院 + 交通手段 + 施設 + 救急ローテーション）
 │   └── api/                # APIルート
 │       ├── hospitals/      # 病院データ
 │       ├── search/         # 病院検索
@@ -150,6 +151,7 @@ src/
 │   ├── fallbackUrgency.ts  # ルールベース緊急度判定（Phase 2）
 │   ├── transportMatcher.ts # 地域交通マッチング（Phase 2）
 │   ├── hospitalScoring.ts  # 病院スコアリング・営業中判定（Phase 2）
+│   ├── holidays.ts         # 日本の祝日判定（救急ローテ夜間自動生成、Phase 2.1）
 │   └── masterData.ts       # 診療科20種・市町村14自治体
 ├── stores/                 # Zustand ストア（Phase 2）
 │   ├── locationStore.ts    # 出発地キャッシュ（sessionStorage）
@@ -161,7 +163,8 @@ src/
     ├── transport.ts        # TransportService, BusRoute 等（Phase 2）
     ├── route.ts            # Route, RouteSearchResponse（Phase 2）
     ├── user.ts             # Profile, FavoriteFacility 等（Phase 2）
-    └── facility.ts         # Facility, SearchLog（Phase 2）
+    ├── facility.ts         # Facility, SearchLog（Phase 2）
+    └── emergency-rotation.ts # EmergencyRotation, RotationType 等（Phase 2.1）
 ```
 
 ---

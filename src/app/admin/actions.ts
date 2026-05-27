@@ -6,6 +6,13 @@ import { redirect } from 'next/navigation';
 import { supabaseAdmin } from '@/lib/supabase-admin';
 import { parse } from 'papaparse';
 import * as XLSX from 'xlsx';
+import { isHolidayOrSunday } from '@/lib/holidays';
+import type {
+  RotationType,
+  EmergencyRotation,
+  NightFacilityInfo,
+  ImportRotationResult,
+} from '@/types/emergency-rotation';
 
 // 認証チェック関数
 async function verifyAdminAuth() {
@@ -433,3 +440,444 @@ export async function geocodeAllHospitals(): Promise<{ updated: number; failed: 
   revalidatePath('/admin/hospitals');
   return { updated, failed, errors };
 }
+
+// ========================================
+// 救急ローテーション管理
+// ========================================
+
+const ROTATION_TYPES: RotationType[] = [
+  'night_emergency',
+  'duty_doctor',
+  'duty_dentist',
+  'duty_pharmacy',
+];
+
+function parseRotationFormData(formData: FormData) {
+  const rotationType = formData.get('rotation_type') as RotationType;
+  const dutyDate = formData.get('duty_date') as string;
+  const area = formData.get('area') as string;
+  const department = formData.get('department') as string;
+  const hospitalId = formData.get('hospital_id') as string;
+  const facilityName = formData.get('facility_name') as string;
+  const phone = formData.get('phone') as string;
+  const startTime = formData.get('start_time') as string;
+  const endTime = formData.get('end_time') as string;
+  const note = formData.get('note') as string;
+
+  // バリデーション
+  if (!dutyDate || !rotationType || !area || !facilityName || !phone || !startTime || !endTime) {
+    throw new Error('必須項目が入力されていません');
+  }
+  if (!ROTATION_TYPES.includes(rotationType)) {
+    throw new Error('種別が不正です');
+  }
+  if (startTime >= endTime) {
+    throw new Error('開始時刻は終了時刻より前にしてください');
+  }
+
+  // source_month は duty_date から自動算出（YYYY-MM）
+  const sourceMonth = dutyDate.slice(0, 7);
+
+  // 薬局・夜間急患は department を強制的に NULL
+  const finalDepartment =
+    rotationType === 'duty_pharmacy' || rotationType === 'night_emergency'
+      ? null
+      : department || null;
+
+  return {
+    duty_date: dutyDate,
+    rotation_type: rotationType,
+    area: area.trim(),
+    department: finalDepartment,
+    hospital_id: hospitalId || null,
+    facility_name: facilityName.trim(),
+    phone: phone.trim(),
+    start_time: startTime,
+    end_time: endTime,
+    note: note?.trim() || null,
+    source_month: sourceMonth,
+  };
+}
+
+export async function createEmergencyRotation(formData: FormData) {
+  await verifyAdminAuth();
+
+  const data = parseRotationFormData(formData);
+
+  const { error } = await supabaseAdmin
+    .from('emergency_rotations')
+    .insert(data);
+
+  if (error) {
+    console.error('Create emergency rotation error:', error);
+    throw new Error('救急ローテーションの登録に失敗しました: ' + error.message);
+  }
+
+  revalidatePath('/admin/emergency-rotations');
+  redirect(`/admin/emergency-rotations?success=created&month=${data.source_month}`);
+}
+
+export async function updateEmergencyRotation(rotationId: string, formData: FormData) {
+  await verifyAdminAuth();
+
+  const data = parseRotationFormData(formData);
+
+  const { error } = await supabaseAdmin
+    .from('emergency_rotations')
+    .update({ ...data, updated_at: new Date().toISOString() })
+    .eq('id', rotationId);
+
+  if (error) {
+    console.error('Update emergency rotation error:', error);
+    throw new Error('救急ローテーションの更新に失敗しました: ' + error.message);
+  }
+
+  revalidatePath('/admin/emergency-rotations');
+  redirect(`/admin/emergency-rotations?success=updated&month=${data.source_month}`);
+}
+
+export async function deleteEmergencyRotation(rotationId: string) {
+  await verifyAdminAuth();
+
+  const { error } = await supabaseAdmin
+    .from('emergency_rotations')
+    .delete()
+    .eq('id', rotationId);
+
+  if (error) {
+    console.error('Delete emergency rotation error:', error);
+    throw new Error('救急ローテーションの削除に失敗しました: ' + error.message);
+  }
+
+  revalidatePath('/admin/emergency-rotations');
+  return { success: true };
+}
+
+export async function deleteRotationsByMonth(sourceMonth: string) {
+  await verifyAdminAuth();
+
+  if (!/^\d{4}-\d{2}$/.test(sourceMonth)) {
+    throw new Error('対象月の形式が不正です（YYYY-MM）');
+  }
+
+  const { error, count } = await supabaseAdmin
+    .from('emergency_rotations')
+    .delete({ count: 'exact' })
+    .eq('source_month', sourceMonth);
+
+  if (error) {
+    throw new Error('月次データの削除に失敗しました: ' + error.message);
+  }
+
+  revalidatePath('/admin/emergency-rotations');
+  return { success: true, deleted: count ?? 0 };
+}
+
+export async function getEmergencyRotationsByMonth(sourceMonth: string) {
+  await verifyAdminAuth();
+
+  const { data, error } = await supabaseAdmin
+    .from('emergency_rotations')
+    .select('*')
+    .eq('source_month', sourceMonth)
+    .order('duty_date', { ascending: true })
+    .order('rotation_type', { ascending: true })
+    .order('department', { ascending: true, nullsFirst: false });
+
+  if (error) {
+    throw new Error('救急ローテーションの取得に失敗しました: ' + error.message);
+  }
+
+  return (data || []) as EmergencyRotation[];
+}
+
+export async function getAvailableSourceMonths(): Promise<string[]> {
+  await verifyAdminAuth();
+
+  const { data, error } = await supabaseAdmin
+    .from('emergency_rotations')
+    .select('source_month')
+    .order('source_month', { ascending: false });
+
+  if (error) {
+    throw new Error('対象月一覧の取得に失敗しました: ' + error.message);
+  }
+
+  const unique = Array.from(new Set((data || []).map((r) => r.source_month as string)));
+  return unique;
+}
+
+/**
+ * CSV/Excel 一括インポート
+ * - 同じ source_month の既存データを全削除してからバッチ INSERT
+ */
+export async function importEmergencyRotations(
+  formData: FormData,
+  sourceMonth: string
+): Promise<ImportRotationResult> {
+  await verifyAdminAuth();
+
+  if (!/^\d{4}-\d{2}$/.test(sourceMonth)) {
+    throw new Error('対象月の形式が不正です（YYYY-MM）');
+  }
+
+  const file = formData.get('file') as File;
+  if (!file) {
+    throw new Error('ファイルが選択されていません');
+  }
+
+  const fileName = file.name.toLowerCase();
+  let parsedData: Record<string, unknown>[] = [];
+
+  try {
+    if (fileName.endsWith('.csv')) {
+      const text = await file.text();
+      const result = parse(text, { header: true, skipEmptyLines: true });
+      parsedData = result.data as Record<string, unknown>[];
+    } else if (fileName.endsWith('.xlsx') || fileName.endsWith('.xls')) {
+      const buffer = await file.arrayBuffer();
+      const workbook = XLSX.read(buffer);
+      const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+      parsedData = XLSX.utils.sheet_to_json(worksheet);
+    } else {
+      throw new Error('対応していないファイル形式です（CSV, XLSXのみ）');
+    }
+  } catch (err) {
+    throw new Error(
+      'ファイルの解析に失敗しました: ' + (err instanceof Error ? err.message : '不明なエラー')
+    );
+  }
+
+  const result: ImportRotationResult = { success: 0, errors: [] };
+
+  // 病院マスタを取得（完全一致マッチング用）
+  const { data: hospitals } = await supabaseAdmin
+    .from('hospitals')
+    .select('id, name');
+  const hospitalMap = new Map<string, string>(
+    (hospitals || []).map((h) => [h.name as string, h.id as string])
+  );
+
+  const validData: Array<{
+    duty_date: string;
+    rotation_type: RotationType;
+    area: string;
+    department: string | null;
+    hospital_id: string | null;
+    facility_name: string;
+    phone: string;
+    start_time: string;
+    end_time: string;
+    note: string | null;
+    source_month: string;
+  }> = [];
+
+  for (let i = 0; i < parsedData.length; i++) {
+    const row = parsedData[i];
+    const rowNumber = i + 2; // ヘッダー行を考慮
+
+    try {
+      const dutyDate = String(row['duty_date'] ?? '').trim();
+      const rotationType = String(row['rotation_type'] ?? '').trim() as RotationType;
+      const area = String(row['area'] ?? '').trim();
+      const department = row['department'] ? String(row['department']).trim() : '';
+      const facilityName = String(row['facility_name'] ?? '').trim();
+      const phone = String(row['phone'] ?? '').trim();
+      const startTime = normalizeTime(String(row['start_time'] ?? '').trim());
+      const endTime = normalizeTime(String(row['end_time'] ?? '').trim());
+      const note = row['note'] ? String(row['note']).trim() : '';
+
+      if (!dutyDate || !rotationType || !area || !facilityName || !phone || !startTime || !endTime) {
+        throw new Error('必須項目（duty_date, rotation_type, area, facility_name, phone, start_time, end_time）が不足しています');
+      }
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(dutyDate)) {
+        throw new Error('duty_date の形式が不正です（YYYY-MM-DD）');
+      }
+      if (dutyDate.slice(0, 7) !== sourceMonth) {
+        throw new Error(`duty_date が対象月（${sourceMonth}）と一致しません`);
+      }
+      if (!ROTATION_TYPES.includes(rotationType)) {
+        throw new Error(`rotation_type が不正です: ${rotationType}`);
+      }
+      if (startTime >= endTime) {
+        throw new Error('start_time は end_time より前にしてください');
+      }
+
+      // 薬局・夜間急患は department を NULL に強制
+      const finalDepartment =
+        rotationType === 'duty_pharmacy' || rotationType === 'night_emergency'
+          ? null
+          : department || null;
+
+      validData.push({
+        duty_date: dutyDate,
+        rotation_type: rotationType,
+        area,
+        department: finalDepartment,
+        hospital_id: hospitalMap.get(facilityName) ?? null,
+        facility_name: facilityName,
+        phone,
+        start_time: startTime,
+        end_time: endTime,
+        note: note || null,
+        source_month: sourceMonth,
+      });
+    } catch (err) {
+      result.errors.push({
+        row: rowNumber,
+        message: err instanceof Error ? err.message : '不明なエラー',
+      });
+    }
+  }
+
+  // エラーがあっても有効データはインポートする方針（既存 importHospitals と同じ）
+  if (validData.length > 0) {
+    // 同じ月の既存データを全削除
+    const { error: deleteError } = await supabaseAdmin
+      .from('emergency_rotations')
+      .delete()
+      .eq('source_month', sourceMonth);
+
+    if (deleteError) {
+      throw new Error('既存データの削除に失敗しました: ' + deleteError.message);
+    }
+
+    // バッチ INSERT
+    const { error: insertError } = await supabaseAdmin
+      .from('emergency_rotations')
+      .insert(validData);
+
+    if (insertError) {
+      throw new Error('救急ローテーションの一括登録に失敗しました: ' + insertError.message);
+    }
+
+    result.success = validData.length;
+  }
+
+  revalidatePath('/admin/emergency-rotations');
+  return result;
+}
+
+/**
+ * 夜間急患診療所の月次データを自動生成
+ * - 夜間枠（19:00-22:00 等）: 全日（365日）
+ * - 昼間枠（09:00-12:30 等）: 日曜 + 祝日のみ
+ */
+export async function generateNightEmergencyRotations(
+  sourceMonth: string,
+  info: NightFacilityInfo
+): Promise<{ count: number }> {
+  await verifyAdminAuth();
+
+  if (!/^\d{4}-\d{2}$/.test(sourceMonth)) {
+    throw new Error('対象月の形式が不正です（YYYY-MM）');
+  }
+  if (!info.area || !info.facilityName || !info.phone) {
+    throw new Error('施設情報が不足しています');
+  }
+  if (info.nightStart >= info.nightEnd) {
+    throw new Error('夜間の開始時刻は終了時刻より前にしてください');
+  }
+  if (info.dayStart >= info.dayEnd) {
+    throw new Error('昼間の開始時刻は終了時刻より前にしてください');
+  }
+
+  // 1. 既存削除（夜間急患のみ、他種別は保持）
+  const { error: deleteError } = await supabaseAdmin
+    .from('emergency_rotations')
+    .delete()
+    .eq('source_month', sourceMonth)
+    .eq('rotation_type', 'night_emergency');
+
+  if (deleteError) {
+    throw new Error('既存夜間急患データの削除に失敗しました: ' + deleteError.message);
+  }
+
+  // 2. 月初〜月末の日付を生成
+  const [year, month] = sourceMonth.split('-').map(Number);
+  const lastDay = new Date(year, month, 0).getDate();
+  const records: Array<{
+    duty_date: string;
+    rotation_type: RotationType;
+    area: string;
+    department: null;
+    hospital_id: null;
+    facility_name: string;
+    phone: string;
+    start_time: string;
+    end_time: string;
+    note: string | null;
+    source_month: string;
+  }> = [];
+
+  for (let day = 1; day <= lastDay; day++) {
+    const date = new Date(year, month - 1, day);
+    const dateStr = `${sourceMonth}-${String(day).padStart(2, '0')}`;
+
+    // 夜間枠（365日）
+    records.push({
+      duty_date: dateStr,
+      rotation_type: 'night_emergency',
+      area: info.area,
+      department: null,
+      hospital_id: null,
+      facility_name: info.facilityName,
+      phone: info.phone,
+      start_time: info.nightStart,
+      end_time: info.nightEnd,
+      note: info.note ?? null,
+      source_month: sourceMonth,
+    });
+
+    // 昼間枠（日曜 + 祝日のみ）
+    if (isHolidayOrSunday(date)) {
+      records.push({
+        duty_date: dateStr,
+        rotation_type: 'night_emergency',
+        area: info.area,
+        department: null,
+        hospital_id: null,
+        facility_name: info.facilityName,
+        phone: info.phone,
+        start_time: info.dayStart,
+        end_time: info.dayEnd,
+        note: info.note ?? null,
+        source_month: sourceMonth,
+      });
+    }
+  }
+
+  // 3. バッチ INSERT
+  const { error: insertError } = await supabaseAdmin
+    .from('emergency_rotations')
+    .insert(records);
+
+  if (insertError) {
+    throw new Error('夜間急患データの生成に失敗しました: ' + insertError.message);
+  }
+
+  revalidatePath('/admin/emergency-rotations');
+  return { count: records.length };
+}
+
+/**
+ * 'HH:MM' または 'HH:MM:SS' を 'HH:MM:SS' に正規化
+ * Excel の time セルが Date オブジェクトで来ることもあるので考慮
+ */
+function normalizeTime(value: string): string {
+  if (!value) return '';
+  // 既に HH:MM:SS
+  if (/^\d{2}:\d{2}:\d{2}$/.test(value)) return value;
+  // HH:MM
+  if (/^\d{2}:\d{2}$/.test(value)) return `${value}:00`;
+  // H:MM や H:M も許容
+  const match = value.match(/^(\d{1,2}):(\d{1,2})(?::(\d{1,2}))?$/);
+  if (match) {
+    const h = match[1].padStart(2, '0');
+    const m = match[2].padStart(2, '0');
+    const s = (match[3] ?? '00').padStart(2, '0');
+    return `${h}:${m}:${s}`;
+  }
+  return value; // バリデーション側でエラーになる
+}
+
