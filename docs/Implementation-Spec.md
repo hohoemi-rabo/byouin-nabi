@@ -361,12 +361,6 @@ Phase 2.1 で `emergency_rotations` テーブル + 管理画面を追加。デ�
 | `POST` | `/api/admin/login` | 管理者ログイン（`ADMIN_PASSWORD` 検証 + Cookie 発行、httpOnly/secure/sameSite=strict、24h） |
 | `POST` | `/api/admin/logout` | Cookie 削除 |
 
-### 6.4 運用
-
-| メソッド | パス | 説明 |
-|---------|------|------|
-| `GET` | `/api/keepalive` | `?token=` で `KEEPALIVE_TOKEN` 検証。Supabase の自動停止防止用 cron 起動エンドポイント |
-
 ---
 
 ## 7. AI 機能仕様
@@ -581,9 +575,6 @@ GEMINI_API_KEY=...                       # サーバー専用
 # Google Maps
 GOOGLE_MAPS_API_KEY=...                  # サーバー用（Geocoding/Directions）
 NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=...      # クライアント用（地図表示）
-
-# 運用
-KEEPALIVE_TOKEN=...                      # Supabase keepalive 用
 ```
 
 ---
