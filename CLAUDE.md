@@ -87,6 +87,9 @@ GEMINI_API_KEY=...
 # Google Maps API（地図表示・ルート検索）
 GOOGLE_MAPS_API_KEY=...
 NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=...
+
+# Vercel Cron（Supabase スリープ防止 keepalive の認証）
+CRON_SECRET=...                        # `openssl rand -hex 32` で生成、Vercel に登録
 ```
 
 - `NEXT_PUBLIC_*`: クライアント側で必要な場合のみ

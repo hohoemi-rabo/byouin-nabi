@@ -361,6 +361,12 @@ Phase 2.1 で `emergency_rotations` テーブル + 管理画面を追加。デ�
 | `POST` | `/api/admin/login` | 管理者ログイン（`ADMIN_PASSWORD` 検証 + Cookie 発行、httpOnly/secure/sameSite=strict、24h） |
 | `POST` | `/api/admin/logout` | Cookie 削除 |
 
+### 6.4 運用
+
+| メソッド | パス | 説明 |
+|---------|------|------|
+| `GET` | `/api/keepalive` | Vercel Cron（1日1回）から呼ばれ、`hospitals` に件数クエリを投げて Supabase のスリープを防止。`Authorization: Bearer ${CRON_SECRET}` を検証 |
+
 ---
 
 ## 7. AI 機能仕様
@@ -575,6 +581,9 @@ GEMINI_API_KEY=...                       # サーバー専用
 # Google Maps
 GOOGLE_MAPS_API_KEY=...                  # サーバー用（Geocoding/Directions）
 NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=...      # クライアント用（地図表示）
+
+# Vercel Cron
+CRON_SECRET=...                          # keepalive 認証（Supabase スリープ防止）
 ```
 
 ---
